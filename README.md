@@ -20,3 +20,18 @@ Installation with visualization
  repository: 'github://andreina-covi/GrammaticalEvolution:master/src';
  load: #('all')
 ```
+
+----
+## Example:
+
+```Smalltalk
+| a |
+a := GEAssertion new seed: 245.
+a  testClasses:  {RSColoredTreePaletteTest};
+    targetClass: RSColoredTreePalette;
+    targetSelectors: #(#allLeavesAccessibleFrom:);
+    packageScope: 'Roassal3*';
+    folderToExport: '/tmp'.
+a run.
+a.
+```
