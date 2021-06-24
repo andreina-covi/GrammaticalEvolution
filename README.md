@@ -1,4 +1,5 @@
 # GrammaticalEvolution
+[![CI](https://github.com/andreina-covi/GrammaticalEvolution/actions/workflows/runTests.yml/badge.svg)](https://github.com/andreina-covi/GrammaticalEvolution/actions/workflows/runTests.yml)
 
 ## Installation
 
