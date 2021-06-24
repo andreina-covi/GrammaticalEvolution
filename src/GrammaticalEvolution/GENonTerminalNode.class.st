@@ -7,9 +7,9 @@ Class {
 { #category : #comparing }
 GENonTerminalNode >> = another [
 
-	^ super = another and: [ "]"
+	^  "]"
 		  id == another id and: [ 
-			  nodeChildren size == another nodeChildren size and: [ 
+			  nodeChildren size == another nodeChildren size and: [ "and: [ depth = other depth "
 				  | index |
 				  index := 1.
 				  nodeChildren
@@ -19,8 +19,7 @@ GENonTerminalNode >> = another [
 						  index := index + 1.
 						  found ]
 					  ifFound: [ :c | false ]
-					  ifNone: [ true ] ]
-			  "and: [ depth = other depth " ] ]
+					  ifNone: [ true ] ] ]
 ]
 
 { #category : #testing }

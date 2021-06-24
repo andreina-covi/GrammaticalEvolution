@@ -7,10 +7,10 @@ Class {
 { #category : #comparing }
 GETerminalValueNode >> = another [
 
-	^ super = another and: [ 
+	^ 
 		  id == another id and: [ 
 			  value = another value
-			  "and: [ depth == other depth ]" ] ]
+			  "and: [ depth == other depth ]" ]
 ]
 
 { #category : #testing }

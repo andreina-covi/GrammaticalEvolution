@@ -66,6 +66,15 @@ GENode >> codon: array [
 	codon := array
 ]
 
+{ #category : #'as yet unclassified' }
+GENode >> convertToTerminalValueNode [
+^ GETerminalValueNode  new
+		  id: id;
+		  type: RBLiteralNode;
+		  value: value;
+		  depth: depth
+]
+
 { #category : #copying }
 GENode >> deepCopy [
 

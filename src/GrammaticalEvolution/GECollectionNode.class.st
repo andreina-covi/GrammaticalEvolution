@@ -16,9 +16,9 @@ GECollectionNode class >> new: aNode [
 { #category : #comparing }
 GECollectionNode >> = another [
 
-	^ super = another and: [ "]"
+	^  "]"
 		  id == another id and: [ 
-			   size == another size and: [ 
+			  size == another size and: [ "and: [ depth == other depth "
 				  | index |
 				  index := 1.
 				  nodeChildren
@@ -28,8 +28,7 @@ GECollectionNode >> = another [
 						  index := index + 1.
 						  found ]
 					  ifFound: [ :c | false ]
-					  ifNone: [ true ] ]
-			  "and: [ depth == other depth " ] ]
+					  ifNone: [ true ] ] ]
 ]
 
 { #category : #copying }
