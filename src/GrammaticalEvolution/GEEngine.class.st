@@ -24,7 +24,7 @@ GEEngine >> configuration: object [
 GEEngine >> createInitialPopulation [
 
 	| i |
-	i := 0.self halt.
+	i := 0.
 	[ 
 	i < (configuration populationSize * 2) and: [ 
 		population size <= configuration populationSize ] ] whileTrue: [ 

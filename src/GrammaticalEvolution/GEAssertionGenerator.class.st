@@ -193,17 +193,23 @@ GEAssertionGenerator >> createIndividual [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
-	| c1 c2 crossoverPoint1 crossoverPoint2 |
+	| c1 c2 crossoverPoint1 crossoverPoint2 newC |
 	c1 := object1 codon.
 	c2 := object2 codon.
-	self assert: (c1 notNil and: [c2 notNil]).
+	self assert: (c1 notNil and: [ c2 notNil ]).
 	crossoverPoint1 := random randomlySelect:
 		                   (1 to: (c1 size / 2) asInteger).
 	crossoverPoint2 := random randomlySelect:
 		                   (1 to: (c2 size / 2) asInteger).
-	^ grammar
-		  nodeOfRule: #Method
-		  givenCodon: (c1 copyFrom: 1 to: crossoverPoint1) , (c2 copyFrom: crossoverPoint2 to: c2 size)
+	newC := grammar
+		        nodeOfRule: #Method
+		        givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
+			        , (c2 copyFrom: crossoverPoint2 to: c2 size).
+	newC ifNotNil: [ 
+		newC
+			addParent: object1;
+			addParent: object2 ].
+	^ newC
 ]
 
 { #category : #accessing }
@@ -246,8 +252,9 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> generations [ 
-	^ 10
+GEAssertionGenerator >> generations [
+
+	^ 4
 ]
 
 { #category : #initialization }
@@ -331,8 +338,9 @@ GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> populationSize [ 
-	^ 10
+GEAssertionGenerator >> populationSize [
+
+	^ 5
 ]
 
 { #category : #accessing }
