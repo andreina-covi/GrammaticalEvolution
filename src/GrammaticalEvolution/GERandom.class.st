@@ -38,3 +38,8 @@ GERandom >> randomlySelect: collection [
 GERandom >> seed: number [
 	random seed: number
 ]
+
+{ #category : #'as yet unclassified' }
+GERandom >> shuffleElementsOf: collection [
+	^ collection shuffleBy: random
+]

@@ -34,6 +34,16 @@ GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection [
 ]
 
 { #category : #adding }
+GEGrammar >> addNonTerminal: symbol withValues: collection [
+
+	self addRuleIfNecessary: symbol.
+	rules
+		at: symbol
+		ifPresent: [ :rule | rule addNonTerminal: (GENonTerminalNode new
+		  id: symbol) withOptions: collection ]
+]
+
+{ #category : #adding }
 GEGrammar >> addRuleIfNecessary: symbol [
 	rules at: symbol ifAbsentPut: [ GERuleOption new name: symbol ]
 ]
@@ -173,7 +183,15 @@ GEGrammar >> nodeOfRule: symbol given: integer [
 { #category : #'as yet unclassified' }
 GEGrammar >> nodeOfRule: symbol givenCodon: array [
 
-	^ self nodeOfRule: symbol givenCodon: array and: self defaultWrapsNumber
+	| node |
+	self assert: symbol isSymbol.
+	self assert: (array isCollection and: [array notEmpty]).
+	node := self
+		        nodeOfRule: symbol
+		        givenCodon: array
+		        and: self defaultWrapsNumber.
+	node ifNotNil: [ node codon: array ].
+	^ node
 ]
 
 { #category : #'as yet unclassified' }

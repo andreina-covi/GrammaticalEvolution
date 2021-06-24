@@ -22,6 +22,7 @@ Class {
 { #category : #adding }
 GEAssertionGenerator >> addGrammarOptions: dictionary [
 
+	grammar ifNil: [ self buildGrammar ].
 	dictionary associationsDo: [ :assoc | 
 		| a |
 		a := assoc key.
@@ -48,10 +49,12 @@ GEAssertionGenerator >> addTargetVariable [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> buildAssertionGrammar: collection of: class [
 
-	grammar := self buildGrammar.
+	grammar := self builtAssertionGrammar.
+
 	arguments ifEmpty: [ 
 		arguments := self collectArguments: class given: collection ].
-	self updateGrammarWithInstanceVars: class
+	self updateGrammarWithInstanceVars: class.
+	^ grammar
 ]
 
 { #category : #'as yet unclassified' }
@@ -63,27 +66,50 @@ GEAssertionGenerator >> buildGrammar [
 
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> builtAssertionGrammar [
-	^ GEGrammar new 
-		addNonTerminal: #Method ofType: RBMessageNode andSequence: #(#Variable #Message);
-		addNonTerminal: #Method ofType: RBMessageNode andSequence: #(#Variable #Message1 #Args1);
-		addNonTerminal: #Method ofType: RBMessageNode andSequence: #(#Variable #Satisfy #Message);
-		addNonTerminal: #Method ofType: RBMessageNode andSequence: #(#Variable #Comparison #Integer);
-		addNonTerminal: #Method ofType: RBMessageNode andSequence: #(#Method #And #Block);
-		addNonTerminal: #Block ofType: RBBlockNode andSequence: #(#Method);
-		addCollectionRule: #Args1 withOptions: #(#Class) andSize: 1;
-		addSelectorTerminal: #Message withValues: #(#isString #isInteger #isFloat #isNumber #isFinite #isCharacter
-			   #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			   #notEmpty #isNil #notNil #positive #negative #isPoint);
-		addSelectorTerminal: #Message1 withValues: #(#isKindOf: #isMemberOf:);
-		addSelectorTerminal: #Includes withValues: #(#includes:);
-		addSelectorTerminal: #Satisfy withValues: #(#allSatisfy: #noneSatisfy: #anySatisfy:);
-		addSelectorTerminal: #Comparison withValues: #(#= #== #> #< #<= #>=);
-		addSelectorTerminal: #And withValues: #(#and:);
-		addSelectorTerminal: #Not withValues: #(#not);
-		addTerminal: #Integer ofType: RBLiteralNode andValues: (-10 to: 10) asOrderedCollection;
-		addTerminal: #Class ofType: RBVariableNode andValues: #(#ByteString #Point #Character #Symbol #SmallInteger
-			   #Number #SmallFloat64 #Boolean #Collection #Array #BlockClosure
-			   #Dictionary #Set #OrderedCollection)
+
+	^ GEGrammar new
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
+		  andSequence: #( #Variable #Message );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
+		  andSequence: #( #Variable #Message1 #Args1 );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
+		  andSequence: #( #Variable #Satisfy #Message );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
+		  andSequence: #( #Variable #Comparison #Integer );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
+		  andSequence: #( #Method #And #Block );
+		  addNonTerminal: #Block
+		  ofType: RBBlockNode
+		  andSequence: #( #Method );
+		  addCollectionRule: #Args1 withOptions: #( #Class ) andSize: 1;
+		  addSelectorTerminal: #Message
+		  withValues:
+			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
+			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
+			     #notEmpty #isNil #notNil #positive #negative #isPoint );
+		  addSelectorTerminal: #Message1
+		  withValues: #( #isKindOf: #isMemberOf: );
+		  addSelectorTerminal: #Includes withValues: #( #includes: );
+		  addSelectorTerminal: #Satisfy
+		  withValues: #( #allSatisfy: #noneSatisfy: #anySatisfy: );
+		  addSelectorTerminal: #Comparison
+		  withValues: #( #= #== #> #< #<= #>= );
+		  addSelectorTerminal: #And withValues: #( #and: );
+		  addSelectorTerminal: #Not withValues: #( #not );
+		  addTerminal: #Integer
+		  ofType: RBLiteralNode
+		  andValues: (-10 to: 10) asOrderedCollection;
+		  addTerminal: #Class
+		  ofType: RBVariableNode
+		  andValues:
+			  #( #ByteString #Point #Character #Symbol #SmallInteger
+			     #Number #SmallFloat64 #Boolean #Collection #Array #BlockClosure
+			     #Dictionary #Set #OrderedCollection ) asOrderedCollection 
 ]
 
 { #category : #accessing }
@@ -154,13 +180,30 @@ GEAssertionGenerator >> createIndividual [
 	self updateGrammar.
 	i := 0.
 	node := nil.
-	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
-		| codon codonSize |
+	[ node isNotNil or: [ i > 50 ] ] whileFalse: [ 
+		| codonSize codon |
 		codonSize := random randomNumberFrom: 5 to: 10.
 		codon := (1 to: codonSize) collect: [ :n | random randomNumber: 500 ].
 		node := grammar nodeOfRule: #Method givenCodon: codon.
 		i := i + 1 ].
+	"node ifNotNil: [ node codon: codon ]."
 	^ node
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
+
+	| c1 c2 crossoverPoint1 crossoverPoint2 |
+	c1 := object1 codon.
+	c2 := object2 codon.
+	self assert: (c1 notNil and: [c2 notNil]).
+	crossoverPoint1 := random randomlySelect:
+		                   (1 to: (c1 size / 2) asInteger).
+	crossoverPoint2 := random randomlySelect:
+		                   (1 to: (c2 size / 2) asInteger).
+	^ grammar
+		  nodeOfRule: #Method
+		  givenCodon: (c1 copyFrom: 1 to: crossoverPoint1) , (c2 copyFrom: crossoverPoint2 to: c2 size)
 ]
 
 { #category : #accessing }
@@ -202,6 +245,11 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 	^ individual fitness
 ]
 
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> generations [ 
+	^ 10
+]
+
 { #category : #initialization }
 GEAssertionGenerator >> initialize [
 
@@ -230,11 +278,61 @@ GEAssertionGenerator >> injectIntoMethod: code [
 	targetClass compile: rbMethodNode printString notifying: nil
 ]
 
+{ #category : #testing }
+GEAssertionGenerator >> isBetter: object1 than: object2 [
+
+	^ object1 fitness < object2 fitness
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> mutate: object1 [
+	^ object1 
+]
+
 { #category : #accessing }
 GEAssertionGenerator >> options: collection [
 
 	self assert: (collection isCollection and: [ collection notEmpty ]).
 	options := collection 
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> pickBestConsideringParents: individual [
+
+	| col |
+	individual parents ifEmpty: [ ^ individual ].
+	col := (random shuffleElementsOf: individual parents) sort: [ 
+		       :i1 
+		       :i2 | i1 fitness < i2 fitness ].
+	^ col first fitness < individual fitness
+		  ifTrue: [ 
+			  | indiv |
+			  indiv := col first deepCopy.
+			  indiv addParent: col first.
+			  indiv ]
+		  ifFalse: [ individual ]
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
+
+	| newInd parent |
+	parent := object1 fitness < object2 fitness
+		          ifTrue: [ object1 ]
+		          ifFalse: [ 
+			          object2 fitness < object1 fitness
+				          ifTrue: [ object2 ]
+				          ifFalse: [ 
+				          random randomlySelect:
+					          (Array with: object1 with: object2) ] ].
+	newInd := parent deepCopy.
+	newInd addParent: parent.
+	^ newInd
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> populationSize [ 
+	^ 10
 ]
 
 { #category : #accessing }
@@ -243,10 +341,47 @@ GEAssertionGenerator >> randomIterations: anObject [
 	randomIterations := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> randomNumber: number [
+	^ random randomNumber: number
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> randomlySelect: collection [
+
+	^ random randomlySelect: collection
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> rankedIndividuals: collection [
+
+	^ (collection collect: [ :obj | 
+		   obj -> (self fitnessValueOf: obj) ]) asSortedCollection: [ 
+		  :assoc1 
+		  :assoc2 | assoc1 value < assoc2 value ]
+]
+
+{ #category : #'instance creation' }
+GEAssertionGenerator >> seed: number [
+	random seed: number
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> sortIndividuals: collection [
+
+	^ collection asSortedCollection: [ :indiv1 :indiv2 | 
+		  indiv1 fitness < indiv2 fitness ]
+]
+
 { #category : #accessing }
 GEAssertionGenerator >> targetClass: anObject [
 
 	targetClass := anObject
+]
+
+{ #category : #accessing }
+GEAssertionGenerator >> targetSelector [
+	^ targetSelector 
 ]
 
 { #category : #accessing }

@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : #accessing }
+GEEngine >> configuration [
+	^ configuration
+]
+
+{ #category : #accessing }
 GEEngine >> configuration: object [
 	self assert: object notNil.
 	configuration := object
@@ -18,15 +23,24 @@ GEEngine >> configuration: object [
 { #category : #'as yet unclassified' }
 GEEngine >> createInitialPopulation [
 
-	population := (1 to: configuration populationSize) collect: [ :i | 
-		              configuration createIndividual ]
+	| i |
+	i := 0.self halt.
+	[ 
+	i < (configuration populationSize * 2) and: [ 
+		population size <= configuration populationSize ] ] whileTrue: [ 
+		| indiv |
+		"(1 to: configuration populationSize) collect: [ :i | "
+		indiv := configuration createIndividual.
+		indiv ifNotNil: [ population add: indiv ].
+		i := i + 1 ]
 ]
 
 { #category : #'as yet unclassified' }
 GEEngine >> createNewGeneration [
 
 	| newPopulation |
-	self pickBestIndividual fitness shouldTerminate ifTrue: [ ^ self ].
+	self pickBestIndividual fitness shouldTerminate ifTrue: [ 
+		^ self ].
 	newPopulation := self pickEliteOfPopulation.
 	population size - newPopulation size timesRepeat: [ 
 		| randomNumber parent newIndiv indiv i1 i2 |
@@ -52,6 +66,7 @@ GEEngine >> createNewGeneration [
 
 { #category : #'as yet unclassified' }
 GEEngine >> fitnessValueOf: individual [
+
 	^ configuration fitnessValueOf: individual
 ]
 
@@ -69,8 +84,9 @@ GEEngine >> logs [
 ]
 
 { #category : #'as yet unclassified' }
-GEEngine >> pickBestIndividual [ 
-	^ self sortedIndividuals first key
+GEEngine >> pickBestIndividual [
+
+	^ self sortedIndividuals first
 ]
 
 { #category : #'as yet unclassified' }
@@ -88,39 +104,41 @@ GEEngine >> pickEliteOfPopulation [
 GEEngine >> rankedIndividuals [
 
 	^ configuration rankedIndividuals: population
-	"	^ (population collect: [ :i | i -> (self fitnessValueOf: i) ]) 
-		  asSortedCollection: [ :assoc1 :assoc2 | 
-		  assoc1 value < assoc2 value ]"
+]
+
+{ #category : #'as yet unclassified' }
+GEEngine >> rankedIndividuals: collection [
+
+	^ configuration rankedIndividuals: collection
 ]
 
 { #category : #running }
 GEEngine >> run [
 
-	| ranked block i log continue |
+	| ranked block log |
 	self createInitialPopulation.
+	(population allSatisfy: #notNil) ifFalse: [ ^ self ].
 	ranked := self rankedIndividuals.
-	i := 0.
-	block := [ :col :number | 
+	block := [ :col :rank :number | 
 	         GELog new
 		         population: col copy;
 		         generation: number;
-		         bestFitnessValue: col first value;
-		         worstFitnessValue: col last value;
+		         bestFitnessValue: rank first value;
+		         worstFitnessValue: rank last value;
 		         averageFitnessValue:
-			         (col at: (col size / 2) asInteger) value ].
-	logs add: (block value: ranked value: i).
-	i := i + 1.
-	continue := false.
-	[ i <= configuration generations and: [ continue ] ] whileTrue: [ 
+			         (rank at: (rank size / 2) asInteger) value ].
+	logs add: (block value: population value: ranked value: 0).
+	(1 to: configuration generations) do: [ :gen | 
 		| individuals |
 		self createNewGeneration.
 		(population allSatisfy: #notNil) ifFalse: [ 
 			self error: 'error to create new population' ].
 		individuals := self rankedIndividuals.
-		log := block value: individuals value: i.
+		log := block value: population value: individuals value: gen.
 		logs add: log.
-		continue := (self fitnessValueOf: individuals first) shouldTerminate
-			            not ]
+		individuals first value shouldTerminate ifTrue: [ ^ self ] ] 
+	displayingProgress: [ :gen | 
+		'Evolving generation ', gen printString ]
 ]
 
 { #category : #accessing }
@@ -139,9 +157,6 @@ GEEngine >> selectionDiscarding: object [
 GEEngine >> sortedIndividuals [
 
 	^ configuration sortIndividuals: population
-	"^ (population collect: [ :i | i -> i fitness ]) asSortedCollection: [ 
-		  :assoc1 
-		  :assoc2 | assoc1 value < assoc2 value ]"
 ]
 
 { #category : #accessing }
@@ -152,9 +167,9 @@ GEEngine >> tournament [
 	k := 4.
 	k timesRepeat: [ 
 		| indiv |
-		indiv := configuration randomElementOf: population.
-		(best isNil or: [ configuration isBetter: indiv than: best ]) ifTrue: [ 
-			best := indiv ] ].
+		indiv := configuration randomlySelect: population.
+		(best isNil or: [ configuration isBetter: indiv than: best ]) 
+			ifTrue: [ best := indiv ] ].
 	^ best
 ]
 
@@ -165,16 +180,17 @@ GEEngine >> tournamentDiscarding: individual [
 	best := nil.
 	k := 4.
 	size := configuration populationSize.
-	m := size > k 
-	ifTrue: [ k ] ifFalse: [ size - 1 ].
+	m := size > k
+		     ifTrue: [ k ]
+		     ifFalse: [ size - 1 ].
 	i := j := 0.
-	[ i < m and: [ j <50 ]] whileTrue: [ 
+	[ i < m and: [ j < 50 ] ] whileTrue: [ 
 		| indiv |
-		indiv := configuration randomElementOf: population.
-		individual = indiv ifFalse: [
+		indiv := configuration randomlySelect: population.
+		individual = indiv ifFalse: [ 
 			i := i + 1.
-		(best isNil or: [ configuration isBetter: indiv than: best ]) 
-			ifTrue: [ best := indiv ] ].
+			(best isNil or: [ configuration isBetter: indiv than: best ]) 
+				ifTrue: [ best := indiv ] ].
 		j := j + 1 ].
 	best ifNil: [ best := self tournament ].
 	^ best

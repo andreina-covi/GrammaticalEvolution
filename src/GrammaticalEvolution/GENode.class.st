@@ -7,7 +7,12 @@ Class {
 		'type',
 		'nodeChildren',
 		'depth',
-		'fitness'
+		'fitness',
+		'parents',
+		'children',
+		'position',
+		'codon',
+		'generation'
 	],
 	#category : #'GrammaticalEvolution-AST'
 }
@@ -23,6 +28,55 @@ GENode >> = another [
 					  nodeChildren = another nodeChildren ] ] ] ]
 ]
 
+{ #category : #adding }
+GENode >> addChild: aNode [
+
+	self assert: aNode notNil.
+	children add: aNode
+]
+
+{ #category : #adding }
+GENode >> addParent: aNode [
+
+	parents add: aNode.
+	aNode addChild: self
+]
+
+{ #category : #accessing }
+GENode >> allParents [
+
+	| col |
+	col := OrderedCollection new.
+	self allParents: self on: col using: Set new.
+	^ col
+]
+
+{ #category : #accessing }
+GENode >> allParents: node on: collection using: set [
+
+	node parents
+		reject: [ :obj | set includes: obj generation -> obj position ]
+		thenDo: [ :obj | 
+			set add: obj generation -> obj position.
+			collection add: obj.
+			self allParents: obj on: collection using: set ]
+]
+
+{ #category : #accessing }
+GENode >> children [
+	^ children
+]
+
+{ #category : #accessing }
+GENode >> codon [
+	^ codon
+]
+
+{ #category : #accessing }
+GENode >> codon: array [
+	codon := array
+]
+
 { #category : #copying }
 GENode >> deepCopy [
 
@@ -30,7 +84,8 @@ GENode >> deepCopy [
 		  id: id;
 		  type: type;
 		  value: value;
-		  nodeChildren: (nodeChildren collect: #deepCopy)
+		  nodeChildren: (nodeChildren collect: #deepCopy);
+		codon: codon copy
 ]
 
 { #category : #accessing }
@@ -63,6 +118,16 @@ GENode >> fitness: anObject [
 ]
 
 { #category : #accessing }
+GENode >> generation [
+	^ generation
+]
+
+{ #category : #accessing }
+GENode >> generation: number [
+	generation := number
+]
+
+{ #category : #accessing }
 GENode >> id [
 
 	^ id
@@ -78,7 +143,10 @@ GENode >> id: anObject [
 GENode >> initialize [
 
 	nodeChildren := OrderedCollection new.
-	depth := 0
+	depth := 0.
+	parents := OrderedCollection new.
+	children := OrderedCollection new.
+	position := 0
 ]
 
 { #category : #testing }
@@ -115,6 +183,11 @@ GENode >> nodeChildren: anObject [
 	nodeChildren := anObject
 ]
 
+{ #category : #accessing }
+GENode >> parents [ 
+	^ parents
+]
+
 { #category : #conversion }
 GENode >> pharoAST [
 
@@ -136,6 +209,16 @@ GENode >> pharoAST: visitor [
 GENode >> pharoCode [
 
 	^ self pharoAST formattedCode
+]
+
+{ #category : #accessing }
+GENode >> position [
+	^ position
+]
+
+{ #category : #accessing }
+GENode >> position: number [
+	position := number
 ]
 
 { #category : #printing }
@@ -164,4 +247,24 @@ GENode >> value [
 GENode >> value: anObject [
 
 	value := anObject
+]
+
+{ #category : #'as yet unclassified' }
+GENode >> withAllChildren [
+
+	| c |
+	c := OrderedCollection new.
+	c add: self.
+	self withAllChildren: c.
+	^ c
+]
+
+{ #category : #'as yet unclassified' }
+GENode >> withAllChildren: collection [
+
+	"Private usage"
+
+	nodeChildren do: [ :c | 
+		collection add: c.
+		c withAllChildren: collection ]
 ]

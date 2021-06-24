@@ -46,15 +46,15 @@ GEAssertion >> addOptions: collection at: object [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertion >> calculateCallsNumber: selector given: configuration [
+GEAssertion >> calculateCallsNumber: tSelector given: configuration [
 
 	| originalMethod aBehavior calls |
 	self assert:
 		(testClasses notEmpty and: [ testClasses allSatisfy: #isClass ]).
 	self assert: targetClass isClass.
 	aBehavior := targetClass instanceSide.
-	originalMethod := aBehavior compiledMethodAt: selector.
-	[ self injectInto: selector given: originalMethod ]
+	originalMethod := aBehavior compiledMethodAt: tSelector.
+	[ self injectInto: tSelector given: originalMethod ]
 		on: Exception
 		do: [ self cleanMethod: originalMethod ].
 	calls := 0.
@@ -64,11 +64,11 @@ GEAssertion >> calculateCallsNumber: selector given: configuration [
 		selectors := testClass allTestSelectors.
 		selectors do: [ :s | 
 			(testClass buildSuiteFromMethods: (Array with: s)) run.
-			(GECounter instance occurrencesOf: s) > 0 ifTrue: [ 
+			(GECounter instance occurrencesOf: tSelector) > 0 ifTrue: [ 
 				calls := calls + 1.
 				GECounter reset ] ] ].
 	metrics at: 'callsNumber' ifAbsentPut: [ Dictionary new ].
-	(metrics at: 'callsNumber') at: selector put: calls.
+	(metrics at: 'callsNumber') at: tSelector put: calls.
 	configuration callsNumber: calls.
 	self cleanMethod: originalMethod
 ]
@@ -235,14 +235,19 @@ GEAssertion >> exportResultsOfData [
 		self exportResult: engine on: filename ]
 ]
 
+{ #category : #accessing }
+GEAssertion >> folderToExport: string [
+
+	self assert: (string isString and: [ string notEmpty ]).
+	folderToExport := string
+]
+
 { #category : #'as yet unclassified' }
 GEAssertion >> getBestIndividual: configuration [
 
 	| engine |
-	engine := GEEngine
-		          new
-		          configuration: configuration.
-	engine execute.
+	engine := GEEngine new configuration: configuration.
+	engine run.
 	^ engine
 ]
 
@@ -284,7 +289,9 @@ GEAssertion >> initialize [
 	options := Dictionary new.
 	seed := 1.
 	random := GERandom seed: seed.
-	folderToExport := ''
+	folderToExport := ''.
+	randomIterationNumber := 100.
+	contextBlocks := OrderedCollection new
 ]
 
 { #category : #'as yet unclassified' }
@@ -378,10 +385,31 @@ GEAssertion >> selectPackageClasses: regex [
 ]
 
 { #category : #accessing }
+GEAssertion >> targetClass: aClass [
+
+	self assert: aClass isClass.
+	targetClass := aClass
+]
+
+{ #category : #accessing }
 GEAssertion >> targetSelectors [
 
 	targetSelectors ifEmpty: [ 
 		targetSelectors := targetClass selectors select: [ :s | 
 			                   s numArgs > 0 ] ].
 	^ targetSelectors
+]
+
+{ #category : #accessing }
+GEAssertion >> targetSelectors: collection [
+
+	self assert: (collection isCollection and: [ collection notEmpty ]).
+	targetSelectors := collection
+]
+
+{ #category : #accessing }
+GEAssertion >> testClasses: classes [
+
+	self assert: (classes notEmpty and: [ classes allSatisfy: #isClass ]).
+	testClasses := classes
 ]

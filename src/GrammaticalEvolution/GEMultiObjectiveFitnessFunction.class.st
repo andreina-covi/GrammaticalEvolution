@@ -60,6 +60,11 @@ GEMultiObjectiveFitnessFunction >> objectiveAt: string put: aNumber [
 	dictObjective at: string put: aNumber
 ]
 
+{ #category : #accessing }
+GEMultiObjectiveFitnessFunction >> objectives [ 
+	^ dictObjective associations
+]
+
 { #category : #printing }
 GEMultiObjectiveFitnessFunction >> printOn: stream [
 

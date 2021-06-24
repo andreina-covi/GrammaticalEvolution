@@ -18,6 +18,13 @@ GERuleOption >> addCollectionNode: node withOptions: collection [
 ]
 
 { #category : #adding }
+GERuleOption >> addNonTerminal: node withOptions: collection [
+
+	collection do: [:obj | options add: obj.
+	infoOptions add: 'nonTerminal' -> obj ]
+]
+
+{ #category : #adding }
 GERuleOption >> addNonTerminalNode: node withSequence: collection [
 
 	self assert: (node notNil and: [ node class == GENonTerminalNode ]).
@@ -62,7 +69,9 @@ GERuleOption >> infoOptionsAt: index [
 
 { #category : #'as yet unclassified' }
 GERuleOption >> infoOptionsOf: string [
-	^ infoOptions select: [ :assoc | assoc key = string ]
+
+	^ infoOptions select: [ :assoc | assoc key = string ] 
+	thenCollect: #value
 ]
 
 { #category : #initialization }
