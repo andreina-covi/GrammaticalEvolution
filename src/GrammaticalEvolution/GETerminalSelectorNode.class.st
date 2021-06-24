@@ -4,6 +4,15 @@ Class {
 	#category : #'GrammaticalEvolution-AST'
 }
 
+{ #category : #comparing }
+GETerminalSelectorNode >> = another [
+
+	^ super = another and: [ 
+		   id == another id and: [ 
+			  value = another value
+			  "and: [ depth == other depth ]" ] ]
+]
+
 { #category : #'public access' }
 GETerminalSelectorNode >> evaluate [ 
 	^ [ super evaluate ] on: Error do: [ self value ]

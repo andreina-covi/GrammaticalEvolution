@@ -4,6 +4,15 @@ Class {
 	#category : #'GrammaticalEvolution-AST'
 }
 
+{ #category : #comparing }
+GETerminalValueNode >> = another [
+
+	^ super = another and: [ 
+		  id == another id and: [ 
+			  value = another value
+			  "and: [ depth == other depth ]" ] ]
+]
+
 { #category : #testing }
 GETerminalValueNode >> isTerminalValueNode [ 
 	^ true

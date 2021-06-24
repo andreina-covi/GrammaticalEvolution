@@ -17,17 +17,6 @@ Class {
 	#category : #'GrammaticalEvolution-AST'
 }
 
-{ #category : #comparing }
-GENode >> = another [
-
-
-	^ self class = another class and: [ 
-		  id == another id and: [ 
-			  type == another type and: [ 
-				  self value = another value and: [ 
-					  nodeChildren = another nodeChildren ] ] ] ]
-]
-
 { #category : #adding }
 GENode >> addChild: aNode [
 
@@ -98,6 +87,16 @@ GENode >> depth [
 GENode >> depth: anObject [
 
 	depth := anObject
+]
+
+{ #category : #comparing }
+GENode >> equal: another [
+
+	^ self class = another class and: [ 
+		  id == another id and: [ 
+			  type == another type and: [ 
+				  self value = another value and: [ 
+					  nodeChildren = another nodeChildren  ] ] ] ]
 ]
 
 { #category : #'public access' }

@@ -307,10 +307,9 @@ GEAssertionGenerator >> options: collection [
 GEAssertionGenerator >> pickBestConsideringParents: individual [
 
 	| col |
-	individual parents ifEmpty: [ ^ individual ].
-	col := (random shuffleElementsOf: individual parents) sort: [ 
-		       :i1 
-		       :i2 | i1 fitness < i2 fitness ].
+	self assert: individual parents notEmpty.
+	col := (random shuffleElementsOf: individual parents) sort: [ :i1 :i2 | 
+		       i1 fitness < i2 fitness ].
 	^ col first fitness < individual fitness
 		  ifTrue: [ 
 			  | indiv |
