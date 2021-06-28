@@ -186,7 +186,6 @@ GEAssertionGenerator >> createIndividual [
 		codon := (1 to: codonSize) collect: [ :n | random randomNumber: 500 ].
 		node := grammar nodeOfRule: #Method givenCodon: codon.
 		i := i + 1 ].
-	"node ifNotNil: [ node codon: codon ]."
 	^ node
 ]
 
@@ -194,13 +193,13 @@ GEAssertionGenerator >> createIndividual [
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
 	| c1 c2 crossoverPoint1 crossoverPoint2 newC |
-	c1 := object1 codon.
-	c2 := object2 codon.
+	c1 := object1 allCodonValues.
+	c2 := object2 allCodonValues.
 	self assert: (c1 notNil and: [ c2 notNil ]).
 	crossoverPoint1 := random randomlySelect:
-		                   (1 to: (c1 size / 2) asInteger).
+		                   (1 to: c1 size).
 	crossoverPoint2 := random randomlySelect:
-		                   (1 to: (c2 size / 2) asInteger).
+		                   (1 to: c2 size).
 	newC := grammar
 		        nodeOfRule: #Method
 		        givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
@@ -254,7 +253,7 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> generations [
 
-	^ 4
+	^ 15
 ]
 
 { #category : #initialization }
@@ -339,7 +338,7 @@ GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> populationSize [
 
-	^ 5
+	^ 30
 ]
 
 { #category : #accessing }

@@ -119,6 +119,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon [
 					  id: #E;
 					  type: RBLiteralNode;
 					  value: 8)).
+	self assertCollection: node allCodonValues hasSameElements: #( 8 5 6 7 7 11 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '3 - 8').
@@ -150,6 +151,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon2 [
 					  id: #F;
 					  type: RBLiteralNode;
 					  value: 8)).
+	self assertCollection: node allCodonValues hasSameElements: #( 8 5 6 7 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '6 + 8').
@@ -178,14 +180,14 @@ GEGrammarTest >> testNodeOfRuleGivenCodon3 [
 			 with: (GETerminalSelectorNode new
 					  id: #Op;
 					  value: #+)
-			with: (GECollectionNode new 
-				id: #C;
-				size: 1;
-				nodeChildren: (Array
-			 with: (GETerminalValueNode new
-					  id: #F;
-					  type: RBLiteralNode;
-					  value: 8)))).
+			 with: (GECollectionNode new
+					  id: #C;
+					  size: 1;
+					  nodeChildren: (Array with: (GETerminalValueNode new
+									    id: #F;
+									    type: RBLiteralNode;
+									    value: 8)))).
+	self assertCollection: node allCodonValues hasSameElements: #( 8 5 6 7 7 11 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '6 + 8').

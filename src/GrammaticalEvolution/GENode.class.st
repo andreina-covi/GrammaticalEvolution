@@ -17,6 +17,15 @@ Class {
 	#category : #'GrammaticalEvolution-AST'
 }
 
+{ #category : #comparing }
+GENode >> = another [
+
+	^ (another isKindOf: GENode) and: [ 
+			(generation notNil and: [ position notNil ]) 
+			ifTrue: [ generation = another generation and: [ position = another position ] ] 
+			ifFalse: [ true ] ]
+]
+
 { #category : #adding }
 GENode >> addChild: aNode [
 
@@ -25,10 +34,33 @@ GENode >> addChild: aNode [
 ]
 
 { #category : #adding }
+GENode >> addCodonValue: number [
+	self assert: number isInteger.
+	codon add: number
+]
+
+{ #category : #adding }
 GENode >> addParent: aNode [
 
 	parents add: aNode.
 	aNode addChild: self
+]
+
+{ #category : #accessing }
+GENode >> allCodonValues [
+
+	| col |
+	col := OrderedCollection newFrom: codon.
+	self allCodonValues: col.
+	^ col
+]
+
+{ #category : #accessing }
+GENode >> allCodonValues: collection [
+	
+	nodeChildren do: [ :child | 
+		collection addAll: child codon.
+		child allCodonValues: collection ]
 ]
 
 { #category : #accessing }
@@ -58,12 +90,14 @@ GENode >> children [
 
 { #category : #accessing }
 GENode >> codon [
+
 	^ codon
 ]
 
 { #category : #accessing }
-GENode >> codon: array [
-	codon := array
+GENode >> codon: collection [
+
+	codon := collection
 ]
 
 { #category : #'as yet unclassified' }
@@ -154,7 +188,8 @@ GENode >> initialize [
 	depth := 0.
 	parents := OrderedCollection new.
 	children := OrderedCollection new.
-	position := 0
+	position := 0.
+	codon := OrderedCollection new
 ]
 
 { #category : #testing }

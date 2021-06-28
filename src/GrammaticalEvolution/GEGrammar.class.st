@@ -82,16 +82,20 @@ GEGrammar >> collection: object given: options codon: array depth: integer stack
 
 	| children |
 	children := (1 to: object size) collect: [ :n | 
+		            | codonValue |
 		            self validate: stack given: array and: wrapStack.
+		            codonValue := stack pop.
+		            object addCodonValue: codonValue.
 		            self
-			            nodeOfRule: (options at: stack pop \\ options size + 1)
+			            nodeOfRule:
+			            (options at: codonValue \\ options size + 1)
 			            givenCodon: array
 			            depth: integer + 1
 			            stack: stack
 			            and: wrapStack ].
-	^ object
-		depth: integer;
-		nodeChildren: children
+	^ (children allSatisfy: #notNil) ifTrue: [  object
+		  depth: integer;
+		  nodeChildren: children ] ifFalse: [ nil ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -185,12 +189,12 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array [
 
 	| node |
 	self assert: symbol isSymbol.
-	self assert: (array isCollection and: [array notEmpty]).
+	self assert: (array isCollection and: [ array notEmpty ]).
 	node := self
 		        nodeOfRule: symbol
 		        givenCodon: array
 		        and: self defaultWrapsNumber.
-	node ifNotNil: [ node codon: array ].
+	"node ifNotNil: [ node codon: array ]."
 	^ node
 ]
 
@@ -208,20 +212,24 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array depth: integer stack: stack an
 
 	self validate: stack given: array and: wrapStack.
 	^ [ 
-	  | rule index assoc object |
+	  | rule index assoc object codonValue |
 	  rule := rules at: symbol.
-	  index := stack pop \\ rule optionsSize + 1.
+	  codonValue := stack pop.
+	  index := codonValue \\ rule optionsSize + 1.
 	  assoc := rule optionAndInfoAt: index.
 	  object := assoc value.
+	  object addCodonValue: codonValue.
 	  ((#( 'nonTerminal' 'collection' ) includes: assoc key) not and: [ 
 		   object value isNil ]) ifTrue: [ 
 		  | options |
 		  self validate: stack given: array and: wrapStack.
 		  options := rule infoOptionsAt: index.
+		  codonValue := stack pop.
 		  assoc := assoc key
 		           ->
-		           (object value:
-			            (options at: stack pop \\ options size + 1)) ].
+		           (object addCodonValue: codonValue;
+							value:
+			            (options at: codonValue \\ options size + 1)) ].
 	  self
 		  node: assoc
 		  given: ([ rule infoOptionsAt: index ]
@@ -236,31 +244,29 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array depth: integer stack: stack an
 ]
 
 { #category : #'as yet unclassified' }
-GEGrammar >> nonTerminal: object
-				  given: array
-				  depth: integer
+GEGrammar >> nonTerminal: object given: array depth: integer stack: stack and: wrapStack [
+
+	^ object class == GENonTerminalNode
+		  ifTrue: [ 
+			  | children |
+			  children := object nodeChildren collect: [ :symbol | 
+				              self
+					              nodeOfRule: symbol
+					              givenCodon: array
+					              depth: integer + 1
+					              stack: stack
+					              and: wrapStack ].
+			  (children allSatisfy: #notNil) ifTrue: [   
+			  object
+				  depth: integer;
+				  nodeChildren: children ] ifFalse: [ nil ] ]
+		  ifFalse: [ 
+			  self
+				  nodeOfRule: object
+				  givenCodon: array
+				  depth: integer + 1
 				  stack: stack
-				  and: wrapStack [
-		^	  object class == GENonTerminalNode
-				  ifTrue: [ 
-					  | children |
-					  children := object nodeChildren collect: [ :symbol | 
-						              self
-							              nodeOfRule: symbol
-							              givenCodon: array
-							              depth: integer + 1
-							              stack: stack
-							              and: wrapStack ].
-					  object
-						  depth: integer;
-						  nodeChildren: children ]
-				  ifFalse: [ 
-					  self
-						  nodeOfRule: object
-						  givenCodon: array
-						  depth: integer + 1
-						  stack: stack
-						  and: wrapStack ]
+				  and: wrapStack ]
 ]
 
 { #category : #'as yet unclassified' }
