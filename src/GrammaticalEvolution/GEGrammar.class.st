@@ -194,7 +194,7 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array [
 		        nodeOfRule: symbol
 		        givenCodon: array
 		        and: self defaultWrapsNumber.
-	"node ifNotNil: [ node codon: array ]."
+	node ifNotNil: [ node genome: array ].
 	^ node
 ]
 

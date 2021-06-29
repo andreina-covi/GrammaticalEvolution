@@ -20,6 +20,12 @@ GETerminalValueNode >> isTerminalValueNode [
 { #category : #printing }
 GETerminalValueNode >> printOn: aStream [
 
-	aStream nextPutAll:
-		(value ifNotNil: [ value asString ] ifNil: [ id asString ])
+	| string |
+	[ 
+	string := self pharoCode.
+	aStream nextPutAll: string ]
+		on: Exception
+		do: [ 
+			aStream nextPutAll:
+				(value ifNotNil: [ value asString ] ifNil: [ id asString ]) ]
 ]

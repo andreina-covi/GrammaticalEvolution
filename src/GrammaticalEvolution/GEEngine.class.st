@@ -39,13 +39,12 @@ GEEngine >> createInitialPopulation [
 GEEngine >> createNewGeneration [
 
 	| newPopulation |
-	self pickBestIndividual fitness shouldTerminate ifTrue: [ 
-		^ self ].
+	self pickBestIndividual fitness shouldTerminate ifTrue: [ ^ self ].
 	newPopulation := self pickEliteOfPopulation.
 	population size - newPopulation size timesRepeat: [ 
 		| randomNumber parent newIndiv indiv i1 i2 |
 		randomNumber := configuration randomNumber: 100.
-		randomNumber <= 90
+		randomNumber <= self crossoverProbability
 			ifTrue: [ 
 				i1 := self selection.
 				i2 := self selectionDiscarding: i1.
@@ -55,13 +54,24 @@ GEEngine >> createNewGeneration [
 			ifFalse: [ 
 				parent := self selection.
 				newIndiv := parent deepCopy.
-				newIndiv addParent: parent ].
-		randomNumber := configuration randomNumber: 2.
-		randomNumber <= 1 ifTrue: [ configuration mutate: newIndiv ].
-		self fitnessValueOf: newIndiv.
-		indiv := configuration pickBestConsideringParents: newIndiv.
-		newPopulation add: indiv ].
+				newIndiv
+					addParent: parent;
+					genome: parent genome copy].
+		"randomNumber := configuration randomNumber: 2.
+		randomNumber <= 1 ifTrue: [ configuration mutate: newIndiv given: self mutationProbability ]."
+		newIndiv := configuration
+			            mutate: newIndiv
+			            given: self mutationProbability.
+		newIndiv ifNotNil: [ 
+			self fitnessValueOf: newIndiv.
+			indiv := configuration pickBestConsideringParents: newIndiv.
+			newPopulation add: indiv ] ].
 	population := newPopulation
+]
+
+{ #category : #'as yet unclassified' }
+GEEngine >> crossoverProbability [
+	^ 90
 ]
 
 { #category : #'as yet unclassified' }
@@ -84,17 +94,25 @@ GEEngine >> logs [
 ]
 
 { #category : #'as yet unclassified' }
+GEEngine >> mutationProbability [
+	^ 5
+]
+
+{ #category : #'as yet unclassified' }
 GEEngine >> pickBestIndividual [
 
 	^ self sortedIndividuals first
 ]
 
 { #category : #'as yet unclassified' }
-GEEngine >> pickEliteOfPopulation [ 
+GEEngine >> pickEliteOfPopulation [
+
 	| individual copy |
 	individual := self pickBestIndividual.
 	copy := individual deepCopy.
-	copy addParent: individual.
+	copy
+		addParent: individual;
+		genome: individual genome copy.
 	^ OrderedCollection new
 		  add: copy;
 		  yourself

@@ -91,7 +91,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  withValues:
 			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
 			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			     #notEmpty #isNil #notNil #positive #negative #isPoint );
+			     #notEmpty #isNil #notNil #positive #negative #isPoint ) asOrderedCollection;
 		  addSelectorTerminal: #Message1
 		  withValues: #( #isKindOf: #isMemberOf: );
 		  addSelectorTerminal: #Includes withValues: #( #includes: );
@@ -109,7 +109,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  andValues:
 			  #( #ByteString #Point #Character #Symbol #SmallInteger
 			     #Number #SmallFloat64 #Boolean #Collection #Array #BlockClosure
-			     #Dictionary #Set #OrderedCollection ) asOrderedCollection 
+			     #Dictionary #Set #OrderedCollection ) asOrderedCollection
 ]
 
 { #category : #accessing }
@@ -192,23 +192,30 @@ GEAssertionGenerator >> createIndividual [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
-	| c1 c2 crossoverPoint1 crossoverPoint2 newC |
+	^ self crossoverOfOnePoint: object1 with: object2
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> crossoverOfOnePoint: object1 with: object2 [
+
+	| c1 c2 crossoverPoint1 crossoverPoint2 newC1 newC2 |
 	c1 := object1 allCodonValues.
 	c2 := object2 allCodonValues.
 	self assert: (c1 notNil and: [ c2 notNil ]).
-	crossoverPoint1 := random randomlySelect:
-		                   (1 to: c1 size).
-	crossoverPoint2 := random randomlySelect:
-		                   (1 to: c2 size).
-	newC := grammar
-		        nodeOfRule: #Method
-		        givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
-			        , (c2 copyFrom: crossoverPoint2 to: c2 size).
-	newC ifNotNil: [ 
-		newC
-			addParent: object1;
-			addParent: object2 ].
-	^ newC
+	crossoverPoint1 := random randomlySelect: (1 to: c1 size).
+	crossoverPoint2 := random randomlySelect: (1 to: c2 size).
+	newC1 := grammar
+		         nodeOfRule: #Method
+		         givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
+			         , (c2 copyFrom: crossoverPoint2 to: c2 size).
+	newC2 := grammar
+		         nodeOfRule: #Method
+		         givenCodon: (c2 copyFrom: 1 to: crossoverPoint2)
+			         , (c1 copyFrom: crossoverPoint1 to: c1 size).
+	^ (newC1 notNil and: [ newC2 notNil ])
+		  ifTrue: [ (self getBestBetween: newC1 and: newC2) addParent: object1; addParent: object2 ]
+		  ifFalse: [ 
+		  (Array with: newC1 with: newC2) detect: #notNil ifFound: [ :ind | ind addParent: object1; addParent: object2 ] ifNone: [ nil ] ]
 ]
 
 { #category : #accessing }
@@ -253,7 +260,21 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> generations [
 
-	^ 15
+	^ 6
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> getBestBetween: object1 and: object2 [
+
+	object1 fitness ifNil: [ self fitnessValueOf: object1 ].
+	object2 fitness ifNil: [ self fitnessValueOf: object2 ].
+	^ (self isBetter: object1 than: object2)
+		  ifTrue: [ object1 ]
+		  ifFalse: [
+			  (self isBetter: object2 than: object1)
+				  ifTrue: [ object2 ]
+				  ifFalse: [ 
+				  random randomlySelect: (Array with: object1 with: object2) ] ]
 ]
 
 { #category : #initialization }
@@ -295,6 +316,19 @@ GEAssertionGenerator >> mutate: object1 [
 	^ object1 
 ]
 
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> mutate: object1 given: integer [
+
+	| codonValues newIndiv |
+	codonValues := object1 allCodonValues.
+	1 to: codonValues size do: [ :i | 
+		(random randomNumber: 100) < integer ifTrue: [ 
+			object1 genomeAt: i put: (random randomNumber: 10) ] ].
+	newIndiv := grammar nodeOfRule: #Method givenCodon: object1 genome.
+	newIndiv ifNotNil: [ object1 parents do: [ :p | newIndiv addParent: p ] ].
+	^ newIndiv 
+]
+
 { #category : #accessing }
 GEAssertionGenerator >> options: collection [
 
@@ -305,15 +339,18 @@ GEAssertionGenerator >> options: collection [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> pickBestConsideringParents: individual [
 
-	| col |
+	| col parent |
 	self assert: individual parents notEmpty.
-	col := (random shuffleElementsOf: individual parents) sort: [ :i1 :i2 | 
-		       i1 fitness < i2 fitness ].
-	^ col first fitness < individual fitness
+	col := self sortIndividuals:
+		       (random shuffleElementsOf: individual parents).
+	parent := col first.
+	^ (self isBetter: parent than: individual)
 		  ifTrue: [ 
 			  | indiv |
-			  indiv := col first deepCopy.
-			  indiv addParent: col first.
+			  indiv := parent deepCopy.
+			  indiv
+				  addParent: parent;
+				  genome: parent genome copy.
 			  indiv ]
 		  ifFalse: [ individual ]
 ]
@@ -322,16 +359,11 @@ GEAssertionGenerator >> pickBestConsideringParents: individual [
 GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 
 	| newInd parent |
-	parent := object1 fitness < object2 fitness
-		          ifTrue: [ object1 ]
-		          ifFalse: [ 
-			          object2 fitness < object1 fitness
-				          ifTrue: [ object2 ]
-				          ifFalse: [ 
-				          random randomlySelect:
-					          (Array with: object1 with: object2) ] ].
+	parent := self getBestBetween: object1 and: object2.
 	newInd := parent deepCopy.
-	newInd addParent: parent.
+	newInd
+		addParent: parent;
+		genome: parent genome copy.
 	^ newInd
 ]
 
@@ -376,7 +408,7 @@ GEAssertionGenerator >> seed: number [
 GEAssertionGenerator >> sortIndividuals: collection [
 
 	^ collection asSortedCollection: [ :indiv1 :indiv2 | 
-		  indiv1 fitness < indiv2 fitness ]
+		  self isBetter: indiv1 than: indiv2 ]
 ]
 
 { #category : #accessing }

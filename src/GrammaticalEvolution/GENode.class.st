@@ -12,19 +12,11 @@ Class {
 		'children',
 		'position',
 		'codon',
-		'generation'
+		'generation',
+		'genome'
 	],
 	#category : #'GrammaticalEvolution-AST'
 }
-
-{ #category : #comparing }
-GENode >> = another [
-
-	^ (another isKindOf: GENode) and: [ 
-			(generation notNil and: [ position notNil ]) 
-			ifTrue: [ generation = another generation and: [ position = another position ] ] 
-			ifFalse: [ true ] ]
-]
 
 { #category : #adding }
 GENode >> addChild: aNode [
@@ -132,16 +124,6 @@ GENode >> depth: anObject [
 	depth := anObject
 ]
 
-{ #category : #comparing }
-GENode >> equal: another [
-
-	^ self class = another class and: [ 
-		  id == another id and: [ 
-			  type == another type and: [ 
-				  self value = another value and: [ 
-					  nodeChildren = another nodeChildren  ] ] ] ]
-]
-
 { #category : #'public access' }
 GENode >> evaluate [
 	^ self pharoAST evaluate
@@ -167,6 +149,23 @@ GENode >> generation [
 { #category : #accessing }
 GENode >> generation: number [
 	generation := number
+]
+
+{ #category : #accessing }
+GENode >> genome [ 
+	^ genome
+]
+
+{ #category : #accessing }
+GENode >> genome: array [
+	self assert: (array isCollection and: [ array notEmpty ]).
+	genome := array
+]
+
+{ #category : #accessing }
+GENode >> genomeAt: index put: integer [
+	genome size <= index ifTrue: [ 
+		genome at: index put: integer ]
 ]
 
 { #category : #accessing }
@@ -292,7 +291,7 @@ GENode >> value: anObject [
 	value := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GENode >> withAllChildren [
 
 	| c |
@@ -302,7 +301,7 @@ GENode >> withAllChildren [
 	^ c
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GENode >> withAllChildren: collection [
 
 	"Private usage"

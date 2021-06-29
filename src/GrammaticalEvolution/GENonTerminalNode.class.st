@@ -28,10 +28,16 @@ GENonTerminalNode >> isNonTerminalNode [
 
 { #category : #printing }
 GENonTerminalNode >> printOn: aStream [
-
-	nodeChildren ifNotEmpty: [ nodeChildren do: [ :child | 
-			child printOn: aStream ] 
-		 ] ifEmpty: [ aStream nextPutAll: id ]
+	| string |
+	[ 
+	string := self pharoCode.
+	aStream nextPutAll: string ]
+		on: Exception
+		do: [ 
+			nodeChildren
+				ifNotEmpty: [ 
+				nodeChildren do: [ :child | child printOn: aStream ] ]
+				ifEmpty: [ aStream nextPutAll: id ] ]
 ]
 
 { #category : #accessing }

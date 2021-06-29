@@ -71,7 +71,7 @@ GEAssertionFitnessFunction >> initialize [
 { #category : #asserting }
 GEAssertionFitnessFunction >> shouldTerminate [
 
-	^ self asNumber == 0
+	^ self asNumber = 0
 ]
 
 { #category : #accessing }

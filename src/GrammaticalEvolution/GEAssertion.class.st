@@ -27,9 +27,7 @@ GEAssertion >> addClassesOptions [
 		ifFalse: [ ^ self ]
 		ifTrue: [ 
 			self
-				addOptions:
-					(((self selectPackageClasses: packageScope) reject: [ :cl | 
-						  cl name endsWith: 'Test' ]) collect: #name)
+				addOptions: ((self classes: packageScope) collect: #name)
 				at: #Class -> 'terminal' ]
 ]
 
@@ -43,6 +41,30 @@ GEAssertion >> addOptions: collection at: object [
 			Set new
 				addAll: collection;
 				yourself ]
+]
+
+{ #category : #adding }
+GEAssertion >> addSelectorsOptions [
+
+	(packageScope isString and: [ 
+		 packageScope notEmpty "and: [ 
+			 (options at: 'class' ifAbsent: [ nil ]) isNil ]" ])
+		ifFalse: [ 
+			targetClass ifNil: [ ^ self ] ifNotNil: [ 
+				self
+					addOptions: (self selectors: (Array with: targetClass))
+					at: #Message -> 'selector' ] ]
+		ifTrue: [ 
+			self
+				addOptions: (self selectors: (self classes: packageScope))
+				at: #Message -> 'selector' ]
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertion >> allPopulations [
+
+	^ (data associations collect: [ :assoc | 
+		  assoc key -> assoc value logs ]) asDictionary
 ]
 
 { #category : #'as yet unclassified' }
@@ -78,36 +100,22 @@ GEAssertion >> calculateErrorsNumber: selector given: protocol and: configuratio
 
 	| ctxBlocks collection |
 	self assert: targetClass isClass.
-	ctxBlocks := contextBlocks ifEmpty: [ Array with: [ targetClass new ] ] 
-	ifNotEmpty: [ contextBlocks ].
-	collection := ctxBlocks collect: [ :block | | res |
-		res := [self countErrors: selector given: protocol and: block] on: Exception do: [Array with: 0 with: self objects].
-		 configuration options: res second.
-		res first
-		].
+	ctxBlocks := contextBlocks
+		             ifEmpty: [ Array with: [ targetClass new ] ]
+		             ifNotEmpty: [ contextBlocks ].
+	collection := ctxBlocks collect: [ :block | 
+		              | res |
+		              res := [ 
+		                     self
+			                     countErrors: selector
+			                     given: protocol
+			                     and: block ]
+			                     on: Exception
+			                     do: [ Array with: 0 with: self objects ].
+		              configuration options: res second.
+		              res first ].
 	metrics at: 'errorsNumber' ifAbsentPut: [ Dictionary new ].
-	(metrics at: 'errorsNumber') at: selector put: collection min.
-	"val := contextBlocks
-		       ifEmpty: [ 
-			       res := [ 
-			              self
-				              countErrors: selector
-				              given: protocol
-				              and: [ targetClass new ] ]
-				              on: Exception
-				              do: [ Array with: 0 with: self objects ].
-			       configuration options: res second.
-			       OrderedCollection with: res first ]
-		       ifNotEmpty: [ 
-			       contextBlocks collect: [ :block | 
-				       res := self
-					              countErrors: selector
-					              given: protocol
-					              and: block.
-				       configuration options: res second.
-				       res first ] ].
-	metrics at: 'errorsNumber' ifAbsentPut: [ Dictionary new ].
-	(metrics at: 'errorsNumber') at: selector put: val min"
+	(metrics at: 'errorsNumber') at: selector put: collection min
 ]
 
 { #category : #'as yet unclassified' }
@@ -126,6 +134,12 @@ GEAssertion >> calculateMetrics: selector
 				
 	self calculateErrorsNumber: selector given: protocol and: configuration.
 	self calculateCallsNumber: selector given: configuration
+]
+
+{ #category : #adding }
+GEAssertion >> classes: packageName [ 
+	^ (self selectPackageClasses: packageName) reject: [ :cl | 
+						  cl name endsWith: 'Test' ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -349,6 +363,7 @@ GEAssertion >> run [
 		^ self ].
 	GECounter reset.
 	self addClassesOptions.
+	self addSelectorsOptions.
 	associations := self getSelectorCandidates.
 	data := Dictionary newFromAssociations:
 		        (associations collect: [ :assoc | 
@@ -382,6 +397,14 @@ GEAssertion >> selectPackageClasses: regex [
 				   (extensionNames includes: cl name) or: [ cl isMeta ] ] ] ])
 		  asSet asOrderedCollection sort: [ :cl1 :cl2 |
 		  cl1 name < cl2 name ]
+]
+
+{ #category : #accessing }
+GEAssertion >> selectors: classes [
+
+	^ (classes flatCollect: [ :cls | 
+		   (cls methodsInProtocol: #testing) collect: #selector ]) 
+	select: [  :s | s numArgs == 0 ]
 ]
 
 { #category : #accessing }

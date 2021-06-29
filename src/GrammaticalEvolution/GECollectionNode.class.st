@@ -54,11 +54,17 @@ GECollectionNode >> pharoAST: visitor [
 { #category : #printing }
 GECollectionNode >> printOn: aStream [
 
-	aStream nextPutAll: '#('.
-	nodeChildren do: [ :child | 
-		child printOn: aStream.
-		aStream nextPut: Character space ].
-	aStream nextPut: $)
+	| string |
+	[ 
+	string := self pharoCode.
+	aStream nextPutAll: string ]
+		on: Exception
+		do: [ 
+			aStream nextPutAll: '#('.
+			nodeChildren do: [ :child | 
+				child printOn: aStream.
+				aStream nextPut: Character space ].
+			aStream nextPut: $) ]
 ]
 
 { #category : #accessing }

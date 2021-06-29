@@ -38,7 +38,7 @@ GERuleOption >> addOptions: string by: collection [
 	| opts |
 	opts := self infoOptionsOf: string.
 	opts ifNotEmpty: [ 
-		opts first
+		opts first asOrderedCollection 
 			addAll: collection ]
 ]
 
