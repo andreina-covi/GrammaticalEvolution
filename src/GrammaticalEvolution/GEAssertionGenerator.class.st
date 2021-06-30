@@ -47,6 +47,20 @@ GEAssertionGenerator >> addTargetVariable [
 ]
 
 { #category : #'as yet unclassified' }
+GEAssertionGenerator >> betterChildBetween: newC1 and: newC2 given: array [
+	| node |
+	node := (newC1 notNil and: [ newC2 notNil ])
+		  ifTrue: [ self getBestBetween: newC1 and: newC2 ]
+		  ifFalse: [ 
+			  (Array with: newC1 with: newC2)
+				  detect: #notNil
+				  ifNone: [ ^ nil ] ].
+	array do: [ :parent | 
+		node addParent: parent ].
+	^ node
+]
+
+{ #category : #'as yet unclassified' }
 GEAssertionGenerator >> buildAssertionGrammar: collection of: class [
 
 	grammar := self builtAssertionGrammar.
@@ -191,8 +205,22 @@ GEAssertionGenerator >> createIndividual [
 
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
+	| number |
+	number := random randomNumber: 100.
+	^ number < 50 
+		ifTrue: [ self crossoverOfOnePoint: object1 with: object2 ]
+		ifFalse: [ self crossoverJoining: object1 and: object2 ]
+]
 
-	^ self crossoverOfOnePoint: object1 with: object2
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> crossoverJoining: object1 and: object2 [
+
+	| o1 o2 node1 node2 |
+	o1 := self randomSubTree: object1 given: #Method.
+	o2 := self randomSubTree: object2 given: #Method.
+	node1 := self newTreeOf: o1 and: o2.
+	node2 := self newTreeOf: o2 and: o1.
+	^ self betterChildBetween: node1 and: node2 given: (Array with: object1 with: object2)
 ]
 
 { #category : #'as yet unclassified' }
@@ -212,10 +240,10 @@ GEAssertionGenerator >> crossoverOfOnePoint: object1 with: object2 [
 		         nodeOfRule: #Method
 		         givenCodon: (c2 copyFrom: 1 to: crossoverPoint2)
 			         , (c1 copyFrom: crossoverPoint1 to: c1 size).
-	^ (newC1 notNil and: [ newC2 notNil ])
-		  ifTrue: [ (self getBestBetween: newC1 and: newC2) addParent: object1; addParent: object2 ]
-		  ifFalse: [ 
-		  (Array with: newC1 with: newC2) detect: #notNil ifFound: [ :ind | ind addParent: object1; addParent: object2 ] ifNone: [ nil ] ]
+	^ self
+		  betterChildBetween: newC1
+		  and: newC2
+		  given: (Array with: object1 with: object2)
 ]
 
 { #category : #accessing }
@@ -260,7 +288,7 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> generations [
 
-	^ 6
+	^ 10
 ]
 
 { #category : #'as yet unclassified' }
@@ -329,6 +357,32 @@ GEAssertionGenerator >> mutate: object1 given: integer [
 	^ newIndiv 
 ]
 
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> newTreeOf: node1 and: node2 [
+
+	| node |
+	node := grammar newNodeOfRule: #Method and: #And.
+	grammar
+		updateNodeChild: (Stack new
+				 add: #Method;
+				 yourself)
+		of: node given: node1;
+		updateNodeChild: (Stack new
+				 add: #And;
+				 yourself)
+		of: node;
+		updateNodeChild: (Stack new
+				 add: #Block;
+				 add: #Method;
+				 yourself)
+		of: node given: node2.
+	node ifNotNil: [ 
+		node
+			genome: node allCodonValues.
+		self fitnessValueOf: node ].
+	^ node
+]
+
 { #category : #accessing }
 GEAssertionGenerator >> options: collection [
 
@@ -370,7 +424,7 @@ GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> populationSize [
 
-	^ 30
+	^ 15
 ]
 
 { #category : #accessing }
@@ -382,6 +436,11 @@ GEAssertionGenerator >> randomIterations: anObject [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> randomNumber: number [
 	^ random randomNumber: number
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGenerator >> randomSubTree: tree given: symbol [
+	^ random randomlySelect: (tree withAllChildren select: [ :node | node id = symbol ]) 
 ]
 
 { #category : #'as yet unclassified' }

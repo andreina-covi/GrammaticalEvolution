@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'weights'
 	],
-	#category : #'GrammaticalEvolution-Genetic-Programming'
+	#category : #'GrammaticalEvolution-Individual'
 }
 
 { #category : #comparing }

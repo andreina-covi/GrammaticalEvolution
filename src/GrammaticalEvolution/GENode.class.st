@@ -281,6 +281,12 @@ GENode >> type: anObject [
 ]
 
 { #category : #accessing }
+GENode >> updateChildAt: index by: node [
+	index <= nodeChildren size
+		ifTrue: [ nodeChildren at: index put: node ]
+]
+
+{ #category : #accessing }
 GENode >> value [ 
 	^ value
 ]
