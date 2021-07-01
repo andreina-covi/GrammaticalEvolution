@@ -38,7 +38,7 @@ GEEngine >> createInitialPopulation [
 { #category : #'as yet unclassified' }
 GEEngine >> createNewGeneration [
 
-	| newPopulation |
+	| newPopulation mutated |
 	self pickBestIndividual fitness shouldTerminate ifTrue: [ ^ self ].
 	newPopulation := self pickEliteOfPopulation.
 	population size - newPopulation size timesRepeat: [ 
@@ -56,12 +56,13 @@ GEEngine >> createNewGeneration [
 				newIndiv := parent deepCopy.
 				newIndiv
 					addParent: parent;
-					genome: parent genome copy].
+					genome: parent genome copy ].
 		"randomNumber := configuration randomNumber: 2.
 		randomNumber <= 1 ifTrue: [ configuration mutate: newIndiv given: self mutationProbability ]."
-		newIndiv := configuration
+		mutated := configuration
 			            mutate: newIndiv
 			            given: self mutationProbability.
+		mutated ifNotNil: [ newIndiv := mutated ].
 		newIndiv ifNotNil: [ 
 			self fitnessValueOf: newIndiv.
 			indiv := configuration pickBestConsideringParents: newIndiv.

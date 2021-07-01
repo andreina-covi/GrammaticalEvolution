@@ -214,7 +214,7 @@ GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 		  ifTrue: [ self crossoverOfOnePoint: object1 with: object2 ]
 		  ifFalse: [ self crossoverJoining: object1 and: object2 ]
 
-	"^ self crossoverOfOnePoint: object1 with: object2"
+	"^ self crossoverJoining: object1 and: object2"
 ]
 
 { #category : #'as yet unclassified' }
@@ -433,7 +433,7 @@ GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> populationSize [
 
-	^ 25
+	^ 35
 ]
 
 { #category : #accessing }
