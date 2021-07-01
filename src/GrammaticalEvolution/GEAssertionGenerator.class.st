@@ -276,12 +276,15 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 	testResults := testClasses collect: [ :test | test buildSuite run ].
 	fitnessFunction := GEAssertionFitnessFunction new.
 	fitnessFunction
+		callsNumber: callsNumber;
 		objectiveAt: 'randomErrors' put: (uninstalled
 				 ifTrue: [ randomIterations ]
 				 ifFalse: [ errors ]);
 		objectiveAt: 'testErrors' put: (uninstalled
 				 ifTrue: [ callsNumber ]
-				 ifFalse: [ (testResults collect: [:test | test failureCount + test errorCount ]) sum - failureNumber ]);
+				 ifFalse: [ 
+					 (testResults collect: [ :test | 
+							  test failureCount + test errorCount ]) sum - failureNumber ]);
 		weightAt: 'randomErrors'
 		put: callsNumber / randomIterations * weight * (1 / 3);
 		weightAt: 'testErrors' put: weight * (2 / 3).

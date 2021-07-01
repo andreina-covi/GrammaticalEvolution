@@ -17,6 +17,9 @@ BaselineOfGrammaticalEvolution >> baseline: spec [
 			baseline: 'NeoCSV'
 			with: [ spec repository: 'github://svenvc/NeoCSV/repository' ].
 		spec
+			baseline: 'GAEvoViz'
+			with: [ spec repository: 'github://andreina-covi/GAEvoViz/src' ].
+		spec
 			package: 'GrammaticalEvolution'
 			with: [ spec requires: #( 'NeoCSV' ) ];
 			package: 'GrammaticalEvolution-Tests'
@@ -28,5 +31,5 @@ BaselineOfGrammaticalEvolution >> baseline: spec [
 			with: #( 'GrammaticalEvolution' 'GrammaticalEvolution-Tests' );
 			group: 'all'
 			with:
-				#( 'GrammaticalEvolution-Tests' 'GrammaticalEvolution-Visualization' ) ]
+				#( 'GrammaticalEvolution-Tests' 'GrammaticalEvolution-Visualization' 'GAEvoViz' ) ]
 ]

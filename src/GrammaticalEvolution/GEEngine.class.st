@@ -73,7 +73,7 @@ GEEngine >> createNewGeneration [
 { #category : #'as yet unclassified' }
 GEEngine >> crossoverProbability [
 
-	^ 50
+	^ 90
 ]
 
 { #category : #'as yet unclassified' }
@@ -98,7 +98,7 @@ GEEngine >> logs [
 { #category : #'as yet unclassified' }
 GEEngine >> mutationProbability [
 
-	^ 5
+	^ 15
 ]
 
 { #category : #'as yet unclassified' }

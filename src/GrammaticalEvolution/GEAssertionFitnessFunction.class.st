@@ -2,7 +2,8 @@ Class {
 	#name : #GEAssertionFitnessFunction,
 	#superclass : #GEMultiObjectiveFitnessFunction,
 	#instVars : [
-		'weights'
+		'weights',
+		'callsNumber'
 	],
 	#category : #'GrammaticalEvolution-Individual'
 }
@@ -14,15 +15,15 @@ GEAssertionFitnessFunction >> < another [
 	self assert: another class = self class.
 	testErrors := self objectiveAt: 'testErrors'.
 	anotherTestErrors := another objectiveAt: 'testErrors'.
-	^ testErrors
-	  < anotherTestErrors
-		  ifTrue: [ true ]
-		  ifFalse: [ 
-			  (testErrors = 0 and: [ testErrors = anotherTestErrors ])
-				  ifTrue: [ 
+	^ testErrors < anotherTestErrors
+		ifTrue: [ true ]
+		ifFalse: [ testErrors = anotherTestErrors
+			ifTrue: [ testErrors = 0 
+				ifTrue: [ 
 					  (self objectiveAt: 'randomErrors')
 					  < (another objectiveAt: 'randomErrors') ]
-				  ifFalse: [ false ] ]
+				ifFalse: [ false ] ]
+			ifFalse: [ false ] ]
 ]
 
 { #category : #comparing }
@@ -42,14 +43,14 @@ GEAssertionFitnessFunction >> > another [
 	self assert: another class = self class.
 	testErrors := self objectiveAt: 'testErrors'.
 	anotherTestErrors := another objectiveAt: 'testErrors'.
-	^ testErrors
-	  > anotherTestErrors
+	^ testErrors > anotherTestErrors
 		  ifTrue: [ true ]
-		  ifFalse: [ 
-			  (testErrors = 0 and: [ testErrors = anotherTestErrors ])
-				  ifTrue: [ 
+		  ifFalse: [ testErrors = anotherTestErrors
+				  ifTrue: [ testErrors = 0
+					ifTrue: [ 
 					  (self objectiveAt: 'randomErrors')
 					  > (another objectiveAt: 'randomErrors') ]
+					ifFalse: [ false ] ]
 				  ifFalse: [ false ] ]
 ]
 
@@ -58,16 +59,19 @@ GEAssertionFitnessFunction >> asNumber [
 
 	| testErrors |
 	testErrors := self objectiveAt: 'testErrors'.
-	^ (testErrors = 0
-		  ifTrue: [ 
-			  (dictObjective associations inject: 0 into: [ :sum :assoc | 
-				   sum + (assoc value * (weights at: assoc key ifAbsent: [ 1 ])) ])
-				   ]
-		  ifFalse: [ "^ ((self objectiveAt: 'nTestErrors')
-	   * (weights at: 'nTestErrors' ifAbsent: [ 1 ])
-	   + ((self objectiveAt: 'nRandomErrors')
-		    * (weights at: 'nRandomErrors' ifAbsent: [ 1 ]))) asFloat" 
-			  testErrors * (weights at: 'testErrors' ifAbsent: [ 1 ]) ]) asFloat
+	^ ((testErrors = 0 or: [ testErrors < callsNumber ])
+		   ifTrue: [ 
+			   dictObjective associations inject: 0 into: [ :sum :assoc | 
+				   sum + (assoc value * (weights at: assoc key ifAbsent: [ 1 ])) ] ]
+		   ifFalse: [ 
+			   testErrors * (weights at: 'testErrors' ifAbsent: [ 1 ]) ])
+		  asFloat
+]
+
+{ #category : #accessing }
+GEAssertionFitnessFunction >> callsNumber: integer [
+	self assert: (integer isInteger and: [ integer positive ]).
+	callsNumber := integer
 ]
 
 { #category : #initialization }
