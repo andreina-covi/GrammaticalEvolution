@@ -36,6 +36,23 @@ GECollectionNode >> deepCopy [
 		size: size
 ]
 
+{ #category : #comparing }
+GECollectionNode >> equals: another [
+
+	^ id == another id and: [ 
+		  size == another size and: [ "and: [ depth == other depth "
+			  | index |
+			  index := 1.
+			  nodeChildren
+				  detect: [ :child | 
+					  | found |
+					  found := (child equals: (another nodeChildren at: index)) not.
+					  index := index + 1.
+					  found ]
+				  ifFound: [ :c | false ]
+				  ifNone: [ true ] ] ]
+]
+
 { #category : #testing }
 GECollectionNode >> isCollectionNode [ 
 	^ true

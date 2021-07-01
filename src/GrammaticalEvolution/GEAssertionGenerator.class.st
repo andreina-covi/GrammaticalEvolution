@@ -105,7 +105,8 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  withValues:
 			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
 			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			     #notEmpty #isNil #notNil #positive #negative #isPoint ) asOrderedCollection;
+			     #notEmpty #isNil #notNil #positive #negative #isPoint )
+				  asOrderedCollection;
 		  addSelectorTerminal: #Message1
 		  withValues: #( #isKindOf: #isMemberOf: );
 		  addSelectorTerminal: #Includes withValues: #( #includes: );
@@ -117,7 +118,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  addSelectorTerminal: #Not withValues: #( #not );
 		  addTerminal: #Integer
 		  ofType: RBLiteralNode
-		  andValues: (-10 to: 10) asOrderedCollection;
+		  andValues: (-1 to: 1) asOrderedCollection;
 		  addTerminal: #Class
 		  ofType: RBVariableNode
 		  andValues:
@@ -197,7 +198,7 @@ GEAssertionGenerator >> createIndividual [
 	[ node isNotNil or: [ i > 50 ] ] whileFalse: [ 
 		| codonSize codon |
 		codonSize := random randomNumberFrom: 5 to: 10.
-		codon := (1 to: codonSize) collect: [ :n | random randomNumber: 500 ].
+		codon := (1 to: codonSize) collect: [ :n | random randomNumber: self maxCodonValue ].
 		node := grammar nodeOfRule: #Method givenCodon: codon.
 		i := i + 1 ].
 	^ node
@@ -205,11 +206,15 @@ GEAssertionGenerator >> createIndividual [
 
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
+
 	| number |
 	number := random randomNumber: 100.
-	^ number < 50 
-		ifTrue: [ self crossoverOfOnePoint: object1 with: object2 ]
-		ifFalse: [ self crossoverJoining: object1 and: object2 ]
+
+	^ number < 50
+		  ifTrue: [ self crossoverOfOnePoint: object1 with: object2 ]
+		  ifFalse: [ self crossoverJoining: object1 and: object2 ]
+
+	"^ self crossoverOfOnePoint: object1 with: object2"
 ]
 
 { #category : #'as yet unclassified' }
@@ -339,22 +344,26 @@ GEAssertionGenerator >> isBetter: object1 than: object2 [
 	^ object1 fitness < object2 fitness
 ]
 
-{ #category : #'as yet unclassified' }
-GEAssertionGenerator >> mutate: object1 [
-	^ object1 
+{ #category : #accessing }
+GEAssertionGenerator >> maxCodonValue [
+	^ 500
 ]
 
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> mutate: object1 given: integer [
 
-	| codonValues newIndiv |
-	codonValues := object1 allCodonValues.
+	| codonValues newIndiv allCodonValues |
+	allCodonValues := object1 allCodonValues.
+	codonValues := allCodonValues size < object1 genome size
+		               ifTrue: [ allCodonValues ]
+		               ifFalse: [ object1 genome ].
 	1 to: codonValues size do: [ :i | 
-		(random randomNumber: 100) < integer ifTrue: [ 
-			object1 genomeAt: i put: (random randomNumber: 10) ] ].
+		(random randomNumber: 100) < integer ifTrue: [
+			object1 genomeAt: i put: (random randomNumber: self maxCodonValue) ] ].
 	newIndiv := grammar nodeOfRule: #Method givenCodon: object1 genome.
-	newIndiv ifNotNil: [ object1 parents do: [ :p | newIndiv addParent: p ] ].
-	^ newIndiv 
+	newIndiv ifNotNil: [ 
+		object1 parents do: [ :p | newIndiv addParent: p ] ].
+	^ newIndiv
 ]
 
 { #category : #'as yet unclassified' }
@@ -424,7 +433,7 @@ GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> populationSize [
 
-	^ 15
+	^ 25
 ]
 
 { #category : #accessing }

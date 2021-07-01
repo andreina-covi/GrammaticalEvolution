@@ -124,6 +124,11 @@ GENode >> depth: anObject [
 	depth := anObject
 ]
 
+{ #category : #comparing }
+GENode >> equals: another [
+	^ self subclassResponsibility 
+]
+
 { #category : #'public access' }
 GENode >> evaluate [
 	^ self pharoAST evaluate
@@ -164,8 +169,8 @@ GENode >> genome: array [
 
 { #category : #accessing }
 GENode >> genomeAt: index put: integer [
-	genome size <= index ifTrue: [ 
-		genome at: index put: integer ]
+
+	genome size >= index ifTrue: [ genome at: index put: integer ]
 ]
 
 { #category : #accessing }

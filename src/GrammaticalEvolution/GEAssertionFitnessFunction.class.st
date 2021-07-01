@@ -8,18 +8,20 @@ Class {
 }
 
 { #category : #comparing }
-GEAssertionFitnessFunction >> < other [
+GEAssertionFitnessFunction >> < another [
 
-	self assert: other class = self class.
-	^ (self objectiveAt: 'testErrors')
-	  < (other objectiveAt: 'testErrors')
+	| testErrors anotherTestErrors |
+	self assert: another class = self class.
+	testErrors := self objectiveAt: 'testErrors'.
+	anotherTestErrors := another objectiveAt: 'testErrors'.
+	^ testErrors
+	  < anotherTestErrors
 		  ifTrue: [ true ]
 		  ifFalse: [ 
-			  (self objectiveAt: 'testErrors')
-			  = (other objectiveAt: 'testErrors')
+			  (testErrors = 0 and: [ testErrors = anotherTestErrors ])
 				  ifTrue: [ 
 					  (self objectiveAt: 'randomErrors')
-					  < (other objectiveAt: 'randomErrors') ]
+					  < (another objectiveAt: 'randomErrors') ]
 				  ifFalse: [ false ] ]
 ]
 
@@ -36,13 +38,15 @@ GEAssertionFitnessFunction >> = another [
 { #category : #comparing }
 GEAssertionFitnessFunction >> > another [
 
+	| testErrors anotherTestErrors |
 	self assert: another class = self class.
-	^ (self objectiveAt: 'testErrors')
-	  > (another objectiveAt: 'testErrors')
+	testErrors := self objectiveAt: 'testErrors'.
+	anotherTestErrors := another objectiveAt: 'testErrors'.
+	^ testErrors
+	  > anotherTestErrors
 		  ifTrue: [ true ]
 		  ifFalse: [ 
-			  (self objectiveAt: 'testErrors')
-			  = (another objectiveAt: 'testErrors')
+			  (testErrors = 0 and: [ testErrors = anotherTestErrors ])
 				  ifTrue: [ 
 					  (self objectiveAt: 'randomErrors')
 					  > (another objectiveAt: 'randomErrors') ]
@@ -52,13 +56,18 @@ GEAssertionFitnessFunction >> > another [
 { #category : #converting }
 GEAssertionFitnessFunction >> asNumber [
 
-	^ (dictObjective associations inject: 0 into: [ :sum :assoc | 
-		   sum + (assoc value * (weights at: assoc key ifAbsent: [ 1 ])) ])
-		  asFloat
-	"^ ((self objectiveAt: 'nTestErrors')
+	| testErrors |
+	testErrors := self objectiveAt: 'testErrors'.
+	^ (testErrors = 0
+		  ifTrue: [ 
+			  (dictObjective associations inject: 0 into: [ :sum :assoc | 
+				   sum + (assoc value * (weights at: assoc key ifAbsent: [ 1 ])) ])
+				   ]
+		  ifFalse: [ "^ ((self objectiveAt: 'nTestErrors')
 	   * (weights at: 'nTestErrors' ifAbsent: [ 1 ])
 	   + ((self objectiveAt: 'nRandomErrors')
-		    * (weights at: 'nRandomErrors' ifAbsent: [ 1 ]))) asFloat"
+		    * (weights at: 'nRandomErrors' ifAbsent: [ 1 ]))) asFloat" 
+			  testErrors * (weights at: 'testErrors' ifAbsent: [ 1 ]) ]) asFloat
 ]
 
 { #category : #initialization }

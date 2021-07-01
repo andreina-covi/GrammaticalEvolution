@@ -21,6 +21,23 @@ GENonTerminalNode >> = another [
 				  ifNone: [ true ] ] ] ]
 ]
 
+{ #category : #comparing }
+GENonTerminalNode >> equals: another [
+
+	^ id == another id and: [ 
+			  nodeChildren size == another nodeChildren size and: [ "and: [ depth = other depth "
+				  | index |
+				  index := 1.
+				  nodeChildren
+					  detect: [ :child | 
+						  | found |
+						  found := child ~= (another nodeChildren at: index).
+						  index := index + 1.
+						  found ]
+					  ifFound: [ :c | false ]
+					  ifNone: [ true ] ] ]
+]
+
 { #category : #testing }
 GENonTerminalNode >> isNonTerminalNode [ 
 	^ true

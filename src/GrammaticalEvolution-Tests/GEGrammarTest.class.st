@@ -107,7 +107,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon [
 	node := grammar nodeOfRule: #E givenCodon: #( 8 5 6 7 7 11 21 4 ).
 	self assert: node class equals: GENonTerminalNode.
 	self assert: node type equals: RBMessageNode.
-	self assertCollection: node nodeChildren equals: (Array
+	self assertCollection: (node nodeChildren with: (Array
 			 with: (GETerminalValueNode new
 					  id: #E;
 					  type: RBLiteralNode;
@@ -118,8 +118,10 @@ GEGrammarTest >> testNodeOfRuleGivenCodon [
 			 with: (GETerminalValueNode new
 					  id: #E;
 					  type: RBLiteralNode;
-					  value: 8)).
-	self assertCollection: node allCodonValues hasSameElements: #( 8 5 6 7 7 11 ).
+					  value: 8)) collect: [:obj1 :obj2 | obj1 equals: obj2 ]) equals: #(true true true).
+	self
+		assertCollection: node allCodonValues
+		hasSameElements: #( 8 5 6 7 7 11 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '3 - 8').
@@ -139,7 +141,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon2 [
 	node := grammar nodeOfRule: #E givenCodon: #( 8 5 6 7 7 11 21 4 ).
 	self assert: node class equals: GENonTerminalNode.
 	self assert: node type equals: RBMessageNode.
-	self assertCollection: node nodeChildren equals: (Array
+	self assertCollection: (node nodeChildren with: (Array
 			 with: (GETerminalValueNode new
 					  id: #F;
 					  type: RBLiteralNode;
@@ -150,8 +152,10 @@ GEGrammarTest >> testNodeOfRuleGivenCodon2 [
 			 with: (GETerminalValueNode new
 					  id: #F;
 					  type: RBLiteralNode;
-					  value: 8)).
-	self assertCollection: node allCodonValues hasSameElements: #( 8 5 6 7 ).
+					  value: 8)) collect: [:obj1 :obj2 | obj1 equals: obj2 ]) equals: #(true true true).
+	self
+		assertCollection: node allCodonValues
+		hasSameElements: #( 8 5 6 7 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '6 + 8').
@@ -172,7 +176,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon3 [
 	node := grammar nodeOfRule: #E givenCodon: #( 8 5 6 7 7 11 21 4 ).
 	self assert: node class equals: GENonTerminalNode.
 	self assert: node type equals: RBMessageNode.
-	self assertCollection: node nodeChildren equals: (Array
+	self assertCollection: (node nodeChildren with: (Array
 			 with: (GETerminalValueNode new
 					  id: #F;
 					  type: RBLiteralNode;
@@ -186,8 +190,10 @@ GEGrammarTest >> testNodeOfRuleGivenCodon3 [
 					  nodeChildren: (Array with: (GETerminalValueNode new
 									    id: #F;
 									    type: RBLiteralNode;
-									    value: 8)))).
-	self assertCollection: node allCodonValues hasSameElements: #( 8 5 6 7 7 11 ).
+									    value: 8)))) collect: [:obj1 :obj2 | obj1 equals: obj2 ]) equals: #(true true true).
+	self
+		assertCollection: node allCodonValues
+		hasSameElements: #( 8 5 6 7 7 11 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '6 + 8').

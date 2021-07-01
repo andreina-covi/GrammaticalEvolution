@@ -12,6 +12,13 @@ GETerminalSelectorNode >> = another [
 		  "and: [ depth == other depth ]" ] ]
 ]
 
+{ #category : #comparing }
+GETerminalSelectorNode >> equals: another [
+
+	^ id == another id and: [ 
+			  value = another value ]
+]
+
 { #category : #'public access' }
 GETerminalSelectorNode >> evaluate [ 
 	^ [ super evaluate ] on: Error do: [ self value ]

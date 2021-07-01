@@ -12,6 +12,13 @@ GETerminalValueNode >> = another [
 		  "and: [ depth == other depth ]" ] ]
 ]
 
+{ #category : #comparing }
+GETerminalValueNode >> equals: another [
+
+	^ id == another id and: [ 
+			  value = another value ]
+]
+
 { #category : #testing }
 GETerminalValueNode >> isTerminalValueNode [ 
 	^ true
