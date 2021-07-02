@@ -18,13 +18,6 @@ GERuleOption >> addCollectionNode: node withOptions: collection [
 ]
 
 { #category : #adding }
-GERuleOption >> addNonTerminal: node withOptions: collection [
-
-	collection do: [:obj | options add: obj.
-	infoOptions add: 'nonTerminal' -> obj ]
-]
-
-{ #category : #adding }
 GERuleOption >> addNonTerminalNode: node withSequence: collection [
 
 	self assert: (node notNil and: [ node class == GENonTerminalNode ]).
@@ -32,7 +25,7 @@ GERuleOption >> addNonTerminalNode: node withSequence: collection [
 	infoOptions add: 'nonTerminal' -> collection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 GERuleOption >> addOptions: string by: collection [
 
 	| opts |
@@ -40,6 +33,14 @@ GERuleOption >> addOptions: string by: collection [
 	opts ifNotEmpty: [ 
 		opts first asOrderedCollection 
 			addAll: collection ]
+]
+
+{ #category : #adding }
+GERuleOption >> addRuleOptions: collection [
+
+	options addAll: collection.
+	infoOptions addAll:
+		(collection collect: [ :obj | 'redirection' -> obj ])
 ]
 
 { #category : #adding }
@@ -67,7 +68,7 @@ GERuleOption >> infoOptionsAt: index [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 GERuleOption >> infoOptionsOf: string [
 
 	^ infoOptions select: [ :assoc | assoc key = string ] 
@@ -106,7 +107,9 @@ GERuleOption >> nodeAt: integer1 withValueAt: integer2 [
 GERuleOption >> optionAndInfoAt: integer [
 
 	options ifEmpty: [ ^ nil ].
-	^ (options size == 1 and: [ (#('nonTerminal' 'collection') includes: infoOptions first key) not  ])
+	^ (options size == 1 and: [ 
+		   (#( 'nonTerminal' 'collection' 'redirection') includes: infoOptions first key)
+			   not ])
 		  ifTrue: [ 
 		  infoOptions first key -> (self nodeAt: 1 withValueAt: integer) ]
 		  ifFalse: [ 
@@ -131,7 +134,7 @@ GERuleOption >> options [
 	^ options
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 GERuleOption >> optionsOrInfoOptions [
 
 	^ (infoOptions size == 1 and: [ infoOptions first key ~= 'nonTerminal' ])
@@ -139,7 +142,7 @@ GERuleOption >> optionsOrInfoOptions [
 		  ifFalse: [ options ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 GERuleOption >> optionsSize [
 
 	^ (infoOptions size == 1 and: [ 
@@ -148,7 +151,7 @@ GERuleOption >> optionsSize [
 		  ifFalse: [ options size ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 GERuleOption >> replaceOptions: string by: collection [
 	| opts |
 	opts := self infoOptionsOf: string.

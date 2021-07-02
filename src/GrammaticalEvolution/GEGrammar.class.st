@@ -1,9 +1,10 @@
 Class {
 	#name : #GEGrammar,
-	#superclass : #Object,
+	#superclass : #GEObject,
 	#instVars : [
 		'rules',
-		'random'
+		'random',
+		'wrapsNumber'
 	],
 	#category : #'GrammaticalEvolution-Grammar'
 }
@@ -38,10 +39,8 @@ GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection [
 GEGrammar >> addNonTerminal: symbol withValues: collection [
 
 	self addRuleIfNecessary: symbol.
-	rules
-		at: symbol
-		ifPresent: [ :rule | rule addNonTerminal: (GENonTerminalNode new
-		  id: symbol) withOptions: collection ]
+	rules at: symbol ifPresent: [ :rule | 
+		rule addRuleOptions: collection ]
 ]
 
 { #category : #adding }
@@ -67,7 +66,9 @@ GEGrammar >> addTerminal: symbol ofType: class andValues: collection [
 	| terminal |
 	self addRuleIfNecessary: symbol.
 	terminal := self createTerminal: symbol ofType: class.
-	rules at: symbol ifPresent: [:rule | 
+	rules
+		at: symbol
+		ifPresent: [ :rule | 
 		rule addTerminalNode: terminal withValues: collection ]
 ]
 
@@ -119,7 +120,7 @@ GEGrammar >> createNonTerminal: symbol ofType: class andSequence: collection [
 GEGrammar >> createOrReplaceTerminalValue: symbol ofType: class andValues: collection [
 
 	| rule |
-	rule := rules at: symbol ifAbsent: [ nil ].
+	rule := self ruleOf: symbol.
 	rule
 		ifNil: [ 
 		self addTerminal: symbol ofType: class andValues: collection ]
@@ -141,51 +142,78 @@ GEGrammar >> createTerminal: symbol ofType: class [
 ]
 
 { #category : #'as yet unclassified' }
-GEGrammar >> defaultWrapsNumber [ 
-	^ 4
+GEGrammar >> generateNodeOfRule: symbol [
+
+	| node i follow |
+	self assert: symbol isSymbol.
+	i := 0.
+	follow := true.
+	[ i < 20 and: [ follow ] ] whileTrue: [ 
+		| array |
+		array := (1 to: self genomeSize) collect: [ :n | 
+			         random randomNumber: self maxGenomeValue ].
+		node := [ self nodeOfRule: symbol givenCodon: array ]
+			        on: GEError
+			        do: [ nil ].
+		follow := node isNil.
+		i := i + 1 ].
+	^ node
+]
+
+{ #category : #'as yet unclassified' }
+GEGrammar >> genomeSize [ 	
+	^ 8
 ]
 
 { #category : #initialization }
 GEGrammar >> initialize [
 
 	rules := Dictionary new.
-	random := GERandom seed: 100
+	random := GERandom seed: 100.
+	wrapsNumber := 4
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
+GEGrammar >> maxGenomeValue [
+	^ 700
+]
+
+{ #category : #'instance creation' }
 GEGrammar >> newNodeOfRule: symbol1 [
 
 	| rule |
-	rule := rules at: symbol1 ifAbsent: [ nil ].
-	^ rule ifNotNil: [ |index optionsSize |
-			optionsSize := rule optionsSize.
-			index := random randomNumber: optionsSize.
-		  	(rule optionAt: index)  
-				  deepCopy addCodonValue:
-					  optionsSize * (random randomNumber: 100) + index - 1 ]
-			  ifNil: [ nil ]
+	rule := self ruleOf: symbol1.
+	^ rule
+		  ifNotNil: [ 
+			  | index optionsSize |
+			  optionsSize := rule optionsSize.
+			  index := random randomNumber: optionsSize.
+			  (rule optionAt: index) deepCopy addCodonValue:
+				  optionsSize * (random randomNumber: 100) + index - 1 ]
+		  ifNil: [ nil ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> newNodeOfRule: symbol1 and: symbol2 [
 
 	| rule |
-	rule := rules at: symbol1 ifAbsent: [ nil ].
-	^ rule ifNotNil: [ 
-		  | index |
-		  index := 0.
-		  rule options
-			  detect: [ :node | 
-				  index := index + 1.
-				  node nodeChildren includes: symbol2 ]
-			  ifFound: [ :node | 
-				  node deepCopy addCodonValue:
-					  rule optionsSize * (random randomNumber: 100) + index - 1 ]
-			  ifNone: [ nil ] ]
-		ifNil: [ nil ]
+	rule := self ruleOf: symbol1.
+	^ rule
+		  ifNotNil: [ 
+			  | index |
+			  index := 0.
+			  rule options
+				  detect: [ :node | 
+					  index := index + 1.
+					  node nodeChildren includes: symbol2 ]
+				  ifFound: [ :node | 
+					  node deepCopy addCodonValue:
+						  rule optionsSize * (random randomNumber: 100) + index - 1 ]
+				  ifNone: [ nil ] ]
+		  ifNil: [ nil ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> node: association given: options codon: array depth: integer stack: stack and: wrapStack [
 
 	| object |
@@ -212,16 +240,18 @@ GEGrammar >> node: association given: options codon: array depth: integer stack:
 				  and: wrapStack ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> nodeOfRule: symbol1 and: symbol2 [
 
 	| rule |
-	rule := rules at: symbol1 ifAbsent: [ nil ].
-	^ rule ifNotNil: [ rule options detect: [ :node | node nodeChildren includes: symbol2 ]  
-		ifNone: [ nil ]  ]
+	rule := self ruleOf: symbol1.
+	^ rule ifNotNil: [ 
+		  rule options
+			  detect: [ :node | node nodeChildren includes: symbol2 ]
+			  ifNone: [ nil ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> nodeOfRule: symbol given: integer [
 
 	^ rules
@@ -230,7 +260,7 @@ GEGrammar >> nodeOfRule: symbol given: integer [
 		  ifAbsent: [ nil ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> nodeOfRule: symbol givenCodon: array [
 
 	| node |
@@ -239,12 +269,12 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array [
 	node := self
 		        nodeOfRule: symbol
 		        givenCodon: array
-		        and: self defaultWrapsNumber.
+		        and: wrapsNumber.
 	node ifNotNil: [ node genome: array ].
 	^ node
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> nodeOfRule: symbol givenCodon: array and: integer [
 	^ self nodeOfRule: symbol 
 		givenCodon: array 
@@ -253,30 +283,37 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array and: integer [
 		and: (Stack new add: integer; yourself)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> nodeOfRule: symbol givenCodon: array depth: integer stack: stack and: wrapStack [
 
+	| rule index assoc object codonValue |
 	self validate: stack given: array and: wrapStack.
-	^ [ 
-	  | rule index assoc object codonValue |
-	  rule := rules at: symbol.
-	  codonValue := stack pop.
-	  index := codonValue \\ rule optionsSize + 1.
-	  assoc := rule optionAndInfoAt: index.
-	  object := assoc value.
-	  object addCodonValue: codonValue.
-	  ((#( 'nonTerminal' 'collection' ) includes: assoc key) not and: [ 
-		   object value isNil ]) ifTrue: [ 
-		  | options |
-		  self validate: stack given: array and: wrapStack.
-		  options := rule infoOptionsAt: index.
-		  codonValue := stack pop.
-		  assoc := assoc key
-		           ->
-		           (object addCodonValue: codonValue;
-							value:
-			            (options at: codonValue \\ options size + 1)) ].
-	  self
+	rule := rules at: symbol.
+	codonValue := stack pop.
+	index := codonValue \\ rule optionsSize + 1.
+	assoc := rule optionAndInfoAt: index.
+	object := assoc value.
+	object isSymbol
+		ifTrue: [ 
+			^ self
+				  nodeOfRule: object
+				  givenCodon: array
+				  depth: integer + 1
+				  stack: stack
+				  and: wrapStack ]
+		ifFalse: [ 
+			self validate: stack given: array and: wrapStack.
+			object addCodonValue: codonValue ].
+	((#( 'nonTerminal' 'collection' ) includes: assoc key) not and: [ 
+		 object value isNil ]) ifTrue: [ 
+		| options |
+		self validate: stack given: array and: wrapStack.
+		options := rule infoOptionsAt: index.
+		codonValue := stack pop.
+		assoc := assoc key -> (object
+			          addCodonValue: codonValue;
+			          value: (options at: codonValue \\ options size + 1)) ].
+	^ self
 		  node: assoc
 		  given: ([ rule infoOptionsAt: index ]
 				   on: AssertionFailure
@@ -284,12 +321,10 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array depth: integer stack: stack an
 		  codon: array
 		  depth: integer
 		  stack: stack
-		  and: wrapStack ]
-		  on: Error
-		  do: [ nil ]
+		  and: wrapStack
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> nonTerminal: object given: array depth: integer stack: stack and: wrapStack [
 
 	^ object class == GENonTerminalNode
@@ -315,19 +350,24 @@ GEGrammar >> nonTerminal: object given: array depth: integer stack: stack and: w
 				  and: wrapStack ]
 ]
 
+{ #category : #'as yet unclassified' }
+GEGrammar >> ruleOf: symbol [
+	^ rules at: symbol ifAbsent: [ nil ]
+]
+
 { #category : #'instance creation' }
 GEGrammar >> seed: integer [
 	self assert: (integer isInteger and: [ integer positive ]).
 	random seed: integer
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> updateNodeChild: stack of: node [
 
 					self updateNodeChild: stack of: node given: (self newNodeOfRule: stack top)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> updateNodeChild: stack of: node given: nodeChild [
 
 	| index symbol |
@@ -349,15 +389,15 @@ GEGrammar >> updateNodeChild: stack of: node given: nodeChild [
 						self updateNodeChild: stack of: child given: nodeChild ] ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> updateRule: symbol ofKind: string withValues: collection [
 
 	| rule |
-	rule := rules at: symbol ifAbsent: [ nil ].
+	rule := self ruleOf: symbol.
 	rule ifNotNil: [ rule addOptions: string by: collection deepCopy ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GEGrammar >> validate: stack given: array and: wrapStack [
 	stack ifEmpty: [ 
 		wrapStack top > 0
@@ -366,5 +406,12 @@ GEGrammar >> validate: stack given: array and: wrapStack [
 				wrapNumber := wrapStack pop.
 				wrapStack push: wrapNumber - 1.
 				stack removeAll.
-				array do: [ :i | stack push: i ] ] ]
+				array do: [ :i | stack push: i ] ]
+		ifFalse: [ self error: 'Out of bounds of wrap and genome size. You can increase the wrapNumber or change the genome values' ] ]
+]
+
+{ #category : #accessing }
+GEGrammar >> wrapNumber: integer [
+	self assert: (integer isInteger and: [ integer positive ]).
+	wrapsNumber := integer
 ]

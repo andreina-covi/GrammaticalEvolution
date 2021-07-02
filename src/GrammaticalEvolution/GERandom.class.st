@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'random'
 	],
-	#category : #'GrammaticalEvolution-Genetic-Programming'
+	#category : #'GrammaticalEvolution-Core'
 }
 
 { #category : #'instance creation' }

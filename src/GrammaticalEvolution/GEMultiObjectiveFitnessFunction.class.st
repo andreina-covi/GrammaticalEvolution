@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'dictObjective'
 	],
-	#category : #'GrammaticalEvolution-Genetic-Programming'
+	#category : #'GrammaticalEvolution-Core'
 }
 
 { #category : #comparing }

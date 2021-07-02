@@ -46,6 +46,22 @@ GEGrammarTest >> testAddNonTerminalOfTypeAndSequence [
 ]
 
 { #category : #accessing }
+GEGrammarTest >> testAddNonTerminalWithValues [
+
+	| nodes rule |
+	grammar
+		addNonTerminal: #E withValues: #( #T );
+		addTerminal: #T ofType: RBLiteralNode andValues: #( 1 54 3 2 ).
+	nodes := grammar allNodesOfRule: #E.
+	self assert: nodes size equals: 1.
+	rule := grammar ruleOf: #E.
+	self
+		assertCollection: (rule infoOptionsOf: 'redirection')
+		hasSameElements: #( #T ).
+	self assertCollection: rule options hasSameElements: #( #T )
+]
+
+{ #category : #accessing }
 GEGrammarTest >> testAddSelectorTerminalWithValues [
 
 	| nodes node |
@@ -92,6 +108,52 @@ GEGrammarTest >> testAddTerminalOfTypeAndValues [
 	self assert: node evaluate equals: 4.
 	self assert: (grammar nodeOfRule: #Number given: 2) value equals: 8.
 	self assert: (grammar nodeOfRule: #Number given: 3) value equals: 21
+]
+
+{ #category : #tests }
+GEGrammarTest >> testETFGrammar [
+
+	| tree |
+	grammar seed: 56.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #T );
+		addNonTerminal: #E withValues: #( #T );
+		addNonTerminal: #T
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addNonTerminal: #T withValues: #( #F );
+		addNonTerminal: #F withValues: #( #E );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
+		addSelectorTerminal: #Add withValues: #( #+ );
+		addSelectorTerminal: #Mult withValues: #( #* ).
+	tree := grammar nodeOfRule: #E givenCodon: #( 6 5 3 5 8 4 8 9 5 6 7 7 ).
+	self assert: tree isNonTerminalNode.
+	self assert: tree asString equals: '21 + (4 * 8)'
+]
+
+{ #category : #tests }
+GEGrammarTest >> testGenerateNodeOfRule [
+
+	| tree |
+	grammar seed: 56.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #T );
+		addNonTerminal: #E withValues: #( #T );
+		addNonTerminal: #T
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addNonTerminal: #T withValues: #( #F );
+		addNonTerminal: #F withValues: #( #E );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
+		addSelectorTerminal: #Add withValues: #( #+ );
+		addSelectorTerminal: #Mult withValues: #( #* ).
+	tree := grammar generateNodeOfRule: #E.
+	self assert: tree isTerminalValueNode.
+	self assert: tree asString equals: '4'
 ]
 
 { #category : #accessing }
@@ -198,4 +260,47 @@ GEGrammarTest >> testNodeOfRuleGivenCodon3 [
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '6 + 8').
 	self assert: node evaluate equals: 14
+]
+
+{ #category : #tests }
+GEGrammarTest >> testNodeOfRuleGivenCodon4 [
+
+	| tree |
+	grammar seed: 56.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #T );
+		addNonTerminal: #E withValues: #( #T );
+		addNonTerminal: #T
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addNonTerminal: #T withValues: #( #F );
+		addNonTerminal: #F withValues: #( #E );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
+		addSelectorTerminal: #Add withValues: #( #+ );
+		addSelectorTerminal: #Mult withValues: #( #* ).
+	tree := grammar nodeOfRule: #E givenCodon: #( 6 4 5 8 5 9 6 7 5 5 7 ).
+	self assert: tree isNonTerminalNode.
+	self assert: tree asString equals: '4 * 21 + 21 + (21 * (8 + 21))'
+]
+
+{ #category : #tests }
+GEGrammarTest >> testNodeOfRuleRaisingError [
+
+	grammar seed: 56.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #T );
+		addNonTerminal: #E withValues: #( #T );
+		addNonTerminal: #T
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addNonTerminal: #T withValues: #( #F );
+		addNonTerminal: #F withValues: #( #E );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 ).
+	self
+		should: [ grammar nodeOfRule: #E givenCodon: #( 2 3 5 7 3 3 ) ]
+		raise: KeyNotFound
 ]
