@@ -195,11 +195,8 @@ GEAssertionGenerator >> createIndividual [
 	self updateGrammar.
 	i := 0.
 	node := nil.
-	[ node isNotNil or: [ i > 50 ] ] whileFalse: [ 
-		| codonSize codon |
-		codonSize := random randomNumberFrom: 5 to: 10.
-		codon := (1 to: codonSize) collect: [ :n | random randomNumber: self maxCodonValue ].
-		node := grammar nodeOfRule: #Method givenCodon: codon.
+	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
+		node := [ grammar generateNodeOfRule: #Method ] on: GEError do: [ nil ].
 		i := i + 1 ].
 	^ node
 ]
@@ -237,14 +234,14 @@ GEAssertionGenerator >> crossoverOfOnePoint: object1 with: object2 [
 	self assert: (c1 notNil and: [ c2 notNil ]).
 	crossoverPoint1 := random randomlySelect: (1 to: c1 size).
 	crossoverPoint2 := random randomlySelect: (1 to: c2 size).
-	newC1 := grammar
+	newC1 := [ grammar
 		         nodeOfRule: #Method
 		         givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
-			         , (c2 copyFrom: crossoverPoint2 to: c2 size).
-	newC2 := grammar
+			         , (c2 copyFrom: crossoverPoint2 to: c2 size) ] on: GEError do: [ nil ].
+	newC2 := [ grammar
 		         nodeOfRule: #Method
 		         givenCodon: (c2 copyFrom: 1 to: crossoverPoint2)
-			         , (c1 copyFrom: crossoverPoint1 to: c1 size).
+			         , (c1 copyFrom: crossoverPoint1 to: c1 size) ] on: GEError do: [ nil ].
 	^ self
 		  betterChildBetween: newC1
 		  and: newC2
@@ -267,7 +264,7 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 	self assert: callsNumber > 0.
 	uninstalled := false.
 	[ self injectIntoMethod: individual pharoCode ]
-		on: Error
+		on: Exception
 		do: [ 
 			uninstalled := false.
 			self uninstall ].
@@ -361,9 +358,9 @@ GEAssertionGenerator >> mutate: object1 given: integer [
 		               ifTrue: [ allCodonValues ]
 		               ifFalse: [ object1 genome ].
 	1 to: codonValues size do: [ :i | 
-		(random randomNumber: 100) < integer ifTrue: [
+		(random randomNumber: 100) < integer ifTrue: [ 
 			object1 genomeAt: i put: (random randomNumber: self maxCodonValue) ] ].
-	newIndiv := grammar nodeOfRule: #Method givenCodon: object1 genome.
+	newIndiv := [ grammar nodeOfRule: #Method givenCodon: object1 genome ] on: GEError do: [ nil ].
 	newIndiv ifNotNil: [ 
 		object1 parents do: [ :p | newIndiv addParent: p ] ].
 	^ newIndiv
@@ -452,7 +449,9 @@ GEAssertionGenerator >> randomNumber: number [
 
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> randomSubTree: tree given: symbol [
-	^ random randomlySelect: (tree withAllChildren select: [ :node | node id = symbol ]) 
+	| array |
+	array := (Array with: symbol), (grammar ofRule: symbol getInfoOptions: 'redirection').
+	^ random randomlySelect: (tree withAllChildren select: [ :node | array includes: node id ]) 
 ]
 
 { #category : #'as yet unclassified' }

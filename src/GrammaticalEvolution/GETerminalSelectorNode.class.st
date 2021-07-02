@@ -20,8 +20,11 @@ GETerminalSelectorNode >> equals: another [
 ]
 
 { #category : #'public access' }
-GETerminalSelectorNode >> evaluate [ 
-	^ [ super evaluate ] on: Error do: [ self value ]
+GETerminalSelectorNode >> evaluate [
+
+	^ [ super evaluate ]
+		  on: Exception
+		  do: [ self value ]
 ]
 
 { #category : #testing }

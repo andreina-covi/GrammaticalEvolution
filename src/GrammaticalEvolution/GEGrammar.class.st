@@ -351,6 +351,11 @@ GEGrammar >> nonTerminal: object given: array depth: integer stack: stack and: w
 ]
 
 { #category : #'as yet unclassified' }
+GEGrammar >> ofRule: symbol getInfoOptions: string [
+	^ (self ruleOf: symbol) infoOptionsOf: string
+]
+
+{ #category : #'as yet unclassified' }
 GEGrammar >> ruleOf: symbol [
 	^ rules at: symbol ifAbsent: [ nil ]
 ]
@@ -370,15 +375,16 @@ GEGrammar >> updateNodeChild: stack of: node [
 { #category : #'instance creation' }
 GEGrammar >> updateNodeChild: stack of: node given: nodeChild [
 
-	| index symbol |
+	| index symbol array |
 	index := 0.
 	symbol := stack pop.
+	array := (Array with: symbol), (self ofRule: symbol getInfoOptions: 'redirection').
 	node nodeChildren
 		detect: [ :s | 
 			index := index + 1.
-			s = symbol ]
+			array includes: s ]
 		ifFound: [ :s | 
-			nodeChild id = s
+			(array includes: nodeChild id)
 				ifTrue: [ nodeChild depth: node depth + 1 .
 					node updateChildAt: index by: nodeChild ]
 				ifFalse: [ 
