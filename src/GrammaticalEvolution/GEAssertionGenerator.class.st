@@ -537,9 +537,10 @@ GEAssertionGenerator >> updateGrammar [
 
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> updateGrammarWithInstanceVars: class [
+
 	| instVars |
 	self assert: class isClass.
-	instVars := class instanceVariables collect: #name.
+	instVars := class instVarNames.
 	instVars ifNotEmpty: [ 
 		grammar
 			addNonTerminal: #Method
@@ -551,7 +552,8 @@ GEAssertionGenerator >> updateGrammarWithInstanceVars: class [
 			addNonTerminal: #NegativeInclusion
 			ofType: RBMessageNode
 			andSequence: #( #Inclusion #Not );
-			addNonTerminal: #Method withValues: #(#Inclusion #NegativeInclusion);
+			addNonTerminal: #Method
+			withValues: #( #Inclusion #NegativeInclusion );
 			addTerminal: #InstanceVar
 			ofType: RBVariableNode
 			andValues: instVars ]
