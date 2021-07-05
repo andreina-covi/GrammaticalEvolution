@@ -5,14 +5,6 @@ Class {
 }
 
 { #category : #comparing }
-GETerminalSelectorNode >> = another [
-
-	^ super = another and: [id == another id and: [ 
-		  value = another value
-		  "and: [ depth == other depth ]" ] ]
-]
-
-{ #category : #comparing }
 GETerminalSelectorNode >> equals: another [
 
 	^ id == another id and: [ 

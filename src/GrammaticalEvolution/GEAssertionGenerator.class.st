@@ -358,9 +358,11 @@ GEAssertionGenerator >> mutate: object1 given: integer [
 		               ifTrue: [ allCodonValues ]
 		               ifFalse: [ object1 genome ].
 	1 to: codonValues size do: [ :i | 
-		(random randomNumber: 100) < integer ifTrue: [ 
+		(random randomNumber: 100) < integer ifTrue: [
 			object1 genomeAt: i put: (random randomNumber: self maxCodonValue) ] ].
-	newIndiv := [ grammar nodeOfRule: #Method givenCodon: object1 genome ] on: GEError do: [ nil ].
+	newIndiv := [ grammar nodeOfRule: #Method givenCodon: object1 genome ]
+		            on: GEError
+		            do: [ nil ].
 	newIndiv ifNotNil: [ 
 		object1 parents do: [ :p | newIndiv addParent: p ] ].
 	^ newIndiv
@@ -433,7 +435,7 @@ GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
 { #category : #'as yet unclassified' }
 GEAssertionGenerator >> populationSize [
 
-	^ 35
+	^ 15
 ]
 
 { #category : #accessing }

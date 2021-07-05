@@ -13,23 +13,6 @@ GECollectionNode class >> new: aNode [
 	^ self new nodeChildren: (Array with: aNode)
 ]
 
-{ #category : #comparing }
-GECollectionNode >> = another [
-
-	^ super = another and: [  id == another id and: [ 
-		  size == another size and: [ "and: [ depth == other depth "
-			  | index |
-			  index := 1.
-			  nodeChildren
-				  detect: [ :child | 
-					  | found |
-					  found := child ~= (another nodeChildren at: index).
-					  index := index + 1.
-					  found ]
-				  ifFound: [ :c | false ]
-				  ifNone: [ true ] ] ] ]
-]
-
 { #category : #copying }
 GECollectionNode >> deepCopy [ 
 	^ super deepCopy 
