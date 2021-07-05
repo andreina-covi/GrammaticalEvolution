@@ -35,3 +35,19 @@ a  testClasses:  {RSColoredTreePaletteTest};
 a run.
 a.
 ```
+
+To visualize the evolution type the following: 
+
+```Smalltalk
+GAEvoViz new
+    populations: ((self allPopulations at: #allLeavesAccessibleFrom: ) collect: #population); 
+    populationFileName: '/tmp/RSColoredTreePalette_allLeavesAccessibleFrom_Data.csv';
+    comparisonSelector: #<;
+    run.
+```
+
+You need to specify:
+
+- populations through generations,
+- .csv file location where the result was exported, and 
+- like the goal is the decreasing of fitness value we need to specify the `comparisonSelector:` with `#<`
