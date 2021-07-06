@@ -156,6 +156,29 @@ GEGrammarTest >> testGenerateNodeOfRule [
 	self assert: tree asString equals: '4'
 ]
 
+{ #category : #tests }
+GEGrammarTest >> testGenerateNodeOfRuleGiven [
+
+	"| tree |
+	grammar seed: 56.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #T );
+		addNonTerminal: #E withValues: #( #T );
+		addNonTerminal: #T
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addNonTerminal: #T withValues: #( #F );
+		addNonTerminal: #F withValues: #( #E );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
+		addSelectorTerminal: #Add withValues: #( #+ );
+		addSelectorTerminal: #Mult withValues: #( #* ).
+	tree := grammar generateNodeOfRule: #E given: 5.
+	self assert: tree isNonTerminalNode.
+	self assert: tree maxDepth equals: 5"
+]
+
 { #category : #accessing }
 GEGrammarTest >> testNodeOfRuleGivenCodon [
 
