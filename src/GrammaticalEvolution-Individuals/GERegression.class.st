@@ -5,13 +5,11 @@ Class {
 }
 
 { #category : #private }
-GERegression >> fileNameFor: engine [
+GERegression >> fileName: engine [
 
 	^ String streamContents: [ :stream | 
 		  stream
-			  nextPutAll: (folderToExport
-					   ifEmpty: [ folderToExport ]
-					   ifNotEmpty: [ folderToExport , '/' ]);
+			  nextPutAll: self folderName;
 			  nextPutAll: 'Regression.csv' ]
 ]
 

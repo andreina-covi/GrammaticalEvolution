@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'folderToExport',
-		'seed'
+		'seed',
+		'populations'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Core'
 }
@@ -58,11 +59,23 @@ GEGrammarEvolution >> exportResult: engine on: filename [
 				flush ] ]
 ]
 
+{ #category : #accessing }
+GEGrammarEvolution >> fileName: engine [
+	^ self subclassResponsibility 
+]
+
 { #category : #private }
 GEGrammarEvolution >> fileNameFor: engine [
-	
+
 	self ensureDirectory.
-	^ self subclassResponsibility
+	^ self fileName: engine
+]
+
+{ #category : #accessing }
+GEGrammarEvolution >> folderName [ 
+	^ folderToExport
+					   ifEmpty: [ folderToExport ]
+					   ifNotEmpty: [ folderToExport , '/' ]
 ]
 
 { #category : #accessing }
@@ -76,13 +89,24 @@ GEGrammarEvolution >> folderToExport: string [
 GEGrammarEvolution >> initialize [
 
 	folderToExport := ''.
-	seed := 4
+	seed := 4.
+	populations := OrderedCollection new
+]
+
+{ #category : #accessing }
+GEGrammarEvolution >> populations [
+	^ populations 
 ]
 
 { #category : #accessing }
 GEGrammarEvolution >> populations: engine [
 
 	^ engine logs collect: #population
+]
+
+{ #category : #running }
+GEGrammarEvolution >> run [
+	self subclassResponsibility 
 ]
 
 { #category : #running }
@@ -93,6 +117,7 @@ GEGrammarEvolution >> run: configuration [
 		          configuration: configuration;
 		          run.
 	self exportResult: engine on: (self fileNameFor: engine).
+	populations := self populations: engine.
 	^ engine
 ]
 

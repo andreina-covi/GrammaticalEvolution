@@ -1,10 +1,10 @@
 Class {
 	#name : #GEMultiObjectiveFitnessFunction,
-	#superclass : #Object,
+	#superclass : #GEFitnessFunction,
 	#instVars : [
 		'dictObjective'
 	],
-	#category : #'GrammaticalEvolution-Core'
+	#category : #'GrammaticalEvolution-FitnessFunction'
 }
 
 { #category : #comparing }

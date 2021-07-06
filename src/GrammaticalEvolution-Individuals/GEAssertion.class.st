@@ -176,13 +176,11 @@ GEAssertion >> countErrors: selector given: protocol and: block [
 ]
 
 { #category : #private }
-GEAssertion >> fileNameFor: engine [
+GEAssertion >> fileName: engine [
 
 	^ String streamContents: [ :stream | 
 		  stream
-			  nextPutAll: (folderToExport
-					   ifEmpty: [ folderToExport ]
-					   ifNotEmpty: [ folderToExport , '/' ]);
+			  nextPutAll: self folderName;
 			  nextPutAll: engine configuration targetClass name;
 			  nextPut: $_;
 			  nextPutAll:

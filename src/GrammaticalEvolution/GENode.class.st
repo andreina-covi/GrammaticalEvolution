@@ -134,6 +134,18 @@ GENode >> evaluate [
 	^ self pharoAST evaluate
 ]
 
+{ #category : #'public access' }
+GENode >> evaluateGiven: dictionary [
+
+	| block |
+	block := (RBBlockNode
+		          arguments:
+		          (dictionary keys collect: [ :k | RBVariableNode named: k ])
+		          body: (RBSequenceNode new statements:
+				           (OrderedCollection with: self pharoAST))) evaluate.
+	^ block valueWithPossibleArgs: dictionary values
+]
+
 { #category : #accessing }
 GENode >> fitness [
 

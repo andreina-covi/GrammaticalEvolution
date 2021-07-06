@@ -179,10 +179,9 @@ GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 	number := random randomNumber: 100.
 
 	^ number < 50
-		  ifTrue: [ self crossoverOfOnePoint: object1 with: object2 ]
-		  ifFalse: [ self crossoverJoining: object1 and: object2 ]
-
-	"^ self crossoverJoining: object1 and: object2"
+		  ifTrue: [ self crossoverOfOnePoint: #Method between: object1 and: object2 ]
+		  ifFalse: [ "^ self crossoverJoining: object1 and: object2" 
+			  self crossoverJoining: object1 and: object2 ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -194,29 +193,6 @@ GEAssertionGenerator >> crossoverJoining: object1 and: object2 [
 	node1 := self newTreeOf: o1 and: o2.
 	node2 := self newTreeOf: o2 and: o1.
 	^ self betterChildBetween: node1 and: node2 given: (Array with: object1 with: object2)
-]
-
-{ #category : #'as yet unclassified' }
-GEAssertionGenerator >> crossoverOfOnePoint: object1 with: object2 [
-
-	| c1 c2 crossoverPoint1 crossoverPoint2 newC1 newC2 |
-	c1 := object1 allCodonValues.
-	c2 := object2 allCodonValues.
-	self assert: (c1 notNil and: [ c2 notNil ]).
-	crossoverPoint1 := random randomlySelect: (1 to: c1 size).
-	crossoverPoint2 := random randomlySelect: (1 to: c2 size).
-	newC1 := [ grammar
-		         nodeOfRule: #Method
-		         givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
-			         , (c2 copyFrom: crossoverPoint2 to: c2 size) ] on: GEError do: [ nil ].
-	newC2 := [ grammar
-		         nodeOfRule: #Method
-		         givenCodon: (c2 copyFrom: 1 to: crossoverPoint2)
-			         , (c1 copyFrom: crossoverPoint1 to: c1 size) ] on: GEError do: [ nil ].
-	^ self
-		  betterChildBetween: newC1
-		  and: newC2
-		  given: (Array with: object1 with: object2)
 ]
 
 { #category : #accessing }
@@ -306,22 +282,9 @@ GEAssertionGenerator >> maxCodonValue [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> mutate: object1 given: integer [
+GEAssertionGenerator >> mutate: object given: integer [
 
-	| codonValues newIndiv allCodonValues |
-	allCodonValues := object1 allCodonValues.
-	codonValues := allCodonValues size < object1 genome size
-		               ifTrue: [ allCodonValues ]
-		               ifFalse: [ object1 genome ].
-	1 to: codonValues size do: [ :i | 
-		(random randomNumber: 100) < integer ifTrue: [
-			object1 genomeAt: i put: (random randomNumber: self maxCodonValue) ] ].
-	newIndiv := [ grammar nodeOfRule: #Method givenCodon: object1 genome ]
-		            on: GEError
-		            do: [ nil ].
-	newIndiv ifNotNil: [ 
-		object1 parents do: [ :p | newIndiv addParent: p ] ].
-	^ newIndiv
+	^ self mutate: object given: integer and: #Method
 ]
 
 { #category : #'as yet unclassified' }
