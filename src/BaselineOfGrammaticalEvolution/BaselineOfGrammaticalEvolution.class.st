@@ -18,17 +18,20 @@ BaselineOfGrammaticalEvolution >> baseline: spec [
 			with: [ spec repository: 'github://svenvc/NeoCSV/repository' ].
 		spec
 			baseline: 'GAEvoViz'
-			with: [ spec repository: 'github://andreina-covi/GAEvoViz:main/src' ].
+			with: [ 
+			spec repository: 'github://andreina-covi/GAEvoViz:main/src' ].
 		spec
-			package: 'GrammaticalEvolution'
-			with: [ spec requires: #( 'NeoCSV' ) ];
+			package: 'GrammaticalEvolution';
+			package: 'GrammaticalEvolution-Individuals'
+			with: [ spec requires: #( 'GrammaticalEvolution' 'NeoCSV' ) ];
 			package: 'GrammaticalEvolution-Tests'
 			with: [ spec requires: #( 'GrammaticalEvolution' ) ];
 			package: 'GrammaticalEvolution-Visualization'
 			with: [ spec requires: #( 'Roassal3' ) ].
 		spec
 			group: 'default'
-			with: #( 'GrammaticalEvolution' 'GrammaticalEvolution-Tests' );
+			with: #( 'GrammaticalEvolution' 'GrammaticalEvolution-Individuals'
+				   'GrammaticalEvolution-Tests' );
 			group: 'all'
 			with:
 				#( 'GrammaticalEvolution-Tests' 'GrammaticalEvolution-Visualization'

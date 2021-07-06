@@ -175,29 +175,6 @@ GEAssertion >> countErrors: selector given: protocol and: block [
 	^ Array with: res with: objects
 ]
 
-{ #category : #'as yet unclassified' }
-GEAssertion >> exportResultsOfData [
-
-	| folderName |
-	self ensureDirectory.
-	folderName := folderToExport
-		              ifEmpty: [ folderToExport ]
-		              ifNotEmpty: [ folderToExport , '/' ].
-	data valuesDo: [ :engine | 
-		| filename |
-		filename := String streamContents: [ :stream | 
-			            stream
-				            nextPutAll: folderName;
-				            nextPutAll: targetClass name;
-				            nextPut: $_;
-				            nextPutAll:
-					            (engine configuration targetSelector
-						             copyReplaceAll: ':'
-						             with: '');
-				            nextPutAll: '_Data.csv' ].
-		self exportResult: engine on: filename ]
-]
-
 { #category : #private }
 GEAssertion >> fileNameFor: engine [
 
@@ -213,15 +190,6 @@ GEAssertion >> fileNameFor: engine [
 					   copyReplaceAll: ':'
 					   with: '');
 			  nextPutAll: '_Data.csv' ]
-]
-
-{ #category : #'as yet unclassified' }
-GEAssertion >> getBestIndividual: configuration [
-
-	| engine |
-	engine := GEEngine new configuration: configuration.
-	engine run.
-	^ engine
 ]
 
 { #category : #'as yet unclassified' }

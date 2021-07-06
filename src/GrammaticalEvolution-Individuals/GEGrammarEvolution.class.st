@@ -60,7 +60,9 @@ GEGrammarEvolution >> exportResult: engine on: filename [
 
 { #category : #private }
 GEGrammarEvolution >> fileNameFor: engine [
-	^ self subclassResponsibility 
+	
+	self ensureDirectory.
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }
