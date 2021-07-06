@@ -23,7 +23,8 @@ BaselineOfGrammaticalEvolution >> baseline: spec [
 		spec
 			package: 'GrammaticalEvolution';
 			package: 'GrammaticalEvolution-Individuals'
-			with: [ spec requires: #( 'GrammaticalEvolution' 'NeoCSV' ) ];
+			with: [ spec requires: #( 'GrammaticalEvolution'
+					   'NeoCSV' ) ];
 			package: 'GrammaticalEvolution-Tests'
 			with: [ spec requires: #( 'GrammaticalEvolution' ) ];
 			package: 'GrammaticalEvolution-Visualization'
@@ -34,6 +35,6 @@ BaselineOfGrammaticalEvolution >> baseline: spec [
 				   'GrammaticalEvolution-Tests' );
 			group: 'all'
 			with:
-				#( 'GrammaticalEvolution-Tests' 'GrammaticalEvolution-Visualization'
+				#('GrammaticalEvolution-Individuals' 'GrammaticalEvolution-Tests' 'GrammaticalEvolution-Visualization'
 				   'GAEvoViz' ) ]
 ]
