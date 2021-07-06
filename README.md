@@ -40,7 +40,7 @@ To visualize the evolution type the following:
 
 ```Smalltalk
 GAEvoViz new
-    populations: ((self allPopulations at: #allLeavesAccessibleFrom: ) collect: #population); 
+    populations: (self allPopulations at: #allLeavesAccessibleFrom:); 
     populationFileName: '/tmp/RSColoredTreePalette_allLeavesAccessibleFrom_Data.csv';
     comparisonSelector: #<;
     run.
