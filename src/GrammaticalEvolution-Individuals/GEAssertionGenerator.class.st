@@ -1,12 +1,10 @@
 Class {
 	#name : #GEAssertionGenerator,
-	#superclass : #Object,
+	#superclass : #GEConfiguration,
 	#instVars : [
-		'random',
 		'targetClass',
 		'testClasses',
 		'randomIterations',
-		'grammar',
 		'arguments',
 		'targetSelector',
 		'targetSelectors',
@@ -16,21 +14,8 @@ Class {
 		'options',
 		'originalMethod'
 	],
-	#category : #'GrammaticalEvolution-Individual'
+	#category : #'GrammaticalEvolution-Individuals-Assertion'
 }
-
-{ #category : #adding }
-GEAssertionGenerator >> addGrammarOptions: dictionary [
-
-	grammar ifNil: [ self buildGrammar ].
-	dictionary associationsDo: [ :assoc | 
-		| a |
-		a := assoc key.
-		grammar
-			updateRule: a key
-			ofKind: a value
-			withValues: assoc value asOrderedCollection ]
-]
 
 { #category : #adding }
 GEAssertionGenerator >> addTargetVariable [
@@ -44,20 +29,6 @@ GEAssertionGenerator >> addTargetVariable [
 		createOrReplaceTerminalValue: #Variable
 		ofType: RBVariableNode
 		andValues: args
-]
-
-{ #category : #'as yet unclassified' }
-GEAssertionGenerator >> betterChildBetween: newC1 and: newC2 given: array [
-	| node |
-	node := (newC1 notNil and: [ newC2 notNil ])
-		  ifTrue: [ self getBestBetween: newC1 and: newC2 ]
-		  ifFalse: [ 
-			  (Array with: newC1 with: newC2)
-				  detect: #notNil
-				  ifNone: [ ^ nil ] ].
-	array do: [ :parent | 
-		node addParent: parent ].
-	^ node
 ]
 
 { #category : #'as yet unclassified' }
@@ -296,24 +267,9 @@ GEAssertionGenerator >> generations [
 	^ 10
 ]
 
-{ #category : #'as yet unclassified' }
-GEAssertionGenerator >> getBestBetween: object1 and: object2 [
-
-	object1 fitness ifNil: [ self fitnessValueOf: object1 ].
-	object2 fitness ifNil: [ self fitnessValueOf: object2 ].
-	^ (self isBetter: object1 than: object2)
-		  ifTrue: [ object1 ]
-		  ifFalse: [
-			  (self isBetter: object2 than: object1)
-				  ifTrue: [ object2 ]
-				  ifFalse: [ 
-				  random randomlySelect: (Array with: object1 with: object2) ] ]
-]
-
 { #category : #initialization }
 GEAssertionGenerator >> initialize [
-
-	random := GERandom seed: 1.
+	super initialize.
 	arguments := OrderedCollection new.
 	targetSelectors := OrderedCollection new.
 	testClasses := OrderedCollection new.
@@ -402,37 +358,6 @@ GEAssertionGenerator >> options: collection [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> pickBestConsideringParents: individual [
-
-	| col parent |
-	self assert: individual parents notEmpty.
-	col := self sortIndividuals:
-		       (random shuffleElementsOf: individual parents).
-	parent := col first.
-	^ (self isBetter: parent than: individual)
-		  ifTrue: [ 
-			  | indiv |
-			  indiv := parent deepCopy.
-			  indiv
-				  addParent: parent;
-				  genome: parent genome copy.
-			  indiv ]
-		  ifFalse: [ individual ]
-]
-
-{ #category : #'as yet unclassified' }
-GEAssertionGenerator >> pickBestIndividual: object1 and: object2 [
-
-	| newInd parent |
-	parent := self getBestBetween: object1 and: object2.
-	newInd := parent deepCopy.
-	newInd
-		addParent: parent;
-		genome: parent genome copy.
-	^ newInd
-]
-
-{ #category : #'as yet unclassified' }
 GEAssertionGenerator >> populationSize [
 
 	^ 15
@@ -445,11 +370,6 @@ GEAssertionGenerator >> randomIterations: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> randomNumber: number [
-	^ random randomNumber: number
-]
-
-{ #category : #'as yet unclassified' }
 GEAssertionGenerator >> randomSubTree: tree given: symbol [
 	| array |
 	array := (Array with: symbol), (grammar ofRule: symbol getInfoOptions: 'redirection').
@@ -457,30 +377,16 @@ GEAssertionGenerator >> randomSubTree: tree given: symbol [
 ]
 
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> randomlySelect: collection [
-
-	^ random randomlySelect: collection
-]
-
-{ #category : #'as yet unclassified' }
-GEAssertionGenerator >> rankedIndividuals: collection [
-
-	^ (collection collect: [ :obj | 
-		   obj -> (self fitnessValueOf: obj) ]) asSortedCollection: [ 
-		  :assoc1 
-		  :assoc2 | assoc1 value < assoc2 value ]
-]
-
-{ #category : #'instance creation' }
-GEAssertionGenerator >> seed: number [
-	random seed: number
-]
-
-{ #category : #'as yet unclassified' }
 GEAssertionGenerator >> sortIndividuals: collection [
 
 	^ collection asSortedCollection: [ :indiv1 :indiv2 | 
 		  self isBetter: indiv1 than: indiv2 ]
+]
+
+{ #category : #accessing }
+GEAssertionGenerator >> targetClass [
+
+	^ targetClass
 ]
 
 { #category : #accessing }
@@ -552,7 +458,7 @@ GEAssertionGenerator >> updateGrammarWithInstanceVars: class [
 			addNonTerminal: #NegativeInclusion
 			ofType: RBMessageNode
 			andSequence: #( #Inclusion #Not );
-			addNonTerminal: #Method
+			addRule: #Method
 			withValues: #( #Inclusion #NegativeInclusion );
 			addTerminal: #InstanceVar
 			ofType: RBVariableNode

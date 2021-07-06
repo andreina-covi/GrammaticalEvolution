@@ -1,21 +1,19 @@
 Class {
 	#name : #GEAssertion,
-	#superclass : #Object,
+	#superclass : #GEGrammarEvolution,
 	#instVars : [
 		'targetClass',
 		'testClasses',
 		'data',
 		'targetSelectors',
-		'seed',
 		'contextBlocks',
 		'randomIterationNumber',
 		'metrics',
 		'random',
 		'options',
-		'packageScope',
-		'folderToExport'
+		'packageScope'
 	],
-	#category : #'GrammaticalEvolution-Individual'
+	#category : #'GrammaticalEvolution-Individuals-Assertion'
 }
 
 { #category : #adding }
@@ -64,7 +62,7 @@ GEAssertion >> addSelectorsOptions [
 GEAssertion >> allPopulations [
 
 	^ (data associations collect: [ :assoc | 
-		  assoc key -> assoc value logs ]) asDictionary
+		   assoc key -> (self populations: assoc value) ]) asDictionary
 ]
 
 { #category : #'as yet unclassified' }
@@ -177,55 +175,6 @@ GEAssertion >> countErrors: selector given: protocol and: block [
 	^ Array with: res with: objects
 ]
 
-{ #category : #operations }
-GEAssertion >> ensureDirectory [
-
-	(folderToExport notNil and: [ folderToExport notEmpty ])
-		ifFalse: [ ^ self ]
-		ifTrue: [ 
-			| directory ref |
-			directory := FileSystem disk workingDirectory.
-			ref := directory / folderToExport.
-			ref ensureCreateDirectory ]
-]
-
-{ #category : #'as yet unclassified' }
-GEAssertion >> exportResult: engine on: filename [
-
-	| collection metricNames generation |
-	self assert: engine notNil.
-	self assert: (filename isString and: [ filename notEmpty ]).
-	metricNames := OrderedCollection new.
-	generation := 0.
-	collection := engine logs flatCollect: [ :log | 
-		        | position |
-		        position := 1.
-		        generation := generation + 1.
-		        log population collect: [ :ind | 
-			        | col ableToAdd |
-			        ind
-				        generation: generation;
-				        position: position.
-			        col := OrderedCollection new
-				               add: ind generation;
-				               add: ind position;
-				               add: ind fitness asNumber;
-				               yourself.
-			        ableToAdd := metricNames isEmpty.
-			        col addAll: (ind fitness objectives collect: [ :assoc | 
-					         ableToAdd ifTrue: [ metricNames add: assoc key ].
-					         assoc value ]).
-			        position := position + 1.
-			        col ] ].
-	collection ifNotEmpty: [ 
-		filename asFileReference ensureDelete.
-		filename asFileReference writeStreamDo: [ :stream | 
-			(NeoCSVWriter on: stream)
-				nextPut: #( Generation Id Fitness ) , metricNames asArray;
-				nextPutAll: collection;
-				flush ] ]
-]
-
 { #category : #'as yet unclassified' }
 GEAssertion >> exportResultsOfData [
 
@@ -249,11 +198,21 @@ GEAssertion >> exportResultsOfData [
 		self exportResult: engine on: filename ]
 ]
 
-{ #category : #accessing }
-GEAssertion >> folderToExport: string [
+{ #category : #private }
+GEAssertion >> fileNameFor: engine [
 
-	self assert: (string isString and: [ string notEmpty ]).
-	folderToExport := string
+	^ String streamContents: [ :stream | 
+		  stream
+			  nextPutAll: (folderToExport
+					   ifEmpty: [ folderToExport ]
+					   ifNotEmpty: [ folderToExport , '/' ]);
+			  nextPutAll: engine configuration targetClass name;
+			  nextPut: $_;
+			  nextPutAll:
+				  (engine configuration targetSelector
+					   copyReplaceAll: ':'
+					   with: '');
+			  nextPutAll: '_Data.csv' ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -297,13 +256,13 @@ GEAssertion >> getSelectorCandidates [
 { #category : #initialization }
 GEAssertion >> initialize [
 
+	super initialize.
 	targetSelectors := OrderedCollection new.
 	metrics := Dictionary new.
 	contextBlocks := OrderedCollection new.
 	options := Dictionary new.
 	seed := 1.
 	random := GERandom seed: seed.
-	folderToExport := ''.
 	randomIterationNumber := 100.
 	contextBlocks := OrderedCollection new
 ]
@@ -367,8 +326,8 @@ GEAssertion >> run [
 	associations := self getSelectorCandidates.
 	data := Dictionary newFromAssociations:
 		        (associations collect: [ :assoc | 
-			         assoc key -> (self getBestIndividual: assoc value) ]).
-	self exportResultsOfData
+			         assoc key -> (self run: assoc value) "(self getBestIndividual: assoc value)" ]).
+	"self exportResultsOfData"
 ]
 
 { #category : #accessing }

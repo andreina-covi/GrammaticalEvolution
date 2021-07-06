@@ -36,7 +36,7 @@ GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection [
 ]
 
 { #category : #adding }
-GEGrammar >> addNonTerminal: symbol withValues: collection [
+GEGrammar >> addRule: symbol withValues: collection [
 
 	self addRuleIfNecessary: symbol.
 	rules at: symbol ifPresent: [ :rule | 
@@ -161,6 +161,26 @@ GEGrammar >> generateNodeOfRule: symbol [
 ]
 
 { #category : #'as yet unclassified' }
+GEGrammar >> generateNodeOfRule: symbol given: integer [
+
+	| node i follow depth |
+	self assert: symbol isSymbol.
+	i := 0.
+	follow := true.
+	depth := integer.
+	[ i < 20 and: [ follow ] ] whileTrue: [ 
+		| array |
+		array := (1 to: self genomeSize) collect: [ :n | 
+			         random randomNumber: self maxGenomeValue ].
+		node := [ self nodeOfRule: symbol givenDepth: array ]
+			        on: GEError
+			        do: [ nil ].
+		follow := node isNil.
+		i := i + 1 ].
+	^ node
+]
+
+{ #category : #'as yet unclassified' }
 GEGrammar >> genomeSize [ 	
 	^ 8
 ]
@@ -261,6 +281,47 @@ GEGrammar >> nodeOfRule: symbol given: integer [
 ]
 
 { #category : #'instance creation' }
+GEGrammar >> nodeOfRule: symbol given: stackBooleans codon: array depth: integer stack: stack and: wrapStack [
+
+	| rule index assoc object codonValue |
+	self validate: stack given: array and: wrapStack.
+	rule := rules at: symbol.
+	codonValue := stack pop.
+	index := codonValue \\ rule optionsSize + 1.
+	assoc := rule optionAndInfoAt: index.
+	object := assoc value.
+	object isSymbol
+		ifTrue: [ 
+			^ self
+				  nodeOfRule: object
+				  givenCodon: array
+				  depth: integer + 1
+				  stack: stack
+				  and: wrapStack ]
+		ifFalse: [ 
+			self validate: stack given: array and: wrapStack.
+			object addCodonValue: codonValue ].
+	((#( 'nonTerminal' 'collection' ) includes: assoc key) not and: [ 
+		 object value isNil ]) ifTrue: [ 
+		| options |
+		self validate: stack given: array and: wrapStack.
+		options := rule infoOptionsAt: index.
+		codonValue := stack pop.
+		assoc := assoc key -> (object
+			          addCodonValue: codonValue;
+			          value: (options at: codonValue \\ options size + 1)) ].
+	^ self
+		  node: assoc
+		  given: ([ rule infoOptionsAt: index ]
+				   on: AssertionFailure
+				   do: [ nil ])
+		  codon: array
+		  depth: integer
+		  stack: stack
+		  and: wrapStack
+]
+
+{ #category : #'instance creation' }
 GEGrammar >> nodeOfRule: symbol givenCodon: array [
 
 	| node |
@@ -322,6 +383,36 @@ GEGrammar >> nodeOfRule: symbol givenCodon: array depth: integer stack: stack an
 		  depth: integer
 		  stack: stack
 		  and: wrapStack
+]
+
+{ #category : #'instance creation' }
+GEGrammar >> nodeOfRule: symbol givenDepth: integer and: array [
+
+	| node |
+	self assert: symbol isSymbol.
+	self assert: (array isCollection and: [ array notEmpty ]).
+	self assert: (integer isInteger and: [ integer positive ]).
+	node := self
+		        nodeOfRule: symbol
+		        givenDepth: integer
+		        codon: array
+		        and: wrapsNumber.
+	node ifNotNil: [ node genome: array ].
+	^ node
+]
+
+{ #category : #'instance creation' }
+GEGrammar >> nodeOfRule: symbol givenDepth: integer1 codon: array and: integer2 [
+
+	^ self
+		  nodeOfRule: symbol
+		  given: integer1 
+		  codon: array
+		  depth: 0
+		  stack: (Stack newFrom: array)
+		  and: (Stack new
+				   add: integer2;
+				   yourself)
 ]
 
 { #category : #'instance creation' }

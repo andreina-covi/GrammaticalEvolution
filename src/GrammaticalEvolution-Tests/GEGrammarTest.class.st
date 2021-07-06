@@ -46,11 +46,11 @@ GEGrammarTest >> testAddNonTerminalOfTypeAndSequence [
 ]
 
 { #category : #accessing }
-GEGrammarTest >> testAddNonTerminalWithValues [
+GEGrammarTest >> testAddRuleWithValues [
 
 	| nodes rule |
 	grammar
-		addNonTerminal: #E withValues: #( #T );
+		addRule: #E withValues: #( #T );
 		addTerminal: #T ofType: RBLiteralNode andValues: #( 1 54 3 2 ).
 	nodes := grammar allNodesOfRule: #E.
 	self assert: nodes size equals: 1.
@@ -119,12 +119,12 @@ GEGrammarTest >> testETFGrammar [
 		addNonTerminal: #E
 		ofType: RBMessageNode
 		andSequence: #( #E #Add #T );
-		addNonTerminal: #E withValues: #( #T );
+		addRule: #E withValues: #( #T );
 		addNonTerminal: #T
 		ofType: RBMessageNode
 		andSequence: #( #T #Mult #F );
-		addNonTerminal: #T withValues: #( #F );
-		addNonTerminal: #F withValues: #( #E );
+		addRule: #T withValues: #( #F );
+		addRule: #F withValues: #( #E );
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
@@ -142,12 +142,12 @@ GEGrammarTest >> testGenerateNodeOfRule [
 		addNonTerminal: #E
 		ofType: RBMessageNode
 		andSequence: #( #E #Add #T );
-		addNonTerminal: #E withValues: #( #T );
+		addRule: #E withValues: #( #T );
 		addNonTerminal: #T
 		ofType: RBMessageNode
 		andSequence: #( #T #Mult #F );
-		addNonTerminal: #T withValues: #( #F );
-		addNonTerminal: #F withValues: #( #E );
+		addRule: #T withValues: #( #F );
+		addRule: #F withValues: #( #E );
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
@@ -271,12 +271,12 @@ GEGrammarTest >> testNodeOfRuleGivenCodon4 [
 		addNonTerminal: #E
 		ofType: RBMessageNode
 		andSequence: #( #E #Add #T );
-		addNonTerminal: #E withValues: #( #T );
+		addRule: #E withValues: #( #T );
 		addNonTerminal: #T
 		ofType: RBMessageNode
 		andSequence: #( #T #Mult #F );
-		addNonTerminal: #T withValues: #( #F );
-		addNonTerminal: #F withValues: #( #E );
+		addRule: #T withValues: #( #F );
+		addRule: #F withValues: #( #E );
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
@@ -293,12 +293,12 @@ GEGrammarTest >> testNodeOfRuleRaisingError [
 		addNonTerminal: #E
 		ofType: RBMessageNode
 		andSequence: #( #E #Add #T );
-		addNonTerminal: #E withValues: #( #T );
+		addRule: #E withValues: #( #T );
 		addNonTerminal: #T
 		ofType: RBMessageNode
 		andSequence: #( #T #Mult #F );
-		addNonTerminal: #T withValues: #( #F );
-		addNonTerminal: #F withValues: #( #E );
+		addRule: #T withValues: #( #F );
+		addRule: #F withValues: #( #E );
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 ).
 	self
 		should: [ grammar nodeOfRule: #E givenCodon: #( 2 3 5 7 3 3 ) ]

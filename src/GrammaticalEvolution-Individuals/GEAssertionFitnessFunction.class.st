@@ -5,7 +5,7 @@ Class {
 		'weights',
 		'callsNumber'
 	],
-	#category : #'GrammaticalEvolution-Individual'
+	#category : #'GrammaticalEvolution-Individuals-Assertion'
 }
 
 { #category : #comparing }

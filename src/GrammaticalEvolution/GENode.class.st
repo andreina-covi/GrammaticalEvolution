@@ -220,6 +220,11 @@ GENode >> isTerminalValueNode [
 ]
 
 { #category : #accessing }
+GENode >> maxDepth [ 
+	^ (self withAllChildren collect: #depth) max
+]
+
+{ #category : #accessing }
 GENode >> nodeChildren [
 	^ nodeChildren
 ]
