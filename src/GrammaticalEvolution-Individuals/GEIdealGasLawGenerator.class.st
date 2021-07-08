@@ -37,7 +37,7 @@ GEIdealGasLawGenerator >> createIndividual [
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
-		node := [ grammar generateNodeOfRule: #Exp ]
+		node := [ grammar generateNodeOfRule: #Exp given: self maxCodonValue ]
 			        on: GEError
 			        do: [ nil ].
 		i := i + 1 ].
@@ -72,7 +72,7 @@ GEIdealGasLawGenerator >> fitnessValueOf: individual [
 { #category : #'as yet unclassified' }
 GEIdealGasLawGenerator >> generations [
 
-	^ 40
+	^ 60
 ]
 
 { #category : #initialization }
@@ -101,5 +101,5 @@ GEIdealGasLawGenerator >> mutate: object given: integer [
 { #category : #'as yet unclassified' }
 GEIdealGasLawGenerator >> populationSize [
 
-	^ 100
+	^ 150
 ]

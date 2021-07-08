@@ -143,6 +143,49 @@ GEConfiguration >> mutate: object1 given: integer and: symbol [
 ]
 
 { #category : #'as yet unclassified' }
+GEConfiguration >> mutate: collection1 having: collection2 [
+
+	| ids otherIds assocs | self halt.
+	ids := collection1 collect: #id.
+	otherIds := collection2 collect: #id.
+	assocs := ids asSet asOrderedCollection
+		          collect: [ :nodeId | 
+			          | inds |
+			          inds := random indexesOf: nodeId on: otherIds.
+			          inds addAll: (self ruleOptions: nodeId given: otherIds).
+			          nodeId -> inds asSet asOrderedCollection ]
+		          thenReject: [ :assoc | assoc value isEmpty ].
+	assocs ifNotEmpty: [ 
+		| assoc node r |
+		assoc := random randomlySelect: assocs.
+		node := collection1 at:
+			        (random randomlySelect:
+				         (random indexesOf: assoc key on: ids)).
+		r := (collection2 at: (random randomlySelect: assoc value)) deepCopy.
+		"Transcript show:
+			'mutation:' , node print , ' replaced by: ' , ([ r print ]
+				 on: Error
+				 do: [ (r children collect: #id) asString ]) , String cr."
+		node replaceBy: r ]
+]
+
+{ #category : #'as yet unclassified' }
+GEConfiguration >> mutate: object1 with: object2 [
+
+	| children indivIds sceChildren sourceIds nodeToMutate node |
+	children := random shuffleElementsOf:
+		            object1 withAllChildren allButFirst.
+	indivIds := children collect: #id.
+	sceChildren := object2 withAllChildren.
+	sourceIds := sceChildren collect: #id.
+	(indivIds includesAny: sourceIds) ifFalse: [ ^ object1 ].
+	nodeToMutate := children at: (indivIds indexOfAnyOf: sourceIds).
+	node := sceChildren at: (sourceIds indexOf: nodeToMutate id).
+	nodeToMutate replaceBy: node.
+	^ object1
+]
+
+{ #category : #'as yet unclassified' }
 GEConfiguration >> pickBestConsideringParents: individual [
 
 	| col parent |
@@ -198,10 +241,26 @@ GEConfiguration >> rankedIndividuals: collection [
 		  assoc1 value < assoc2 value ]
 ]
 
+{ #category : #'as yet unclassified' }
+GEConfiguration >> ruleOptions: symbol given: collection [
+
+	| options |
+	options := grammar ruleOptionsOf: symbol.
+	^ options
+		   ifEmpty: [ 
+			   ((grammar redirectedOptions: symbol) flatCollect: [ :id | 
+				    random indexesOf: id on: collection ]) select: [ :i | i > 0 ] ]
+		   ifNotEmpty: [ 
+			   (options flatCollect: [ :sym | 
+				    random indexesOf: sym on: collection ]) select: [ :i | i > 0 ] ]
+]
+
 { #category : #'instance creation' }
 GEConfiguration >> seed: number [
 
-	random seed: number
+	random seed: number.
+	grammar ifNil: [ grammar := self buildGrammar ].
+	grammar seed: number
 ]
 
 { #category : #sorting }

@@ -142,6 +142,12 @@ GERuleOption >> optionsOrInfoOptions [
 		  ifFalse: [ options ]
 ]
 
+{ #category : #'as yet unclassified' }
+GERuleOption >> optionsRedirectingTo: symbol [
+
+	^ self ruleOptions select: [ :id | id = symbol ]
+]
+
 { #category : #adding }
 GERuleOption >> optionsSize [
 
@@ -157,4 +163,13 @@ GERuleOption >> replaceOptions: string by: collection [
 	opts := self infoOptionsOf: string.
 	opts ifNotEmpty: [ 
 		opts first removeAll; addAll: collection ]
+]
+
+{ #category : #'as yet unclassified' }
+GERuleOption >> ruleOptions [
+
+	^ options collect: [ :obj | 
+		  obj isSymbol
+			  ifTrue: [ obj ]
+			  ifFalse: [ obj id ] ]
 ]

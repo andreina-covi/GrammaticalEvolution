@@ -73,7 +73,7 @@ GEEngine >> createNewGeneration [
 { #category : #'as yet unclassified' }
 GEEngine >> crossoverProbability [
 
-	^ 90
+	^ 95
 ]
 
 { #category : #'as yet unclassified' }

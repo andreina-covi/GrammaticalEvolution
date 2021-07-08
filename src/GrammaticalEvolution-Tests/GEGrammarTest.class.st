@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'grammar'
 	],
-	#category : #'GrammaticalEvolution-Tests'
+	#category : #'GrammaticalEvolution-Tests-Grammar'
 }
 
 { #category : #initialization }

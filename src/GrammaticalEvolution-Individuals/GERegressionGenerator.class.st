@@ -1,6 +1,9 @@
 Class {
 	#name : #GERegressionGenerator,
 	#superclass : #GEConfiguration,
+	#instVars : [
+		'dictData'
+	],
 	#category : #'GrammaticalEvolution-Individuals-Regression'
 }
 
@@ -17,7 +20,7 @@ GERegressionGenerator >> buildGrammar [
 		  andSequence: #( #T #Mult #F );
 		  addRule: #T withValues: #( #F );
 		  addRule: #F withValues: #( #E );
-		  addTerminal: #F ofType: RBLiteralNode andValues: #( 8 );
+		  addTerminal: #F ofType: RBVariableNode andValues: #( 'a' );
 		  addSelectorTerminal: #Add withValues: #( #+ );
 		  addSelectorTerminal: #Mult withValues: #( #* )
 ]
@@ -30,7 +33,7 @@ GERegressionGenerator >> createIndividual [
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
-		node := [ grammar generateNodeOfRule: #E ]
+		node := [ grammar generateNodeOfRule: #E given: self maxCodonValue ]
 			        on: GEError
 			        do: [ nil ].
 		i := i + 1 ].
@@ -43,12 +46,24 @@ GERegressionGenerator >> crossoverBetween: object1 and: object2 [
 	^ self crossoverOfOnePoint: #E between: object1 and: object2 
 ]
 
+{ #category : #accessing }
+GERegressionGenerator >> dictData: anObject [
+
+	dictData := anObject
+]
+
 { #category : #'as yet unclassified' }
 GERegressionGenerator >> fitnessValueOf: individual [
 
-	individual fitness: (GESimpleFitnessFunction new fitnessValue:
-			 (individual evaluate - (8 + (8 ** 2) + (8 ** 3) + (8 ** 4))) abs;
-			objectiveBlock: [:fitnessFunction | fitnessFunction fitnessValue = 0 ]).
+	| n expectedResult |
+	n := dictData at: 'a'.
+	expectedResult := n + (n ** 2) + (n ** 3) + (n ** 4).
+	individual fitness: (GESimpleFitnessFunction new
+			 fitnessValue:
+				 ([ ((individual evaluateGiven: dictData) - expectedResult) abs ]
+					  on: Exception
+					  do: [ SmallInteger maxVal ]);
+			 objectiveBlock: [ :fitness | fitness fitnessValue = 0 ]).
 	^ individual fitness
 ]
 
@@ -56,6 +71,12 @@ GERegressionGenerator >> fitnessValueOf: individual [
 GERegressionGenerator >> generations [
 
 	^ 50
+]
+
+{ #category : #initialization }
+GERegressionGenerator >> initialize [ 
+	super initialize.
+	dictData := Dictionary new
 ]
 
 { #category : #testing }
@@ -72,7 +93,19 @@ GERegressionGenerator >> maxCodonValue [
 { #category : #'as yet unclassified' }
 GERegressionGenerator >> mutate: object given: integer [
 
-	^ self mutate: object given: integer and: #E
+	^ (random randomNumber: 100) <= integer ifTrue: [ "| randomNumber |
+			  randomNumber := random randomNumber: 100.
+			  randomNumber <= 50
+				  ifTrue: [ self mutate: object given: integer and: #E ]
+				  ifFalse: [ randomNumber <= 66
+						  ifTrue: [ " "
+						  ifFalse: [ 
+							  self
+								  mutate: object withAllChildren allButFirst
+								  having: self createIndividual withAllChildren.
+							  object ] ] ]
+		  ifFalse: [ nil ]" 
+		  self mutate: object with: self createIndividual ] ifFalse: [ nil ]
 ]
 
 { #category : #'as yet unclassified' }

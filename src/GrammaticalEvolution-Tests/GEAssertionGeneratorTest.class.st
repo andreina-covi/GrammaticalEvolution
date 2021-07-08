@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'configuration'
 	],
-	#category : #'GrammaticalEvolution-Tests'
+	#category : #'GrammaticalEvolution-Tests-Configuration'
 }
 
 { #category : #initialization }

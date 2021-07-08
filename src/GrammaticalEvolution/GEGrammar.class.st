@@ -144,6 +144,12 @@ GEGrammar >> createTerminal: symbol ofType: class [
 { #category : #'as yet unclassified' }
 GEGrammar >> generateNodeOfRule: symbol [
 
+	^ self generateNodeOfRule: symbol given: self maxGenomeValue 
+]
+
+{ #category : #'as yet unclassified' }
+GEGrammar >> generateNodeOfRule: symbol given: number [
+
 	| node i follow |
 	self assert: symbol isSymbol.
 	i := 0.
@@ -151,28 +157,8 @@ GEGrammar >> generateNodeOfRule: symbol [
 	[ i < 20 and: [ follow ] ] whileTrue: [ 
 		| array |
 		array := (1 to: self genomeSize) collect: [ :n | 
-			         random randomNumber: self maxGenomeValue ].
+			         random randomNumber: number ].
 		node := [ self nodeOfRule: symbol givenCodon: array ]
-			        on: GEError
-			        do: [ nil ].
-		follow := node isNil.
-		i := i + 1 ].
-	^ node
-]
-
-{ #category : #'as yet unclassified' }
-GEGrammar >> generateNodeOfRule: symbol given: integer [
-
-	| node i follow depth |
-	self assert: symbol isSymbol.
-	i := 0.
-	follow := true.
-	depth := integer.
-	[ i < 20 and: [ follow ] ] whileTrue: [ 
-		| array |
-		array := (1 to: self genomeSize) collect: [ :n | 
-			         random randomNumber: self maxGenomeValue ].
-		node := [ self nodeOfRule: symbol givenDepth: array ]
 			        on: GEError
 			        do: [ nil ].
 		follow := node isNil.
@@ -447,8 +433,25 @@ GEGrammar >> ofRule: symbol getInfoOptions: string [
 ]
 
 { #category : #'as yet unclassified' }
+GEGrammar >> redirectedOptions: symbol [
+
+	^ rules values select: [ :rule | (rule optionsRedirectingTo: symbol) notEmpty ]
+		thenCollect: [ :rule | rule name ]
+]
+
+{ #category : #accessing }
+GEGrammar >> ruleKeys [
+	^ rules keys
+]
+
+{ #category : #'as yet unclassified' }
 GEGrammar >> ruleOf: symbol [
 	^ rules at: symbol ifAbsent: [ nil ]
+]
+
+{ #category : #'as yet unclassified' }
+GEGrammar >> ruleOptionsOf: symbol [
+	^ (self ruleOf: symbol) ruleOptions 
 ]
 
 { #category : #'instance creation' }

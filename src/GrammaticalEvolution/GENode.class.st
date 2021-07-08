@@ -291,6 +291,21 @@ GENode >> printOn: aStream [
 ]
 
 { #category : #accessing }
+GENode >> replaceBy: anotherNode [
+
+	"self assert: (id == anotherNode id or: [ 
+			 type == anotherNode type or: [ self class == anotherNode class ] ])."
+	self
+		id: anotherNode id;
+		value: anotherNode value;
+		type: anotherNode type;
+		nodeChildren: anotherNode nodeChildren;
+		codon: anotherNode codon.
+	anotherNode genome ifNotNil: [ 
+		self genome: anotherNode genome ]
+]
+
+{ #category : #accessing }
 GENode >> type [
 
 	^ type
