@@ -111,5 +111,5 @@ GERegressionGenerator >> mutate: object given: integer [
 { #category : #'as yet unclassified' }
 GERegressionGenerator >> populationSize [
 
-	^ 60
+	^ 250
 ]

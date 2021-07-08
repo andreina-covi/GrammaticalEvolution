@@ -19,7 +19,7 @@ GEIdealGasLawGenerator >> buildGrammar [
 		  ofType: RBMessageNode
 		  andSequence: #( #Trm #Mul #Trm );
 		  addRule: #Trm withValues: #( #Var );
-		  addSelectorTerminal: #Add withValues: #( #+ #- );
+		  addSelectorTerminal: #Add withValues: #( #+ );
 		  addSelectorTerminal: #Mul withValues: #( #* #/ );
 		  addTerminal: #Var
 		  ofType: RBVariableNode
