@@ -145,7 +145,7 @@ GEConfiguration >> mutate: object1 given: integer and: symbol [
 { #category : #'as yet unclassified' }
 GEConfiguration >> mutate: collection1 having: collection2 [
 
-	| ids otherIds assocs | self halt.
+	| ids otherIds assocs |
 	ids := collection1 collect: #id.
 	otherIds := collection2 collect: #id.
 	assocs := ids asSet asOrderedCollection
