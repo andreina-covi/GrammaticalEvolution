@@ -22,7 +22,7 @@ GEEquationGenerator >> createIndividual [
 	^ node
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEEquationGenerator >> crossoverBetween: object1 and: object2 [
 
 	^ self crossoverOfOnePoint: #E between: object1 and: object2
@@ -54,17 +54,12 @@ GEEquationGenerator >> isBetter: object1 than: object2 [
 ]
 
 { #category : #accessing }
-GEEquationGenerator >> maxCodonValue [
+GEEquationGenerator >> mutate: object [
 
-	^ 1000
-]
-
-{ #category : #'as yet unclassified' }
-GEEquationGenerator >> mutate: object given: integer [
-
-	^ (random randomNumber: 100) <= integer
+	^ self mutate: object given: #E
+	 "(random randomNumber: 100) <= integer
 		  ifTrue: [ self mutate: object with: self createIndividual ]
-		  ifFalse: [ nil ]
+		  ifFalse: [ nil ]"
 ]
 
 { #category : #accessing }

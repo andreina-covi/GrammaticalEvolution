@@ -181,7 +181,8 @@ GEGrammar >> initialize [
 
 { #category : #accessing }
 GEGrammar >> maxGenomeValue [
-	^ 700
+
+	^ 256
 ]
 
 { #category : #'instance creation' }

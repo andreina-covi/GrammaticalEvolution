@@ -25,13 +25,22 @@ GERegressionGeneratorII >> buildGrammar [
 { #category : #'as yet unclassified' }
 GERegressionGeneratorII >> fitnessValueOf: individual [
 
-	| a m expectedResult |
-	a := dictData at: 'a'.
-	m := dictData at: 'm'.
-	expectedResult := m + (m ** 2) + (a ** 3) + (a ** 4).
+	| as ms results expectedResults |
+	as := dictData at: 'a'.
+	ms := dictData at: 'm'.
+	self assert: as size == ms size.
+	results := as with: ms collect: [ :a :m | 
+		           individual evaluateGiven:
+			           (Array with: 'a' -> a with: 'm' -> m) asDictionary ].
+	expectedResults := as
+		                   with: ms
+		                   collect: [ :a :m | 
+		                   m + (m ** 2) + (a ** 3) + (a ** 4) ].
 	individual fitness: (GESimpleFitnessFunction new
 			 fitnessValue:
-				 ((individual evaluateGiven: dictData) - expectedResult) abs;
+				 ((results
+					   with: expectedResults
+					   collect: [ :r :eR | (eR - r) abs ]) sum / as size) asFloat;
 			 objectiveBlock: [ :fitness | fitness fitnessValue = 0 ]).
 	^ individual fitness
 ]
@@ -45,5 +54,5 @@ GERegressionGeneratorII >> generations [
 { #category : #'as yet unclassified' }
 GERegressionGeneratorII >> populationSize [
 
-	^ 500
+	^ 200
 ]

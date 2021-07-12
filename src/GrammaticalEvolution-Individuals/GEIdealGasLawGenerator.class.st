@@ -87,15 +87,10 @@ GEIdealGasLawGenerator >> isBetter: object1 than: object2 [
 	^ object1 fitness < object2 fitness
 ]
 
-{ #category : #accessing }
-GEIdealGasLawGenerator >> maxCodonValue [ 
-	^ 1000
-]
-
 { #category : #'as yet unclassified' }
-GEIdealGasLawGenerator >> mutate: object given: integer [
+GEIdealGasLawGenerator >> mutate: object [
 
-	^ self mutate: object given: integer and: #Exp
+	^ self mutate: object given: #Exp
 ]
 
 { #category : #'as yet unclassified' }

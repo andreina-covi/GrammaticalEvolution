@@ -13,21 +13,24 @@ GERegressionGeneratorTest >> setUp [
 ]
 
 { #category : #tests }
-GERegressionGeneratorTest >> testMutateGiven [
+GERegressionGeneratorTest >> testMutate [
 
 	| tree individuals |
-	configuration seed: 45.
+	configuration
+		seed: 45;
+		mutationProbability: 10.
 	tree := configuration createIndividual.
 	individuals := ((1 to: 30)
 		                collect: [ :n | 
-		                configuration mutate: (tree deepCopy genome: tree genome copy) given: 10 ]
+		                configuration mutate:
+			                (tree deepCopy genome: tree genome copy) ]
 		                thenSelect: [ :ind | ind notNil ]) asSet.
 	self assert: individuals size > 1.
 	self assert: (individuals collect: #asString) asSet size > 1
 ]
 
 { #category : #tests }
-GERegressionGeneratorTest >> testMutateGivenAnd [
+GERegressionGeneratorTest >> testMutateGiven [
 
 	| tree individuals |
 	configuration seed: 45.
@@ -36,8 +39,7 @@ GERegressionGeneratorTest >> testMutateGivenAnd [
 		                collect: [ :n | 
 			                configuration
 				                mutate: (tree deepCopy genome: tree genome copy)
-				                given: 10
-									 and: #E ]
+				                given: #E ]
 		                thenSelect: [ :ind | ind notNil ]) asSet.
 	self assert: individuals size > 1.
 	self assert: (individuals collect: #asString) asSet size > 1

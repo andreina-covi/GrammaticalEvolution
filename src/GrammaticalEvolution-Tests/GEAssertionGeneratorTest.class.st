@@ -13,14 +13,14 @@ GEAssertionGeneratorTest >> setUp [
 ]
 
 { #category : #tests }
-GEAssertionGeneratorTest >> testMutateGiven [
+GEAssertionGeneratorTest >> testMutate [
 
-	| tree probability newTree |
+	| tree newTree |
 	configuration
 		targetClass: GEFoo;
-		targetSelector: #sum:.
+		targetSelector: #sum:;
+		mutationProbability: 20.
 	tree := configuration createIndividual.
-	probability := 20.
-	newTree := configuration mutate: tree given: probability.
+	newTree := configuration mutate: tree.
 	self deny: tree asString equals: newTree asString
 ]

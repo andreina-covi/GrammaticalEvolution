@@ -276,15 +276,10 @@ GEAssertionGenerator >> isBetter: object1 than: object2 [
 	^ object1 fitness < object2 fitness
 ]
 
-{ #category : #accessing }
-GEAssertionGenerator >> maxCodonValue [
-	^ 500
-]
-
 { #category : #'as yet unclassified' }
-GEAssertionGenerator >> mutate: object given: integer [
+GEAssertionGenerator >> mutate: object [
 
-	^ self mutate: object given: integer and: #Method
+	^ self mutate: object given: #Method
 ]
 
 { #category : #'as yet unclassified' }

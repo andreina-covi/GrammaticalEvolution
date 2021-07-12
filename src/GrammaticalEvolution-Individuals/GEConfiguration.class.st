@@ -3,7 +3,9 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'grammar',
-		'random'
+		'random',
+		'mutationProbability',
+		'crossoverProbability'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Core'
 }
@@ -40,17 +42,17 @@ GEConfiguration >> buildGrammar [
 	^ self subclassResponsibility 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> createIndividual [ 
 	^ self subclassResponsibility 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> crossoverBetween: object1 and: object2 [
 	^ self subclassResponsibility 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> crossoverOfOnePoint: symbol between: object1 and: object2 [
 
 	| c1 c2 crossoverPoint1 crossoverPoint2 newC1 newC2 |
@@ -79,17 +81,30 @@ GEConfiguration >> crossoverOfOnePoint: symbol between: object1 and: object2 [
 		  given: (Array with: object1 with: object2)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
+GEConfiguration >> crossoverProbability [
+
+	^ crossoverProbability ifNil: [ 90 ] ifNotNil: [ crossoverProbability  ]
+]
+
+{ #category : #accessing }
+GEConfiguration >> crossoverProbability: number [
+
+	self assert: (number isNumber and: [ number positive ]).
+	crossoverProbability := number
+]
+
+{ #category : #accessing }
 GEConfiguration >> fitnessValueOf: individual [
 	^ self subclassResponsibility 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> generations [ 
 	^ self subclassResponsibility 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> getBestBetween: object1 and: object2 [
 
 	object1 fitness ifNil: [ self fitnessValueOf: object1 ].
@@ -114,26 +129,30 @@ GEConfiguration >> isBetter: object1 than: object2 [
 ]
 
 { #category : #accessing }
-GEConfiguration >> maxCodonValue [ 
-	^ self subclassResponsibility 
+GEConfiguration >> maxCodonValue [
+
+	^ 256
 ]
 
-{ #category : #'as yet unclassified' }
-GEConfiguration >> mutate: object1 given: integer [
-	^ self subclassResponsibility 
+{ #category : #accessing }
+GEConfiguration >> mutate: object1 [
+
+	^ self subclassResponsibility
 ]
 
-{ #category : #'as yet unclassified' }
-GEConfiguration >> mutate: object1 given: integer and: symbol [
+{ #category : #accessing }
+GEConfiguration >> mutate: object1 given: symbol [
 
 	| codonValues newIndiv allCodonValues |
 	allCodonValues := object1 allCodonValues.
 	codonValues := allCodonValues size < object1 genome size
 		               ifTrue: [ allCodonValues ]
 		               ifFalse: [ object1 genome ].
-	1 to: codonValues size do: [ :i | 
-		(random randomNumber: 100) < integer ifTrue: [ 
-			object1 genomeAt: i put: (random randomNumber: self maxCodonValue) ] ].
+	"1 to: codonValues size do: [ :i |"
+	(random randomNumber: 100) < self mutationProbability ifTrue: [ "]"
+		object1
+			genomeAt: (random randomNumber: codonValues size)
+			put: (random randomNumber: self maxCodonValue) ].
 	newIndiv := [ grammar nodeOfRule: symbol givenCodon: object1 genome ]
 		            on: GEError
 		            do: [ nil ].
@@ -142,7 +161,7 @@ GEConfiguration >> mutate: object1 given: integer and: symbol [
 	^ newIndiv
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> mutate: collection1 having: collection2 [
 
 	| ids otherIds assocs |
@@ -169,7 +188,7 @@ GEConfiguration >> mutate: collection1 having: collection2 [
 		node replaceBy: r ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> mutate: object1 with: object2 [
 
 	| children indivIds sceChildren sourceIds nodeToMutate node |
@@ -185,7 +204,19 @@ GEConfiguration >> mutate: object1 with: object2 [
 	^ object1
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
+GEConfiguration >> mutationProbability [
+
+	^ mutationProbability ifNil: [ 5 ] ifNotNil: [ mutationProbability  ]
+]
+
+{ #category : #accessing }
+GEConfiguration >> mutationProbability: number [
+	self assert: (number isNumber and: [number positive]).
+	mutationProbability := number
+]
+
+{ #category : #accessing }
 GEConfiguration >> pickBestConsideringParents: individual [
 
 	| col parent |
@@ -204,7 +235,7 @@ GEConfiguration >> pickBestConsideringParents: individual [
 		  ifFalse: [ individual ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> pickBestIndividual: object1 and: object2 [
 
 	| newInd parent |
@@ -216,12 +247,12 @@ GEConfiguration >> pickBestIndividual: object1 and: object2 [
 	^ newInd
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> populationSize [ 
 	^ self subclassResponsibility 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> randomNumber: number [
 
 	^ random randomNumber: number
@@ -233,7 +264,7 @@ GEConfiguration >> randomlySelect: collection [
 	^ random randomlySelect: collection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> rankedIndividuals: collection [
 
 	^ (collection collect: [ :obj | obj -> (self fitnessValueOf: obj) ]) 
@@ -241,7 +272,7 @@ GEConfiguration >> rankedIndividuals: collection [
 		  assoc1 value < assoc2 value ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> ruleOptions: symbol given: collection [
 
 	| options |

@@ -44,7 +44,7 @@ GEEngine >> createNewGeneration [
 	population size - newPopulation size timesRepeat: [ 
 		| randomNumber parent newIndiv indiv i1 i2 |
 		randomNumber := configuration randomNumber: 100.
-		randomNumber <= self crossoverProbability
+		randomNumber <= configuration crossoverProbability
 			ifTrue: [ 
 				i1 := self selection.
 				i2 := self selectionDiscarding: i1.
@@ -60,20 +60,13 @@ GEEngine >> createNewGeneration [
 		"randomNumber := configuration randomNumber: 2.
 		randomNumber <= 1 ifTrue: [ configuration mutate: newIndiv given: self mutationProbability ]."
 		mutated := configuration
-			            mutate: newIndiv
-			            given: self mutationProbability.
+			           mutate: newIndiv.
 		mutated ifNotNil: [ newIndiv := mutated ].
 		newIndiv ifNotNil: [ 
 			self fitnessValueOf: newIndiv.
 			indiv := configuration pickBestConsideringParents: newIndiv.
 			newPopulation add: indiv ] ].
 	population := newPopulation
-]
-
-{ #category : #'as yet unclassified' }
-GEEngine >> crossoverProbability [
-
-	^ 20
 ]
 
 { #category : #'as yet unclassified' }
@@ -93,12 +86,6 @@ GEEngine >> initialize [
 GEEngine >> logs [
 
 	^ logs
-]
-
-{ #category : #'as yet unclassified' }
-GEEngine >> mutationProbability [
-
-	^ 3
 ]
 
 { #category : #'as yet unclassified' }
