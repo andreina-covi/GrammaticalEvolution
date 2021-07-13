@@ -4,10 +4,10 @@ Class {
 	#category : #'GrammaticalEvolution-Individuals-Regression'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGeneratorII >> buildGrammar [
 
-	^ GEGrammar new
+	grammar := GEGrammar new
 		  addNonTerminal: #E
 		  ofType: RBMessageNode
 		  andSequence: #( #E #Add #T );
@@ -22,7 +22,7 @@ GERegressionGeneratorII >> buildGrammar [
 		  addSelectorTerminal: #Mult withValues: #( #* )
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGeneratorII >> fitnessValueOf: individual [
 
 	| as ms results expectedResults |
@@ -45,13 +45,13 @@ GERegressionGeneratorII >> fitnessValueOf: individual [
 	^ individual fitness
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGeneratorII >> generations [
 
 	^ 100
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGeneratorII >> populationSize [
 
 	^ 200

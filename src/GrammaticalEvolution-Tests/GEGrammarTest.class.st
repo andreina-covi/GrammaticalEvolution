@@ -152,8 +152,8 @@ GEGrammarTest >> testGenerateNodeOfRule [
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
 	tree := grammar generateNodeOfRule: #E.
-	self assert: tree isTerminalValueNode.
-	self assert: tree asString equals: '4'
+	self assert: tree isNonTerminalNode.
+	self assert: tree asString equals: '21 + (4 * 4)'
 ]
 
 { #category : #tests }

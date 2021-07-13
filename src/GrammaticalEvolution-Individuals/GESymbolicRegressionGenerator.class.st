@@ -1,21 +1,22 @@
 Class {
-	#name : #GESymbolicIntegrationGenerator,
+	#name : #GESymbolicRegressionGenerator,
 	#superclass : #GESymbolicGenerator,
 	#category : #'GrammaticalEvolution-Individuals-Book-Examples'
 }
 
 { #category : #accessing }
-GESymbolicIntegrationGenerator >> fitnessValueOf: individual [
+GESymbolicRegressionGenerator >> fitnessValueOf: individual [
 
 	| numbers expectedResults results |
 	numbers := dictData at: 'x'.
-	results := numbers collect: [ :n | 
+	results := numbers collect: [ :x | 
 		           [ 
 		           individual evaluateGiven:
-			           (Array with: 'x' -> n) asDictionary ]
+			           (Array with: 'x' -> x) asDictionary ]
 			           on: Exception
 			           do: [ (SmallInteger maxVal / 25) asInteger ] ].
-	expectedResults := numbers collect: [ :n | n sin + n + (n ** 2) ].
+	expectedResults := numbers collect: [ :x | 
+		                   x + (x ** 2) + (x ** 3) + (x ** 4) ].
 	individual fitness: (GESimpleFitnessFunction new
 			 fitnessValue:
 				 (results with: expectedResults collect: [ :r :eR | (eR - r) abs ])

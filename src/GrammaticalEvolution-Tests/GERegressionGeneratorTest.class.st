@@ -20,7 +20,7 @@ GERegressionGeneratorTest >> testMutate [
 		seed: 45;
 		mutationProbability: 10.
 	tree := configuration createIndividual.
-	individuals := ((1 to: 30)
+	individuals := ((1 to: 100)
 		                collect: [ :n | 
 		                configuration mutate:
 			                (tree deepCopy genome: tree genome copy) ]
@@ -33,16 +33,18 @@ GERegressionGeneratorTest >> testMutate [
 GERegressionGeneratorTest >> testMutateGiven [
 
 	| tree individuals |
-	configuration seed: 45.
+	configuration
+		seed: 45;
+		mutationProbability: 1.
 	tree := configuration createIndividual.
-	individuals := ((1 to: 30)
+	individuals := ((1 to: 100)
 		                collect: [ :n | 
 			                configuration
 				                mutate: (tree deepCopy genome: tree genome copy)
 				                given: #E ]
 		                thenSelect: [ :ind | ind notNil ]) asSet.
 	self assert: individuals size > 1.
-	self assert: (individuals collect: #asString) asSet size > 1
+	self assert: (individuals collect: #asString) asSet size equals: 1
 ]
 
 { #category : #tests }
@@ -52,12 +54,12 @@ GERegressionGeneratorTest >> testMutateHaving [
 	configuration seed: 45.
 	tree1 := configuration createIndividual.
 	tree2 := configuration createIndividual.
-	self assert: tree1 asString equals: 'a + (a * a) + (a * a) + (a * a)'.
-	self assert: tree2 asString equals: 'a * a * a'.
+	self assert: tree1 asString equals: 'a + (a * a)'.
+	self assert: tree2 asString equals: 'a + a + a'.
 	configuration
 		mutate: tree1 withAllChildren allButFirst
 		having: tree2 withAllChildren.
-	self assert: tree1 asString equals: 'a * a * a + (a * a) + (a * a)'
+	self assert: tree1 asString equals: 'a + (a * a)'
 ]
 
 { #category : #tests }
@@ -67,8 +69,8 @@ GERegressionGeneratorTest >> testMutateWith [
 	configuration seed: 7655.
 	tree1 := configuration createIndividual.
 	tree2 := configuration createIndividual.
-	self assert: tree1 asString equals: 'a + a'.
+	self assert: tree1 asString equals: 'a * a * a + (a * a)'.
 	self assert: tree2 asString equals: 'a'.
 	newTree := configuration mutate: tree1 with: tree2.
-	self assert: newTree asString equals: 'a + a'
+	self assert: newTree asString equals: 'a * a * a + (a * a)'
 ]

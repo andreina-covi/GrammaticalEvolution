@@ -129,20 +129,21 @@ GEEngine >> run [
 	ranked := self rankedIndividuals.
 	block := [ :col :rank :number | 
 	         GELog new
-		         population: col copy;
+		         population: col;
 		         generation: number;
 		         bestFitnessValue: rank first value;
 		         worstFitnessValue: rank last value;
 		         averageFitnessValue:
 			         (rank at: (rank size / 2) asInteger) value ].
-	logs add: (block value: population value: ranked value: 0).
+	logs add: (block value: population copy value: ranked value: 0).
+	ranked first value shouldTerminate ifTrue: [ ^ self ]. 
 	(1 to: configuration generations) do: [ :gen | 
 		| individuals |
 		self createNewGeneration.
 		(population allSatisfy: #notNil) ifFalse: [ 
 			self error: 'error to create new population' ].
 		individuals := self rankedIndividuals.
-		log := block value: population value: individuals value: gen.
+		log := block value: population copy value: individuals value: gen.
 		logs add: log.
 		individuals first value shouldTerminate ifTrue: [ ^ self ] ] 
 	displayingProgress: [ :gen | 

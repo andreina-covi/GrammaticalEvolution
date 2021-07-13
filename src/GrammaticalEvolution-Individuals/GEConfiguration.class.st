@@ -23,7 +23,7 @@ GEConfiguration >> addGrammarOptions: dictionary [
 			withValues: assoc value asOrderedCollection ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GEConfiguration >> betterChildBetween: newC1 and: newC2 given: array [
 
 	| node |
@@ -37,9 +37,10 @@ GEConfiguration >> betterChildBetween: newC1 and: newC2 given: array [
 	^ node
 ]
 
-{ #category : #'as yet unclassified' }
-GEConfiguration >> buildGrammar [ 	
-	^ self subclassResponsibility 
+{ #category : #building }
+GEConfiguration >> buildGrammar [
+
+	self subclassResponsibility
 ]
 
 { #category : #accessing }
@@ -290,7 +291,7 @@ GEConfiguration >> ruleOptions: symbol given: collection [
 GEConfiguration >> seed: number [
 
 	random seed: number.
-	grammar ifNil: [ grammar := self buildGrammar ].
+	grammar ifNil: [ self buildGrammar ].
 	grammar seed: number
 ]
 

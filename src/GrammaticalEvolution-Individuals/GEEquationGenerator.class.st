@@ -11,7 +11,7 @@ Class {
 GEEquationGenerator >> createIndividual [
 
 	| i node |
-	grammar ifNil: [ grammar := self buildGrammar ].
+	grammar ifNil: [ self buildGrammar ].
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 

@@ -4,10 +4,10 @@ Class {
 	#category : #'GrammaticalEvolution-Individuals-Equation'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEquation1Generator >> buildGrammar [
 
-	^ GEGrammar new
+	grammar := GEGrammar new
 		  addNonTerminal: #E
 		  ofType: RBMessageNode
 		  andSequence: #( #E #Add #T );
@@ -23,7 +23,7 @@ GEEquation1Generator >> buildGrammar [
 		  addSelectorTerminal: #Mult withValues: #( #* )
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEquation1Generator >> fitnessValueOf: individual [
 
 	| x expectedResult |

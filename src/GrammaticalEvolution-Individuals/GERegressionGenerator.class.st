@@ -7,17 +7,10 @@ Class {
 	#category : #'GrammaticalEvolution-Individuals-Regression'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGenerator >> buildGrammar [
 
-	^ GEGrammar new
-		  addNonTerminal: #E
-		  ofType: RBMessageNode
-		  andSequence: #( #E #Op #E );
-		  addTerminal: #E ofType: RBVariableNode andValues: #( 'a' );
-		  addSelectorTerminal: #Op withValues: #( #+ #- #/ #*)
-
-	"^ GEGrammar new
+	grammar := GEGrammar new
 		  addNonTerminal: #E
 		  ofType: RBMessageNode
 		  andSequence: #( #E #Add #T );
@@ -29,14 +22,14 @@ GERegressionGenerator >> buildGrammar [
 		  addRule: #F withValues: #( #E );
 		  addTerminal: #F ofType: RBVariableNode andValues: #( 'a' );
 		  addSelectorTerminal: #Add withValues: #( #+ );
-		  addSelectorTerminal: #Mult withValues: #( #* )"
+		  addSelectorTerminal: #Mult withValues: #( #* )
 ]
 
 { #category : #accessing }
 GERegressionGenerator >> createIndividual [
 
 	| i node |
-	grammar ifNil: [ grammar := self buildGrammar ].
+	grammar ifNil: [ self buildGrammar ].
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
@@ -47,7 +40,7 @@ GERegressionGenerator >> createIndividual [
 	^ node
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGenerator >> crossoverBetween: object1 and: object2 [
 
 	^ self crossoverOfOnePoint: #E between: object1 and: object2 
@@ -59,7 +52,7 @@ GERegressionGenerator >> dictData: anObject [
 	dictData := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGenerator >> fitnessValueOf: individual [
 
 	| numbers expectedResults results |
@@ -78,7 +71,7 @@ GERegressionGenerator >> fitnessValueOf: individual [
 	^ individual fitness
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGenerator >> generations [
 
 	^ 50
@@ -96,7 +89,7 @@ GERegressionGenerator >> isBetter: object1 than: object2 [
 	^ object1 fitness < object2 fitness
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGenerator >> mutate: object [
 
 	^ self mutate: object given: #E
@@ -118,7 +111,7 @@ GERegressionGenerator >> mutate: object [
 		  ifFalse: [ nil ]"
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GERegressionGenerator >> populationSize [
 
 	^ 250

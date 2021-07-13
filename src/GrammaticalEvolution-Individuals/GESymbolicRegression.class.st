@@ -1,22 +1,22 @@
 Class {
-	#name : #GESymbolicIntegration,
+	#name : #GESymbolicRegression,
 	#superclass : #GESymbolic,
 	#category : #'GrammaticalEvolution-Individuals-Book-Examples'
 }
 
 { #category : #accessing }
-GESymbolicIntegration >> fileName: engine [
+GESymbolicRegression >> fileName: engine [
 
 	^ String streamContents: [ :stream | 
 		  stream
 			  nextPutAll: self folderName;
-			  nextPutAll: 'SymbolicIntegration.csv' ]
+			  nextPutAll: 'SymbolicRegression.csv' ]
 ]
 
 { #category : #running }
-GESymbolicIntegration >> run [
+GESymbolicRegression >> run [
 
-	^ self run: (GESymbolicIntegrationGenerator new
+	^ self run: (GESymbolicRegressionGenerator new
 			   seed: seed;
 			   dictData: dictData)
 ]

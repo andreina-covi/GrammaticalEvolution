@@ -21,7 +21,7 @@ GEGrammarEvolution >> ensureDirectory [
 			ref ensureCreateDirectory ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #export }
 GEGrammarEvolution >> exportResult: engine on: filename [
 
 	| collection metricNames generation |

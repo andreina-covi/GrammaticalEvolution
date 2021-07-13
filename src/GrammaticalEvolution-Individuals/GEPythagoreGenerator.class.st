@@ -4,10 +4,10 @@ Class {
 	#category : #'GrammaticalEvolution-Individuals-Equation'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEPythagoreGenerator >> buildGrammar [
 
-	^ GEGrammar new
+	grammar := GEGrammar new
 		  addNonTerminal: #E
 		  ofType: RBMessageNode
 		  andSequence: #( #E #Add #T );
@@ -22,7 +22,7 @@ GEPythagoreGenerator >> buildGrammar [
 		  addSelectorTerminal: #Mult withValues: #( #* )
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEPythagoreGenerator >> fitnessValueOf: individual [
 
 	| expectedResult c |

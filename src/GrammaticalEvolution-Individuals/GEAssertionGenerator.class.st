@@ -31,7 +31,7 @@ GEAssertionGenerator >> addTargetVariable [
 		andValues: args
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> buildAssertionGrammar: collection of: class [
 
 	grammar := self builtAssertionGrammar.
@@ -42,14 +42,14 @@ GEAssertionGenerator >> buildAssertionGrammar: collection of: class [
 	^ grammar
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> buildGrammar [
 	grammar := targetClass 
 		ifNil: [ self builtAssertionGrammar ] 
 		ifNotNil: [ self buildAssertionGrammar: self targetSelectors of: targetClass ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> builtAssertionGrammar [
 
 	^ GEGrammar new
@@ -104,7 +104,7 @@ GEAssertionGenerator >> callsNumber: number [
 	callsNumber := number
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> collectArguments: class given: collection [
 	^ (collection collect: [ :tS | 
 		              | compMethod |
@@ -119,7 +119,7 @@ GEAssertionGenerator >> contextBlocks: anObject [
 	contextBlocks := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> countErrors [
 
 	self assert: targetClass notNil.
@@ -137,7 +137,7 @@ GEAssertionGenerator >> countErrors [
 				  do: [ randomIterations ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> countErrorsGiven: block [
 
 	| res rm |
@@ -159,7 +159,7 @@ GEAssertionGenerator >> countErrorsGiven: block [
 	^ res
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> createIndividual [
 
 	| i node |
@@ -172,7 +172,7 @@ GEAssertionGenerator >> createIndividual [
 	^ node
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
 	| number |
@@ -184,7 +184,7 @@ GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 			  self crossoverJoining: object1 and: object2 ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> crossoverJoining: object1 and: object2 [
 
 	| o1 o2 node1 node2 |
@@ -201,7 +201,7 @@ GEAssertionGenerator >> failureNumber: number [
 	failureNumber := number
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> fitnessValueOf: individual [
 
 	| uninstalled errors weight fitnessFunction testResults |
@@ -237,7 +237,7 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 	^ individual fitness
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> generations [
 
 	^ 10
@@ -255,7 +255,7 @@ GEAssertionGenerator >> initialize [
 	failureNumber := 0
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> injectIntoMethod: code [
 
 	| aBehavior rbMethodNode ast |
@@ -276,13 +276,13 @@ GEAssertionGenerator >> isBetter: object1 than: object2 [
 	^ object1 fitness < object2 fitness
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> mutate: object [
 
 	^ self mutate: object given: #Method
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> newTreeOf: node1 and: node2 [
 
 	| node |
@@ -315,7 +315,7 @@ GEAssertionGenerator >> options: collection [
 	options := collection 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> populationSize [
 
 	^ 15
@@ -327,14 +327,14 @@ GEAssertionGenerator >> randomIterations: anObject [
 	randomIterations := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> randomSubTree: tree given: symbol [
 	| array |
 	array := (Array with: symbol), (grammar ofRule: symbol getInfoOptions: 'redirection').
 	^ random randomlySelect: (tree withAllChildren select: [ :node | array includes: node id ]) 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> sortIndividuals: collection [
 
 	^ collection asSortedCollection: [ :indiv1 :indiv2 | 
@@ -392,14 +392,14 @@ GEAssertionGenerator >> uninstall [
 	targetClass methodDict at: targetSelector put: originalMethod
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> updateGrammar [ 
 	grammar ifNil: [ self buildGrammar ].
 	self addTargetVariable.
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEAssertionGenerator >> updateGrammarWithInstanceVars: class [
 
 	| instVars |
