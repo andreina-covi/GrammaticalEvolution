@@ -65,14 +65,14 @@ GEConfiguration >> crossoverOfOnePoint: symbol between: object1 and: object2 [
 	newC1 := [ 
 	         grammar
 		         nodeOfRule: symbol
-		         givenCodon: (c1 copyFrom: 1 to: crossoverPoint1)
+		         givenGenome: (c1 copyFrom: 1 to: crossoverPoint1)
 			         , (c2 copyFrom: crossoverPoint2 to: c2 size) ]
 		         on: GEError
 		         do: [ nil ].
 	newC2 := [ 
 	         grammar
 		         nodeOfRule: symbol
-		         givenCodon: (c2 copyFrom: 1 to: crossoverPoint2)
+		         givenGenome: (c2 copyFrom: 1 to: crossoverPoint2)
 			         , (c1 copyFrom: crossoverPoint1 to: c1 size) ]
 		         on: GEError
 		         do: [ nil ].
@@ -154,7 +154,7 @@ GEConfiguration >> mutate: object1 given: symbol [
 		object1
 			genomeAt: (random randomNumber: codonValues size)
 			put: (random randomNumber: self maxCodonValue) ].
-	newIndiv := [ grammar nodeOfRule: symbol givenCodon: object1 genome ]
+	newIndiv := [ grammar nodeOfRule: symbol givenGenome: object1 genome ]
 		            on: GEError
 		            do: [ nil ].
 	newIndiv ifNotNil: [ 

@@ -142,7 +142,7 @@ GERuleOption >> optionsOrInfoOptions [
 		  ifFalse: [ options ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GERuleOption >> optionsRedirectingTo: symbol [
 
 	^ self ruleOptions select: [ :id | id = symbol ]
@@ -165,7 +165,7 @@ GERuleOption >> replaceOptions: string by: collection [
 		opts first removeAll; addAll: collection ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GERuleOption >> ruleOptions [
 
 	^ options collect: [ :obj | 

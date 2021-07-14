@@ -128,9 +128,14 @@ GEGrammarTest >> testETFGrammar [
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
-	tree := grammar nodeOfRule: #E givenCodon: #( 6 5 3 5 8 4 8 9 5 6 7 7 ).
+	tree := grammar
+		        nodeOfRule: #E
+		        givenGenome: #( 6 5 3 5 8 4 8 9 5 6 7 7 7 ).
 	self assert: tree isNonTerminalNode.
-	self assert: tree asString equals: '21 + (4 * 8)'
+	self assert: tree asString equals: '21 + (4 * 8)'.
+	self
+		assertCollection: tree allCodonValues
+		hasSameElements: #( 6 5 3 5 8 4 8 9 5 6 7 7 7 )
 ]
 
 { #category : #tests }
@@ -152,35 +157,12 @@ GEGrammarTest >> testGenerateNodeOfRule [
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
 	tree := grammar generateNodeOfRule: #E.
-	self assert: tree isNonTerminalNode.
-	self assert: tree asString equals: '21 + (4 * 4)'
-]
-
-{ #category : #tests }
-GEGrammarTest >> testGenerateNodeOfRuleGiven [
-
-	"| tree |
-	grammar seed: 56.
-	grammar
-		addNonTerminal: #E
-		ofType: RBMessageNode
-		andSequence: #( #E #Add #T );
-		addNonTerminal: #E withValues: #( #T );
-		addNonTerminal: #T
-		ofType: RBMessageNode
-		andSequence: #( #T #Mult #F );
-		addNonTerminal: #T withValues: #( #F );
-		addNonTerminal: #F withValues: #( #E );
-		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
-		addSelectorTerminal: #Add withValues: #( #+ );
-		addSelectorTerminal: #Mult withValues: #( #* ).
-	tree := grammar generateNodeOfRule: #E given: 5.
-	self assert: tree isNonTerminalNode.
-	self assert: tree maxDepth equals: 5"
+	self assert: tree isTerminalValueNode.
+	self assert: tree asString equals: '4'
 ]
 
 { #category : #accessing }
-GEGrammarTest >> testNodeOfRuleGivenCodon [
+GEGrammarTest >> testNodeOfRuleGivenGenome [
 
 	| node |
 	grammar
@@ -189,21 +171,25 @@ GEGrammarTest >> testNodeOfRuleGivenCodon [
 		andSequence: #( #E #Op #E );
 		addTerminal: #E ofType: RBLiteralNode andValues: #( 1 6 3 8 );
 		addSelectorTerminal: #Op withValues: #( #+ #- ).
-	node := grammar nodeOfRule: #E givenCodon: #( 8 5 6 7 7 11 21 4 ).
+	node := grammar nodeOfRule: #E givenGenome: #( 8 5 6 7 7 11 21 4 ).
 	self assert: node class equals: GENonTerminalNode.
 	self assert: node type equals: RBMessageNode.
-	self assertCollection: (node nodeChildren with: (Array
-			 with: (GETerminalValueNode new
-					  id: #E;
-					  type: RBLiteralNode;
-					  value: 3)
-			 with: (GETerminalSelectorNode new
-					  id: #Op;
-					  value: #-)
-			 with: (GETerminalValueNode new
-					  id: #E;
-					  type: RBLiteralNode;
-					  value: 8)) collect: [:obj1 :obj2 | obj1 equals: obj2 ]) equals: #(true true true).
+	self
+		assertCollection: (node nodeChildren
+				 with: (Array
+						  with: (GETerminalValueNode new
+								   id: #E;
+								   type: RBLiteralNode;
+								   value: 3)
+						  with: (GETerminalSelectorNode new
+								   id: #Op;
+								   value: #-)
+						  with: (GETerminalValueNode new
+								   id: #E;
+								   type: RBLiteralNode;
+								   value: 8))
+				 collect: [ :obj1 :obj2 | obj1 equals: obj2 ])
+		equals: #( true true true ).
 	self
 		assertCollection: node allCodonValues
 		hasSameElements: #( 8 5 6 7 7 11 ).
@@ -214,7 +200,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon [
 ]
 
 { #category : #accessing }
-GEGrammarTest >> testNodeOfRuleGivenCodon2 [
+GEGrammarTest >> testNodeOfRuleGivenGenome2 [
 
 	| node |
 	grammar
@@ -223,21 +209,25 @@ GEGrammarTest >> testNodeOfRuleGivenCodon2 [
 		andSequence: #( #F #Op #F );
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 1 6 3 8 );
 		addSelectorTerminal: #Op withValues: #( #+ #- ).
-	node := grammar nodeOfRule: #E givenCodon: #( 8 5 6 7 7 11 21 4 ).
+	node := grammar nodeOfRule: #E givenGenome: #( 8 5 6 7 7 11 21 4 ).
 	self assert: node class equals: GENonTerminalNode.
 	self assert: node type equals: RBMessageNode.
-	self assertCollection: (node nodeChildren with: (Array
-			 with: (GETerminalValueNode new
-					  id: #F;
-					  type: RBLiteralNode;
-					  value: 6)
-			 with: (GETerminalSelectorNode new
-					  id: #Op;
-					  value: #+)
-			 with: (GETerminalValueNode new
-					  id: #F;
-					  type: RBLiteralNode;
-					  value: 8)) collect: [:obj1 :obj2 | obj1 equals: obj2 ]) equals: #(true true true).
+	self
+		assertCollection: (node nodeChildren
+				 with: (Array
+						  with: (GETerminalValueNode new
+								   id: #F;
+								   type: RBLiteralNode;
+								   value: 6)
+						  with: (GETerminalSelectorNode new
+								   id: #Op;
+								   value: #+)
+						  with: (GETerminalValueNode new
+								   id: #F;
+								   type: RBLiteralNode;
+								   value: 8))
+				 collect: [ :obj1 :obj2 | obj1 equals: obj2 ])
+		equals: #( true true true ).
 	self
 		assertCollection: node allCodonValues
 		hasSameElements: #( 8 5 6 7 ).
@@ -248,7 +238,7 @@ GEGrammarTest >> testNodeOfRuleGivenCodon2 [
 ]
 
 { #category : #accessing }
-GEGrammarTest >> testNodeOfRuleGivenCodon3 [
+GEGrammarTest >> testNodeOfRuleGivenGenome3 [
 
 	| node |
 	grammar
@@ -258,24 +248,28 @@ GEGrammarTest >> testNodeOfRuleGivenCodon3 [
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 1 6 3 8 );
 		addSelectorTerminal: #Op withValues: #( #+ #- );
 		addCollectionRule: #C withOptions: #( #F ) andSize: 1.
-	node := grammar nodeOfRule: #E givenCodon: #( 8 5 6 7 7 11 21 4 ).
+	node := grammar nodeOfRule: #E givenGenome: #( 8 5 6 7 7 11 21 4 ).
 	self assert: node class equals: GENonTerminalNode.
 	self assert: node type equals: RBMessageNode.
-	self assertCollection: (node nodeChildren with: (Array
-			 with: (GETerminalValueNode new
-					  id: #F;
-					  type: RBLiteralNode;
-					  value: 6)
-			 with: (GETerminalSelectorNode new
-					  id: #Op;
-					  value: #+)
-			 with: (GECollectionNode new
-					  id: #C;
-					  size: 1;
-					  nodeChildren: (Array with: (GETerminalValueNode new
-									    id: #F;
-									    type: RBLiteralNode;
-									    value: 8)))) collect: [:obj1 :obj2 | obj1 equals: obj2 ]) equals: #(true true true).
+	self
+		assertCollection: (node nodeChildren
+				 with: (Array
+						  with: (GETerminalValueNode new
+								   id: #F;
+								   type: RBLiteralNode;
+								   value: 6)
+						  with: (GETerminalSelectorNode new
+								   id: #Op;
+								   value: #+)
+						  with: (GECollectionNode new
+								   id: #C;
+								   size: 1;
+								   nodeChildren: (Array with: (GETerminalValueNode new
+												     id: #F;
+												     type: RBLiteralNode;
+												     value: 8))))
+				 collect: [ :obj1 :obj2 | obj1 equals: obj2 ])
+		equals: #( true true true ).
 	self
 		assertCollection: node allCodonValues
 		hasSameElements: #( 8 5 6 7 7 11 ).
@@ -286,10 +280,10 @@ GEGrammarTest >> testNodeOfRuleGivenCodon3 [
 ]
 
 { #category : #tests }
-GEGrammarTest >> testNodeOfRuleGivenCodon4 [
+GEGrammarTest >> testNodeOfRuleGivenGenome4 [
 
 	| tree |
-	grammar seed: 56.
+	grammar seed: 1.
 	grammar
 		addNonTerminal: #E
 		ofType: RBMessageNode
@@ -303,9 +297,9 @@ GEGrammarTest >> testNodeOfRuleGivenCodon4 [
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
-	tree := grammar nodeOfRule: #E givenCodon: #( 6 4 5 8 5 9 6 7 5 5 7 ).
+	tree := grammar nodeOfRule: #E givenGenome: #( 6 4 5 8 5 9 6 7 5 5 ).
 	self assert: tree isNonTerminalNode.
-	self assert: tree asString equals: '4 * 21 + 21 + (21 * (8 + 21))'
+	self assert: tree asString equals: '4 * 21 + (4 * 21) + 4'
 ]
 
 { #category : #tests }
@@ -324,6 +318,6 @@ GEGrammarTest >> testNodeOfRuleRaisingError [
 		addRule: #F withValues: #( #E );
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 ).
 	self
-		should: [ grammar nodeOfRule: #E givenCodon: #( 2 3 5 7 3 3 ) ]
+		should: [ grammar nodeOfRule: #E givenGenome: #( 2 3 5 7 3 3 ) ]
 		raise: KeyNotFound
 ]
