@@ -154,14 +154,20 @@ GEGrammar >> generateNodeOfRule: symbol [
 { #category : #'instance creation' }
 GEGrammar >> generateNodeOfRule: symbol given: number [
 
+	^ self generateNodeOfRule: symbol given: self genomeSize and: number
+]
+
+{ #category : #'instance creation' }
+GEGrammar >> generateNodeOfRule: symbol given: number1 and: number2 [
+
 	| node i follow |
 	self assert: symbol isSymbol.
 	i := 0.
 	follow := true.
 	[ i < 20 and: [ follow ] ] whileTrue: [ 
 		| array |
-		array := (1 to: self genomeSize) collect: [ :n | 
-			         random randomNumber: number ].
+		array := (1 to: number1) collect: [ :n | 
+			         random randomNumber: number2 ].
 		node := [ self nodeOfRule: symbol givenGenome: array ]
 			        on: GEError
 			        do: [ nil ].

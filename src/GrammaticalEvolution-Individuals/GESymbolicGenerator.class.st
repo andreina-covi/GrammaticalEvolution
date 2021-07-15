@@ -32,7 +32,7 @@ GESymbolicGenerator >> createIndividual [
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
-		node := [ grammar generateNodeOfRule: #E given: self maxCodonValue ]
+		node := [ grammar generateNodeOfRule: #E given: (random randomNumber: 10) and: self maxCodonValue  ]
 			        on: GEError
 			        do: [ nil ].
 		i := i + 1 ].
@@ -80,6 +80,11 @@ GESymbolicGenerator >> isBetter: object1 than: object2 [
 GESymbolicGenerator >> mutate: object1 [
 
 	^ self mutate: object1 given: #E
+]
+
+{ #category : #accessing }
+GESymbolicGenerator >> mutationProbability [ 
+	^ 1
 ]
 
 { #category : #accessing }

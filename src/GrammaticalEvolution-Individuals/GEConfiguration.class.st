@@ -144,17 +144,13 @@ GEConfiguration >> mutate: object1 [
 { #category : #accessing }
 GEConfiguration >> mutate: object1 given: symbol [
 
-	| codonValues newIndiv allCodonValues |
+	| newIndiv allCodonValues copy |
 	allCodonValues := object1 allCodonValues.
-	codonValues := allCodonValues size < object1 genome size
-		               ifTrue: [ allCodonValues ]
-		               ifFalse: [ object1 genome ].
-	"1 to: codonValues size do: [ :i |"
-	(random randomNumber: 100) < self mutationProbability ifTrue: [ "]"
-		object1
-			genomeAt: (random randomNumber: codonValues size)
-			put: (random randomNumber: self maxCodonValue) ].
-	newIndiv := [ grammar nodeOfRule: symbol givenGenome: object1 genome ]
+	copy := allCodonValues copy.
+	1 to: allCodonValues size do: [ :i | 
+		(random randomNumber: 100) <= self mutationProbability ifTrue: [ 
+			copy at: i put: (random randomNumber: self maxCodonValue) ] ].
+	newIndiv := [ grammar nodeOfRule: symbol givenGenome: copy ]
 		            on: GEError
 		            do: [ nil ].
 	newIndiv ifNotNil: [ 
