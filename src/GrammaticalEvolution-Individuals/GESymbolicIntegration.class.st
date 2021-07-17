@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #accessing }
-GESymbolicIntegration >> fileName: engine [
+GESymbolicIntegration >> fileName: object [
 
 	^ String streamContents: [ :stream | 
 		  stream

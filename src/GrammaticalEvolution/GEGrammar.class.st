@@ -311,9 +311,9 @@ GEGrammar >> nodeOfRule: symbol givenGenome: array depth: integer stack: stack q
 
 	| rule index assoc object codonValue |
 	self validate: stack given: array and: wrapStack.
+	"symbol = #Block ifTrue: [ self halt ]."
 	rule := rules at: symbol.
 	codonValue := stack pop.
-	"codonValue == 7 ifTrue: [ self halt ]."
 	index := codonValue \\ rule optionsSize + 1.
 	assoc := rule optionAndInfoAt: index.
 	object := assoc value.

@@ -334,13 +334,6 @@ GEAssertionGenerator >> randomSubTree: tree given: symbol [
 	^ random randomlySelect: (tree withAllChildren select: [ :node | array includes: node id ]) 
 ]
 
-{ #category : #building }
-GEAssertionGenerator >> sortIndividuals: collection [
-
-	^ collection asSortedCollection: [ :indiv1 :indiv2 | 
-		  self isBetter: indiv1 than: indiv2 ]
-]
-
 { #category : #accessing }
 GEAssertionGenerator >> targetClass [
 

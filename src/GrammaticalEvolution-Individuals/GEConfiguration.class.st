@@ -5,7 +5,8 @@ Class {
 		'grammar',
 		'random',
 		'mutationProbability',
-		'crossoverProbability'
+		'crossoverProbability',
+		'comparisonSelector'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Core'
 }
@@ -41,6 +42,11 @@ GEConfiguration >> betterChildBetween: newC1 and: newC2 given: array [
 GEConfiguration >> buildGrammar [
 
 	self subclassResponsibility
+]
+
+{ #category : #accessing }
+GEConfiguration >> comparisonSelector: symbol [
+	comparisonSelector := symbol
 ]
 
 { #category : #accessing }
@@ -120,8 +126,10 @@ GEConfiguration >> getBestBetween: object1 and: object2 [
 ]
 
 { #category : #initialization }
-GEConfiguration >> initialize [ 
-	random := GERandom seed: 1
+GEConfiguration >> initialize [
+
+	random := GERandom seed: 1.
+	comparisonSelector := #<
 ]
 
 { #category : #testing }
@@ -266,7 +274,7 @@ GEConfiguration >> rankedIndividuals: collection [
 
 	^ (collection collect: [ :obj | obj -> (self fitnessValueOf: obj) ]) 
 		  asSortedCollection: [ :assoc1 :assoc2 | 
-		  assoc1 value < assoc2 value ]
+		  assoc1 value perform: comparisonSelector with: assoc2 value ]
 ]
 
 { #category : #accessing }
