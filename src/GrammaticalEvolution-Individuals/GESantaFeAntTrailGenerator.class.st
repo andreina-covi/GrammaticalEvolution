@@ -1,17 +1,8 @@
 Class {
 	#name : #GESantaFeAntTrailGenerator,
 	#superclass : #GEConfiguration,
-	#instVars : [
-		'ant'
-	],
 	#category : #'GrammaticalEvolution-Individuals-Book-Examples'
 }
-
-{ #category : #accessing }
-GESantaFeAntTrailGenerator >> ant: anAnt [
-	self assert: anAnt class == GEAnt.
-	ant := anAnt 
-]
 
 { #category : #building }
 GESantaFeAntTrailGenerator >> buildGrammar [
@@ -76,10 +67,10 @@ GESantaFeAntTrailGenerator >> crossoverBetween: object1 and: object2 [
 { #category : #accessing }
 GESantaFeAntTrailGenerator >> fitnessValueOf: individual [
 
-	| fitnessFunction |
+	| fitnessFunction ant |
+	ant := GEAnt new grid: GEGrid default.
 	fitnessFunction := GESimpleFitnessFunction new.
 	self injectIntoMethod: individual.
-	self resetInstanceAnt.
 	ant perform: #run.
 	fitnessFunction
 		fitnessValue: ant foundPieces;
@@ -133,10 +124,4 @@ GESantaFeAntTrailGenerator >> mutate: object1 [
 GESantaFeAntTrailGenerator >> populationSize [
 
 	^ 500
-]
-
-{ #category : #initialization }
-GESantaFeAntTrailGenerator >> resetInstanceAnt [
-
-	ant := GEAnt new grid: GEGrid default
 ]

@@ -61,7 +61,7 @@ GEAnt >> left [
 	(self isValid: newPosition)
 		ifFalse: [ ^ self ]
 		ifTrue: [ 
-			self updatePosition: newPosition.
+			self position: newPosition.
 			(grid foodAhead: newPosition) ifTrue: [ self updateFoundPieces ].
 			self updateDirection: 'left'.
 			self updateOperations ]
@@ -71,17 +71,15 @@ GEAnt >> left [
 GEAnt >> move [
 
 	| newPosition |
-	position = (0 @ 0)
+	newPosition := position = (0 @ 0)
+		               ifTrue: [ 1 @ 1 ]
+		               ifFalse: [ self newPosition: 'move' ].
+	(self isValid: newPosition)
+		ifFalse: [ ^ self ]
 		ifTrue: [ 
-			self updatePosition: 1 @ 1.
-			(grid foodAhead: 1 @ 1) ifTrue: [ self updateFoundPieces ].
+			self position: newPosition.
+			(grid foodAhead: newPosition) ifTrue: [ self updateFoundPieces ].
 			self updateOperations ]
-		ifFalse: [ 
-			newPosition := self newPosition: 'move'.
-			(self isValid: newPosition) ifTrue: [ 
-				(grid foodAhead: newPosition) ifTrue: [ self updateFoundPieces ].
-				self updatePosition: newPosition.
-				self updateOperations ] ]
 ]
 
 { #category : #testing }
@@ -109,6 +107,12 @@ GEAnt >> operations [
 	^ operations
 ]
 
+{ #category : #updating }
+GEAnt >> position: point [
+
+	position := point
+]
+
 { #category : #accessing }
 GEAnt >> right [
 
@@ -117,75 +121,10 @@ GEAnt >> right [
 	(self isValid: newPosition)
 		ifFalse: [ ^ self ]
 		ifTrue: [ 
-			self updatePosition: newPosition.
+			self position: newPosition.
 			(grid foodAhead: newPosition) ifTrue: [ self updateFoundPieces ].
 			self updateDirection: 'right'.
 			self updateOperations ]
-]
-
-{ #category : #'as yet unclassified' }
-GEAnt >> run [
-(1 to: 615) do: [ :n |
-self left.
-self foodAhead
-	ifTrue: [ 
-		self foodAhead
-			ifTrue: [ 
-				self foodAhead
-					ifTrue: [ self move ]
-					ifFalse: [ self move ] ]
-			ifFalse: [ self move ] ]
-	ifFalse: [ self left ].
-self move.
-self left.
-self move.
-self left.
-self foodAhead
-	ifTrue: [ 
-		self foodAhead
-			ifTrue: [ 
-				self foodAhead
-					ifTrue: [ self move ]
-					ifFalse: [ 
-						self foodAhead
-							ifTrue: [ self left ]
-							ifFalse: [ self right ] ] ]
-			ifFalse: [ self left ] ]
-	ifFalse: [ 
-		self foodAhead
-			ifTrue: [ self left ]
-			ifFalse: [ self left ] ].
-self right.
-self foodAhead
-	ifTrue: [ self move ]
-	ifFalse: [ self move ].
-self left.
-self move.
-self left.
-self move.
-self left.
-self move.
-self left.
-self foodAhead
-	ifTrue: [ 
-		self foodAhead
-			ifTrue: [ 
-				self foodAhead
-					ifTrue: [ self move ]
-					ifFalse: [ 
-						self foodAhead
-							ifTrue: [ self left ]
-							ifFalse: [ self right ] ] ]
-			ifFalse: [ self left ] ]
-	ifFalse: [ 
-		self foodAhead
-			ifTrue: [ self left ]
-			ifFalse: [ self left ] ].
-self right.
-self foodAhead
-	ifTrue: [ self move ]
-	ifFalse: [ self move ].
-self left ]
 ]
 
 { #category : #updating }
@@ -207,9 +146,4 @@ GEAnt >> updateFoundPieces [
 { #category : #updating }
 GEAnt >> updateOperations [
 	operations := operations + 1
-]
-
-{ #category : #updating }
-GEAnt >> updatePosition: point [
-	position := point
 ]
