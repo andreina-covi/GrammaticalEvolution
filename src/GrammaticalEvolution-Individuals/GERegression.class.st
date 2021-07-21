@@ -16,10 +16,7 @@ GERegression >> dictData: dictionary [
 { #category : #private }
 GERegression >> fileName: engine [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'Regression.csv' ]
+	^ 'Regression.csv'
 ]
 
 { #category : #running }

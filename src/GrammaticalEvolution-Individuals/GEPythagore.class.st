@@ -7,10 +7,7 @@ Class {
 { #category : #accessing }
 GEPythagore >> fileName: engine [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'Pythagore.csv' ]
+	^ 'Pythagore.csv'
 ]
 
 { #category : #running }

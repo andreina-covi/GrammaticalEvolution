@@ -15,10 +15,7 @@ GEIdealGasLaw >> dictData: dictionary [
 { #category : #accessing }
 GEIdealGasLaw >> fileName: engine [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'IdealGasLaw.csv' ]
+	^ 'IdealGasLaw.csv'
 ]
 
 { #category : #running }

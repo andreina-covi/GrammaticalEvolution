@@ -5,12 +5,9 @@ Class {
 }
 
 { #category : #accessing }
-GESymbolicRegression >> fileName: engine [
+GESymbolicRegression >> fileName: object [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'SymbolicRegression.csv' ]
+	^ 'SymbolicRegression.csv'
 ]
 
 { #category : #running }

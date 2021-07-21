@@ -69,7 +69,7 @@ GEEngine >> createNewGeneration [
 	population := newPopulation
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> fitnessValueOf: individual [
 
 	^ configuration fitnessValueOf: individual
@@ -88,13 +88,13 @@ GEEngine >> logs [
 	^ logs
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> pickBestIndividual [
 
 	^ self sortedIndividuals first
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> pickEliteOfPopulation [
 
 	| individual copy |
@@ -108,13 +108,13 @@ GEEngine >> pickEliteOfPopulation [
 		  yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> rankedIndividuals [
 
 	^ configuration rankedIndividuals: population
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> rankedIndividuals: collection [
 
 	^ configuration rankedIndividuals: collection
@@ -162,7 +162,7 @@ GEEngine >> selectionDiscarding: object [
 	^ self tournamentDiscarding: object
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> sortedIndividuals [
 
 	^ configuration sortIndividuals: population
@@ -205,7 +205,7 @@ GEEngine >> tournamentDiscarding: individual [
 	^ best
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 GEEngine >> visualize [
 
 	| c d |

@@ -14,7 +14,7 @@ GESymbolicRegressionGenerator >> fitnessValueOf: individual [
 		           individual evaluateGiven:
 			           (Array with: 'x' -> x) asDictionary ]
 			           on: Exception
-			           do: [ (SmallInteger maxVal / 25) asInteger ] ].
+			           do: [ 100000 ] ].
 	expectedResults := numbers collect: [ :x | 
 		                   x + (x ** 2) + (x ** 3) + (x ** 4) ].
 	individual fitness: (GESimpleFitnessFunction new

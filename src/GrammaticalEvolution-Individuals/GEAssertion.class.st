@@ -180,7 +180,6 @@ GEAssertion >> fileName: engine [
 
 	^ String streamContents: [ :stream | 
 		  stream
-			  nextPutAll: self folderName;
 			  nextPutAll: engine configuration targetClass name;
 			  nextPut: $_;
 			  nextPutAll:

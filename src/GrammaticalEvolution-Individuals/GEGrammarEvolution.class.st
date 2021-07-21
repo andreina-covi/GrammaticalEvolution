@@ -64,13 +64,6 @@ GEGrammarEvolution >> fileName: engine [
 	^ self subclassResponsibility 
 ]
 
-{ #category : #private }
-GEGrammarEvolution >> fileNameFor: engine [
-
-	self ensureDirectory.
-	^ self fileName: engine
-]
-
 { #category : #accessing }
 GEGrammarEvolution >> folderName [ 
 	^ folderToExport
@@ -91,6 +84,16 @@ GEGrammarEvolution >> initialize [
 	folderToExport := ''.
 	seed := 4.
 	populations := OrderedCollection new
+]
+
+{ #category : #private }
+GEGrammarEvolution >> pathName: engine [
+
+	self ensureDirectory.
+	^ String streamContents: [ :stream | 
+		  stream
+			  nextPutAll: self folderName;
+			  nextPutAll: (self fileName: engine) ]
 ]
 
 { #category : #accessing }
@@ -116,7 +119,7 @@ GEGrammarEvolution >> run: configuration [
 	engine := GEEngine new
 		          configuration: configuration;
 		          run.
-	self exportResult: engine on: (self fileNameFor: engine).
+	self exportResult: engine on: (self pathName: engine).
 	populations := self populations: engine.
 	^ engine
 ]

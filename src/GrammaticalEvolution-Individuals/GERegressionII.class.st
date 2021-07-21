@@ -7,10 +7,7 @@ Class {
 { #category : #accessing }
 GERegressionII >> fileName: engine [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'RegressionII.csv' ]
+	^ 'RegressionII.csv'
 ]
 
 { #category : #running }

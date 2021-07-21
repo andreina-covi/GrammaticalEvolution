@@ -36,7 +36,8 @@ GESantaFeAntTrailGenerator >> buildGrammar [
 		           ofType: RBMessageNode
 		           andSequence: #( #Variable #Movement );
 		           addSelectorTerminal: #Movement
-		           withValues: #( left #right #move )
+		           withValues: #( left #right #move );
+		wrapNumber: 0
 ]
 
 { #category : #accessing }
@@ -50,7 +51,7 @@ GESantaFeAntTrailGenerator >> createIndividual [
 		node := [ 
 		        grammar
 			        generateNodeOfRule: #Code
-			        given: (random randomNumber: 10)
+			        given: (random randomNumber: 1000)
 			        and: self maxCodonValue ]
 			        on: GEError
 			        do: [ nil ].

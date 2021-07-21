@@ -63,8 +63,8 @@ GEConfiguration >> crossoverBetween: object1 and: object2 [
 GEConfiguration >> crossoverOfOnePoint: symbol between: object1 and: object2 [
 
 	| c1 c2 crossoverPoint1 crossoverPoint2 newC1 newC2 |
-	c1 := object1 allCodonValues.
-	c2 := object2 allCodonValues.
+	c1 := object1 genome.
+	c2 := object2 genome.
 	self assert: (c1 notNil and: [ c2 notNil ]).
 	crossoverPoint1 := random randomlySelect: (1 to: c1 size).
 	crossoverPoint2 := random randomlySelect: (1 to: c2 size).

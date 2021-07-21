@@ -11,17 +11,23 @@ Class {
 GESymbolicGenerator >> buildGrammar [
 
 	grammar := GEGrammar new
-		  addNonTerminal: #E
-		  ofType: RBMessageNode
-		  andSequence: #( #E #Op #E );
-		  addNonTerminal: #E
-		  ofType: RBMessageNode
-		  andSequence: #( #E #PreOp );
-		  addRule: #E withValues: #( #Var );
-		  addTerminal: #Var ofType: RBVariableNode andValues: #( 'x' );
-		  addTerminal: #Var ofType: RBLiteralNode andValues: #( 1.0 );
-		  addSelectorTerminal: #Op withValues: #( #+ #- #/ #* );
-		  addSelectorTerminal: #PreOp withValues: #( #sin #cos #exp #log )
+		           addNonTerminal: #E
+		           ofType: RBMessageNode
+		           andSequence: #( #E #Op #E );
+		           addNonTerminal: #E
+		           ofType: RBMessageNode
+		           andSequence: #( #E #PreOp );
+		           addRule: #E withValues: #( #Var );
+		           addTerminal: #Var
+		           ofType: RBVariableNode
+		           andValues: #( 'x' );
+		           addTerminal: #Var
+		           ofType: RBLiteralNode
+		           andValues: #( 1.0 );
+		           addSelectorTerminal: #Op withValues: #( #+ #- #/ #* );
+		           addSelectorTerminal: #PreOp
+		           withValues: #( #sin #cos #exp #log )";
+		           wrapNumber: 0"
 ]
 
 { #category : #accessing }
@@ -32,7 +38,11 @@ GESymbolicGenerator >> createIndividual [
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
-		node := [ grammar generateNodeOfRule: #E given: (random randomNumber: 10) and: self maxCodonValue  ]
+		node := [ 
+		        grammar
+			        generateNodeOfRule: #E
+			        given: (random randomNumber: 20)
+			        and: self maxCodonValue ]
 			        on: GEError
 			        do: [ nil ].
 		i := i + 1 ].

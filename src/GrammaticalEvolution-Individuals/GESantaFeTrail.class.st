@@ -5,12 +5,9 @@ Class {
 }
 
 { #category : #accessing }
-GESantaFeTrail >> fileName: engine [
+GESantaFeTrail >> fileName: object [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'SantaFeTrail.csv' ]
+	^ 'SantaFeTrail.csv'
 ]
 
 { #category : #running }

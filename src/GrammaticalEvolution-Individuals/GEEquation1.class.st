@@ -7,10 +7,7 @@ Class {
 { #category : #accessing }
 GEEquation1 >> fileName: engine [
 
-	^ String streamContents: [ :stream | 
-		  stream
-			  nextPutAll: self folderName;
-			  nextPutAll: 'Equation1.csv' ]
+	^ 'Equation1.csv'
 ]
 
 { #category : #running }

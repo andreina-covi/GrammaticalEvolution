@@ -1,19 +1,19 @@
 Class {
-	#name : #GESymbolicIntegration,
+	#name : #GESymbolicIntegrationG2,
 	#superclass : #GESymbolic,
 	#category : #'GrammaticalEvolution-Individuals-Book-Examples'
 }
 
 { #category : #accessing }
-GESymbolicIntegration >> fileName: object [
+GESymbolicIntegrationG2 >> fileName: engine [
 
-	^ 'SymbolicIntegration.csv'
+	^ 'SymbolicIntegrationG2.csv'
 ]
 
 { #category : #running }
-GESymbolicIntegration >> run [
+GESymbolicIntegrationG2 >> run [
 
-	^ self run: (GESymbolicIntegrationGenerator new
+	^ self run: (GESymbolicIntegrationGeneratorG2 new
 			   seed: seed;
 			   dictData: dictData)
 ]
