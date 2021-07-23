@@ -310,10 +310,13 @@ GEGrammar >> nodeOfRule: symbol givenGenome: array and: integer [
 GEGrammar >> nodeOfRule: symbol givenGenome: array depth: integer stack: stack queue: queue and: wrapStack [
 
 	| rule index assoc object codonValue |
-	self validate: stack given: array and: wrapStack.
+	self validate: stack given: array and: wrapStack. "symbol = #F ifTrue: [ self halt ]. "
 	rule := rules at: symbol.
-	codonValue := stack pop.
-	index := codonValue \\ rule optionsSize + 1.
+	rule hasNoDecision
+		ifTrue: [ index := 1 ]
+		ifFalse: [ 
+			codonValue := stack pop.
+			index := codonValue \\ rule optionsSize + 1 ].
 	assoc := rule optionAndInfoAt: index.
 	object := assoc value.
 	object isSymbol
@@ -330,7 +333,7 @@ GEGrammar >> nodeOfRule: symbol givenGenome: array depth: integer stack: stack q
 			self validate: stack given: array and: wrapStack.
 			(1 to: queue size) do: [ :n | 
 				object addCodonValue: queue nextOrNil ].
-			object addCodonValue: codonValue ].
+			codonValue ifNotNil: [ object addCodonValue: codonValue ] ].
 	((#( 'nonTerminal' 'collection' ) includes: assoc key) not and: [ 
 		 object value isNil ]) ifTrue: [ 
 		| options |

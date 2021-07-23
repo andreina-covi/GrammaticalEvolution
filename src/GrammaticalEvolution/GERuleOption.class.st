@@ -61,6 +61,13 @@ GERuleOption >> addTerminalNode: node withValues: collection [
 	infoOptions add: 'terminal' -> collection
 ]
 
+{ #category : #testing }
+GERuleOption >> hasNoDecision [
+
+	^ infoOptions size == 1 and: [ 
+		  options size == 1 and: [ (infoOptions at: 1) value size == 1 ] ]
+]
+
 { #category : #accessing }
 GERuleOption >> infoOptionsAt: index [
 	self assert: index <= infoOptions size.
@@ -108,13 +115,17 @@ GERuleOption >> optionAndInfoAt: integer [
 
 	options ifEmpty: [ ^ nil ].
 	^ (options size == 1 and: [ 
-		   (#( 'nonTerminal' 'collection' 'redirection') includes: infoOptions first key)
-			   not ])
+		   (#( 'nonTerminal' 'collection' 'redirection' ) includes:
+			    infoOptions first key) not ])
 		  ifTrue: [ 
 		  infoOptions first key -> (self nodeAt: 1 withValueAt: integer) ]
 		  ifFalse: [ 
+			  | assoc |
+			  assoc := infoOptions at: integer.
 			  self assert: integer <= options size.
-			  (infoOptions at: integer) key -> (options at: integer) deepCopy ]
+			  (assoc key = 'terminal' and: [ assoc value size == 1 ])
+				  ifTrue: [ assoc key -> (self nodeAt: integer withValueAt: 1) ]
+				  ifFalse: [ assoc key -> (options at: integer) deepCopy ] ]
 ]
 
 { #category : #accessing }

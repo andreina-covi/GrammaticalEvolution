@@ -44,33 +44,35 @@ GERegressionGeneratorTest >> testMutateGiven [
 				                given: #E ]
 		                thenSelect: [ :ind | ind notNil ]) asSet.
 	self assert: individuals size > 1.
-	self assert: (individuals collect: #asString) asSet size equals: 1
+	self assert: (individuals collect: #asString) asSet size > 1
 ]
 
 { #category : #tests }
 GERegressionGeneratorTest >> testMutateHaving [
 
 	| tree1 tree2 |
-	configuration seed: 456345.
+	configuration seed: 63.
 	tree1 := configuration createIndividual.
 	tree2 := configuration createIndividual.
-	self assert: tree1 asString equals: 'a + a'.
+	self assert: tree1 asString equals: 'a'.
 	self assert: tree2 asString equals: 'a * a * a'.
 	configuration
 		mutate: tree1 withAllChildren allButFirst
 		having: tree2 withAllChildren.
-	self assert: tree1 asString equals: 'a + a'
+	self assert: tree1 asString equals: 'a'
 ]
 
 { #category : #tests }
 GERegressionGeneratorTest >> testMutateWith [
 
 	| tree1 tree2 newTree |
-	configuration seed: 123.
+	configuration seed: 1.
 	tree1 := configuration createIndividual.
 	tree2 := configuration createIndividual.
-	self assert: tree1 asString equals: 'a * a * a'.
+	self
+		assert: tree1 asString
+		equals: 'a + (a * a * a) + (a + (a * a * a) * (a * a * a))'.
 	self assert: tree2 asString equals: 'a'.
 	newTree := configuration mutate: tree1 with: tree2.
-	self assert: newTree asString equals: 'a * a * a'
+	self assert: newTree asString equals: 'a + (a * a * a) + (a + (a * a * a) * (a * a * a))'
 ]

@@ -111,10 +111,45 @@ GEGrammarTest >> testAddTerminalOfTypeAndValues [
 ]
 
 { #category : #tests }
+GEGrammarTest >> testBNF [
+
+	| tree |
+	grammar
+		addNonTerminal: #Expr
+		ofType: RBMessageNode
+		andSequence: #( #Expr #Op #Expr );
+		addNonTerminal: #Expr
+		ofType: RBMessageNode
+		andSequence: #( #Expr #Op #Expr );
+		addNonTerminal: #Expr
+		ofType: RBMessageNode
+		andSequence: #( #Expr #PreOp );
+		addRule: #Expr withValues: #( #Var );
+		addSelectorTerminal: #Op withValues: #( #+ #- #- #* );
+		addSelectorTerminal: #PreOp withValues: #( #sin );
+		addTerminal: #Var ofType: RBVariableNode andValues: #( 'x' );
+		addTerminal: #Var ofType: RBLiteralNode andValues: #( 1.0 );
+		wrapNumber: 0.
+	tree := grammar
+		        nodeOfRule: #Expr
+		        givenGenome:
+			        #( 220 40 16 203 101 53 202 203 102 55 220 202 19 130 37 202
+			           203 32 39 202 203 102 8).
+	self assert: tree isNonTerminalNode.
+	self
+		assert: tree asString
+		equals: '1.0 - x sin * (x sin - x sin) * x sin'.
+	self
+		assertCollection: tree allCodonValues
+		hasSameElements:
+			#( 220 40 16 203 101 53 202 203 102 55 220 202 19 130 37 202 203
+			   32 39 202 203 102 )
+]
+
+{ #category : #tests }
 GEGrammarTest >> testETFGrammar [
 
 	| tree |
-	grammar seed: 56.
 	grammar
 		addNonTerminal: #E
 		ofType: RBMessageNode
@@ -130,12 +165,12 @@ GEGrammarTest >> testETFGrammar [
 		addSelectorTerminal: #Mult withValues: #( #* ).
 	tree := grammar
 		        nodeOfRule: #E
-		        givenGenome: #( 6 5 3 5 8 4 8 9 5 6 7 7 7 ).
+		        givenGenome: #( 6 5 3 5 8 8 9 5 6 7 7 7 ).
 	self assert: tree isNonTerminalNode.
 	self assert: tree asString equals: '21 + (4 * 8)'.
 	self
 		assertCollection: tree allCodonValues
-		hasSameElements: #( 6 5 3 5 8 4 8 9 5 6 7 7 7 )
+		hasSameElements: #( 6 5 3 5 8 8 9 5 6 7 7 7 )
 ]
 
 { #category : #tests }
@@ -157,8 +192,8 @@ GEGrammarTest >> testGenerateNodeOfRule [
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
 	tree := grammar generateNodeOfRule: #E.
-	self assert: tree isTerminalValueNode.
-	self assert: tree asString equals: '4'
+	self assert: tree isNonTerminalNode.
+	self assert: tree asString equals: '4 * 21 * 8'
 ]
 
 { #category : #accessing }
@@ -272,7 +307,7 @@ GEGrammarTest >> testNodeOfRuleGivenGenome3 [
 		equals: #( true true true ).
 	self
 		assertCollection: node allCodonValues
-		hasSameElements: #( 8 5 6 7 7 11 ).
+		hasSameElements: #( 8 5 6 7 7 ).
 	self
 		assert: node pharoAST
 		equals: (RBParser parseExpression: '6 + 8').
@@ -297,9 +332,11 @@ GEGrammarTest >> testNodeOfRuleGivenGenome4 [
 		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 8 21 );
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
-	tree := grammar nodeOfRule: #E givenGenome: #( 6 4 5 8 5 9 6 7 5 5 ).
+	tree := grammar
+		        nodeOfRule: #E
+		        givenGenome: #( 6 9 5 8 5 9 6 7 5 5 8 ).
 	self assert: tree isNonTerminalNode.
-	self assert: tree asString equals: '4 * 21 + (4 * 21) + 4'
+	self assert: tree asString equals: '21 + (21 * 4)'
 ]
 
 { #category : #tests }
