@@ -301,7 +301,8 @@ GEGrammar >> initialize [
 { #category : #accessing }
 GEGrammar >> maxGenomeValue [
 
-	^ 256
+	"^ 256"
+	^ (rules keys collect: [ :k | self countValueRule: k ]) max
 ]
 
 { #category : #'instance creation' }

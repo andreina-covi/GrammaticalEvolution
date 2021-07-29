@@ -115,3 +115,8 @@ GEAssertionGeneratorG2 >> builtAssertionGrammar [
 		  timesGiven:
 			  #( #Integer )
 ]
+
+{ #category : #accessing }
+GEAssertionGeneratorG2 >> maxCodonValue [ 
+	^ grammar maxGenomeValue  
+]

@@ -197,14 +197,14 @@ GEAssertionGenerator >> createIndividual [
 { #category : #building }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
-	^ self crossoverOfOnePoint: #Method between: object1 and: object2 
-	"| number |
+	"^ self crossoverOfOnePoint: #Method between: object1 and: object2"
+	| number |
 	number := random randomNumber: 100.
 
 	^ number < 50
 		  ifTrue: [ 
 		  self crossoverOfOnePoint: #Method between: object1 and: object2 ]
-		  ifFalse: [ self crossoverJoining: object1 and: object2 ]"
+		  ifFalse: [ self crossoverJoining: object1 and: object2 ]
 ]
 
 { #category : #building }
