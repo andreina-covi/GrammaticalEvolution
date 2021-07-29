@@ -146,6 +146,16 @@ GEGrammarTest >> testBNF [
 			   32 39 202 203 102 )
 ]
 
+{ #category : #accessing }
+GEGrammarTest >> testCountValueRule [
+
+	grammar
+		addTerminal: #F
+		ofType: RBLiteralNode
+		andValues: (1 to: 20) asArray.
+	self assert: (grammar countValueRule: #F) equals: 20
+]
+
 { #category : #tests }
 GEGrammarTest >> testETFGrammar [
 
@@ -340,6 +350,72 @@ GEGrammarTest >> testNodeOfRuleGivenGenome4 [
 ]
 
 { #category : #tests }
+GEGrammarTest >> testNodeOfRuleGivenGenome5 [
+
+	| tree |
+	grammar seed: 1.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #E );
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Mult #E );
+		addTerminal: #E ofType: RBLiteralNode andValues: #( 4 8 21 );
+		addSelectorTerminal: #Add withValues: #( #+ );
+		addSelectorTerminal: #Mult withValues: #( #* ).
+	tree := grammar
+		        nodeOfRule: #E
+		        givenGenome: #( 6 9 5 8 5 9 6 7 5 5 8 ).
+	self assert: tree isNonTerminalNode.
+	self assert: tree asString equals: '21 + 4 + (21 * 4 + (21 + 4))'
+]
+
+{ #category : #accessing }
+GEGrammarTest >> testNodeOfRuleGivenGenomeAnd [
+
+	| node |
+	grammar
+		addTerminal: #F
+		ofType: RBLiteralNode
+		andValues: (1 to: 20) asArray.
+	node := grammar nodeOfRule: #F givenGenome: #( 8 5 6 7 7 ) and: 0.
+	self assert: node isTerminalValueNode.
+	self assert: node type equals: RBLiteralNode.
+	self assert: node evaluate equals: 9
+]
+
+{ #category : #accessing }
+GEGrammarTest >> testNodeOfRuleGivenGenomeAnd2 [
+
+	| node |
+	grammar
+		addTerminal: #F
+		ofType: RBLiteralNode
+		andValues: (1 to: 5) asArray.
+	node := grammar nodeOfRule: #F givenGenome: #( 8 5 6 7 7 ) and: 0.
+	self assert: node isTerminalValueNode.
+	self assert: node type equals: RBLiteralNode.
+	self assert: node evaluate equals: 4
+]
+
+{ #category : #accessing }
+GEGrammarTest >> testNodeOfRuleGivenGenomeAnd3 [
+
+	| node |
+	grammar
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 1 );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 2 );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 3 );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 4 );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 5 ).
+	node := grammar nodeOfRule: #F givenGenome: #( 8 5 6 7 7 ) and: 0.
+	self assert: node isTerminalValueNode.
+	self assert: node type equals: RBLiteralNode.
+	self assert: node evaluate equals: 4
+]
+
+{ #category : #tests }
 GEGrammarTest >> testNodeOfRuleRaisingError [
 
 	grammar seed: 56.
@@ -357,4 +433,29 @@ GEGrammarTest >> testNodeOfRuleRaisingError [
 	self
 		should: [ grammar nodeOfRule: #E givenGenome: #( 2 3 5 7 3 3 ) ]
 		raise: KeyNotFound
+]
+
+{ #category : #tests }
+GEGrammarTest >> testUpdateFrequencyOfValuesRules [
+
+	grammar seed: 56.
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #E #Add #T );
+		addRule: #E withValues: #( #T );
+		addNonTerminal: #T
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addTerminal: #F
+		ofType: RBLiteralNode
+		andValues: #( 4 8 21 )
+		timesGiven: #( #E ).
+	self assert: (grammar countValueRule: #E) equals: 2.
+	self assert: (grammar countValueRule: #F) equals: 6.
+	self assert: (grammar countValueRule: #T) equals: 1.
+	grammar addRule: #E withValues: #( #F ).
+	grammar updateFrequencyOfValuesRules.
+	self assert: (grammar countValueRule: #E) equals: 3.
+	self assert: (grammar countValueRule: #F) equals: 9
 ]

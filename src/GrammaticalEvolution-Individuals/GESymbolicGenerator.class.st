@@ -26,7 +26,7 @@ GESymbolicGenerator >> buildGrammar [
 		           andValues: #( 1.0 );
 		           addSelectorTerminal: #Op withValues: #( #+ #- #/ #* );
 		           addSelectorTerminal: #PreOp
-		           withValues: #( #sin #cos #exp #log )";
+		           withValues: #( #sin #cos #exp #log ) ";
 		           wrapNumber: 0"
 ]
 

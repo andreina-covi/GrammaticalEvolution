@@ -34,10 +34,28 @@ GESymbolicRegressionGeneratorG4 >> buildGrammar [
 		           andSequence: #( #E #Exp );
 		           addTerminal: #E
 		           ofType: RBVariableNode
-		           andValues: #( 'x' 'x' 'x' 'x' );
+		           andValues: #( 'x' );
+		           addTerminal: #E
+		           ofType: RBVariableNode
+		           andValues: #( 'x' );
+		           addTerminal: #E
+		           ofType: RBVariableNode
+		           andValues: #( 'x' );
+		           addTerminal: #E
+		           ofType: RBVariableNode
+		           andValues: #( 'x' );
 		           addTerminal: #E
 		           ofType: RBLiteralNode
-		           andValues: #( 1.0 1.0 1.0 1.0 );
+		           andValues: #( 1.0 );
+		           addTerminal: #E
+		           ofType: RBLiteralNode
+		           andValues: #( 1.0 );
+		           addTerminal: #E
+		           ofType: RBLiteralNode
+		           andValues: #( 1.0 );
+		           addTerminal: #E
+		           ofType: RBLiteralNode
+		           andValues: #( 1.0 );
 		           addSelectorTerminal: #Add withValues: #( #+ );
 		           addSelectorTerminal: #Sub withValues: #( #- );
 		           addSelectorTerminal: #Mul withValues: #( #* );

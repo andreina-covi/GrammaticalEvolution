@@ -18,11 +18,33 @@ Class {
 }
 
 { #category : #adding }
+GEAssertionGenerator >> addRulesGivenInstanceVariables: collection [
+
+	grammar
+		addNonTerminal: #Method
+		ofType: RBMessageNode
+		andSequence: #( #Variable #Comparison #InstanceVar );
+		addNonTerminal: #Inclusion
+		ofType: RBMessageNode
+		andSequence: #( #InstanceVar #Includes #Variable );
+		addNonTerminal: #NegativeInclusion
+		ofType: RBMessageNode
+		andSequence: #( #Inclusion #Not );
+		addRule: #Method withValues: #( #Inclusion #NegativeInclusion );
+		addSelectorTerminal: #Includes withValues: #( #includes: );
+		addSelectorTerminal: #Not withValues: #( #not );
+		addTerminal: #InstanceVar
+		ofType: RBVariableNode
+		andValues: collection
+]
+
+{ #category : #adding }
 GEAssertionGenerator >> addTargetVariable [
 
 	| args |
 	self assert: grammar notNil.
 	self assert: targetSelector notNil.
+	self assert: arguments notEmpty.
 	args := arguments at: targetSelector.
 	self assert: (args isCollection and: [ args notEmpty ]).
 	grammar
@@ -32,21 +54,21 @@ GEAssertionGenerator >> addTargetVariable [
 ]
 
 { #category : #building }
-GEAssertionGenerator >> buildAssertionGrammar: collection of: class [
+GEAssertionGenerator >> buildAssertionGrammarOf: class [
 
 	grammar := self builtAssertionGrammar.
-
-	arguments ifEmpty: [ 
-		arguments := self collectArguments: class given: collection ].
-	self updateGrammarWithInstanceVars: class.
+	self updateGrammar: class.
 	^ grammar
 ]
 
 { #category : #building }
 GEAssertionGenerator >> buildGrammar [
-	grammar := targetClass 
-		ifNil: [ self builtAssertionGrammar ] 
-		ifNotNil: [ self buildAssertionGrammar: self targetSelectors of: targetClass ]
+
+	grammar := targetClass
+		           ifNil: [ self builtAssertionGrammar ]
+		           ifNotNil: [ 
+		           self
+			           buildAssertionGrammarOf: targetClass ]
 ]
 
 { #category : #building }
@@ -80,13 +102,11 @@ GEAssertionGenerator >> builtAssertionGrammar [
 				  asOrderedCollection;
 		  addSelectorTerminal: #Message1
 		  withValues: #( #isKindOf: #isMemberOf: );
-		  addSelectorTerminal: #Includes withValues: #( #includes: );
 		  addSelectorTerminal: #Satisfy
 		  withValues: #( #allSatisfy: #noneSatisfy: #anySatisfy: );
 		  addSelectorTerminal: #Comparison
 		  withValues: #( #= #== #> #< #<= #>= );
 		  addSelectorTerminal: #And withValues: #( #and: );
-		  addSelectorTerminal: #Not withValues: #( #not );
 		  addTerminal: #Integer
 		  ofType: RBLiteralNode
 		  andValues: (-1 to: 1) asOrderedCollection;
@@ -167,7 +187,9 @@ GEAssertionGenerator >> createIndividual [
 	i := 0.
 	node := nil.
 	[ node isNotNil or: [ i > 10 ] ] whileFalse: [ 
-		node := [ grammar generateNodeOfRule: #Method ] on: GEError do: [ nil ].
+		node := [ grammar generateNodeOfRule: #Method ]
+			        on: GEError
+			        do: [ nil ].
 		i := i + 1 ].
 	^ node
 ]
@@ -175,13 +197,14 @@ GEAssertionGenerator >> createIndividual [
 { #category : #building }
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
-	| number |
+	^ self crossoverOfOnePoint: #Method between: object1 and: object2 
+	"| number |
 	number := random randomNumber: 100.
 
 	^ number < 50
-		  ifTrue: [ self crossoverOfOnePoint: #Method between: object1 and: object2 ]
-		  ifFalse: [ "^ self crossoverJoining: object1 and: object2" 
-			  self crossoverJoining: object1 and: object2 ]
+		  ifTrue: [ 
+		  self crossoverOfOnePoint: #Method between: object1 and: object2 ]
+		  ifFalse: [ self crossoverJoining: object1 and: object2 ]"
 ]
 
 { #category : #building }
@@ -240,7 +263,7 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 { #category : #building }
 GEAssertionGenerator >> generations [
 
-	^ 10
+	^ 50
 ]
 
 { #category : #initialization }
@@ -318,7 +341,7 @@ GEAssertionGenerator >> options: collection [
 { #category : #building }
 GEAssertionGenerator >> populationSize [
 
-	^ 15
+	^ 100
 ]
 
 { #category : #accessing }
@@ -386,10 +409,21 @@ GEAssertionGenerator >> uninstall [
 ]
 
 { #category : #building }
-GEAssertionGenerator >> updateGrammar [ 
+GEAssertionGenerator >> updateGrammar [
+
 	grammar ifNil: [ self buildGrammar ].
-	self addTargetVariable.
+	self updateGrammar: targetClass.
+	self addTargetVariable
+]
+
+{ #category : #building }
+GEAssertionGenerator >> updateGrammar: class [
 	
+	arguments ifEmpty: [ 
+		arguments := self
+			             collectArguments: class
+			             given: self targetSelectors ].
+	self updateGrammarWithInstanceVars: class.
 ]
 
 { #category : #building }
@@ -398,20 +432,7 @@ GEAssertionGenerator >> updateGrammarWithInstanceVars: class [
 	| instVars |
 	self assert: class isClass.
 	instVars := class instVarNames.
-	instVars ifNotEmpty: [ 
-		grammar
-			addNonTerminal: #Method
-			ofType: RBMessageNode
-			andSequence: #( #Variable #Comparison #InstanceVar );
-			addNonTerminal: #Inclusion
-			ofType: RBMessageNode
-			andSequence: #( #InstanceVar #Includes #Variable );
-			addNonTerminal: #NegativeInclusion
-			ofType: RBMessageNode
-			andSequence: #( #Inclusion #Not );
-			addRule: #Method
-			withValues: #( #Inclusion #NegativeInclusion );
-			addTerminal: #InstanceVar
-			ofType: RBVariableNode
-			andValues: instVars ]
+	((grammar ruleOf: #InstanceVar) isNil and: [ instVars notEmpty ]) 
+		ifTrue: [ 
+			self addRulesGivenInstanceVariables: instVars ]
 ]

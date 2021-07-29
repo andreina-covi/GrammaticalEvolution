@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 GESymbolicIntegrationGenerator >> fitnessValueOf: individual [
 
-	| numbers expectedResults results |
+	| numbers expectedResults results fitValue |
 	numbers := dictData at: 'x'.
 	results := numbers collect: [ :n | 
 		           [ 
@@ -16,10 +16,11 @@ GESymbolicIntegrationGenerator >> fitnessValueOf: individual [
 			           on: Exception
 			           do: [ 100000 ] ].
 	expectedResults := numbers collect: [ :n | n sin + n + (n ** 2) ].
+	fitValue := (results
+		             with: expectedResults
+		             collect: [ :r :eR | (eR - r) abs ]) sum.
 	individual fitness: (GESimpleFitnessFunction new
-			 fitnessValue:
-				 (results with: expectedResults collect: [ :r :eR | (eR - r) abs ])
-					 sum asFloat;
+			 fitnessValue: (fitValue min: Float maxExactInteger) asFloat;
 			 objectiveBlock: [ :fitness | fitness fitnessValue < 0.01 ]).
 	^ individual fitness
 ]

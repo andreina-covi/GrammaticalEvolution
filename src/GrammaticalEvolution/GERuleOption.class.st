@@ -46,19 +46,45 @@ GERuleOption >> addRuleOptions: collection [
 { #category : #adding }
 GERuleOption >> addSelectorTerminalNode: node withValues: collection [
 
-	self assert: (node notNil and: [ node class == GETerminalSelectorNode ]).
+	| index |
+	self assert:
+		(node notNil and: [ node class == GETerminalSelectorNode ]).
 	self assert: collection notEmpty.
-	options add: node.
-	infoOptions add: 'selector' -> collection
+	index := 0.
+	options ifEmpty: [ options add: node ].
+	infoOptions ifEmpty: [ infoOptions add: 'selector' -> collection  asOrderedCollection]
+	ifNotEmpty: [ infoOptions detect: [ :assoc | assoc key = 'selector' ]
+		ifFound: [ :assoc | assoc value addAll: collection ] ]
+	"options add: node.
+	infoOptions add: 'selector' -> collection"
 ]
 
 { #category : #adding }
 GERuleOption >> addTerminalNode: node withValues: collection [
 
+	| index |
 	self assert: (node notNil and: [ node class == GETerminalValueNode ]).
 	self assert: collection notEmpty.
-	options add: node.
-	infoOptions add: 'terminal' -> collection
+	index := 0.
+	options
+		detect: [ :opt | 
+			index := index + 1.
+			opt class == node class and: [opt type = node type] ]
+		ifFound: [ (infoOptions at: index) value addAll: collection ]
+		ifNone: [ 
+			options add: node.
+			infoOptions add: 'terminal' -> collection asOrderedCollection ]
+	"infoOptions add: 'terminal' -> collection"
+]
+
+{ #category : #adding }
+GERuleOption >> clearOptions: string [
+
+	| opts |
+	opts := self infoOptionsOf: string.
+	opts ifNotEmpty: [ 
+		opts first
+			removeAll ]
 ]
 
 { #category : #testing }
@@ -143,14 +169,6 @@ GERuleOption >> optionAt: integer [
 GERuleOption >> options [
 
 	^ options
-]
-
-{ #category : #adding }
-GERuleOption >> optionsOrInfoOptions [
-
-	^ (infoOptions size == 1 and: [ infoOptions first key ~= 'nonTerminal' ])
-		  ifTrue: [ infoOptions first value ]
-		  ifFalse: [ options ]
 ]
 
 { #category : #accessing }

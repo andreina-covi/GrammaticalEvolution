@@ -13,6 +13,21 @@ GERegressionGeneratorTest >> setUp [
 ]
 
 { #category : #tests }
+GERegressionGeneratorTest >> testCrossoverBetweenAnd [
+
+	| tree1 tree2 newTree |
+	configuration seed: 3.
+	tree1 := configuration createIndividual.
+	tree2 := configuration createIndividual.
+	self
+		assert: tree1 asString
+		equals: 'a + (a * a * a) + (a + (a * a * a) * (a * a * a))'.
+	self assert: tree2 asString equals: 'a * a'.
+	newTree := configuration crossoverBetween: tree1 and: tree2.
+	self assert: newTree asString equals: 'a'
+]
+
+{ #category : #tests }
 GERegressionGeneratorTest >> testMutate [
 
 	| tree individuals |

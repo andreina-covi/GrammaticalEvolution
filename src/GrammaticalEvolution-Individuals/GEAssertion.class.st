@@ -11,7 +11,8 @@ Class {
 		'metrics',
 		'random',
 		'options',
-		'packageScope'
+		'packageScope',
+		'configurationClass'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Assertion'
 }
@@ -149,6 +150,13 @@ GEAssertion >> cleanMethod: method [
 		put: method
 ]
 
+{ #category : #accessing }
+GEAssertion >> configurationClass: class [
+
+	self assert: class isClass.
+	configurationClass := class
+]
+
 { #category : #'as yet unclassified' }
 GEAssertion >> countErrors: selector given: protocol and: block [
 
@@ -199,7 +207,7 @@ GEAssertion >> getSelectorCandidates [
 	^ targetSelectors
 		  collect: [ :tSelector | 
 			  | configuration |
-			  configuration := GEAssertionGenerator new
+			  configuration := configurationClass new
 				                   seed: seed;
 				                   targetClass: targetClass;
 				                   targetSelectors: targetSelectors;
@@ -229,7 +237,8 @@ GEAssertion >> initialize [
 	seed := 1.
 	random := GERandom seed: seed.
 	randomIterationNumber := 100.
-	contextBlocks := OrderedCollection new
+	contextBlocks := OrderedCollection new.
+	configurationClass := GEAssertionGenerator 
 ]
 
 { #category : #'as yet unclassified' }

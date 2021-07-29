@@ -125,6 +125,11 @@ GEConfiguration >> getBestBetween: object1 and: object2 [
 				  random randomlySelect: (Array with: object1 with: object2) ] ]
 ]
 
+{ #category : #accessing }
+GEConfiguration >> grammar [
+	^ grammar
+]
+
 { #category : #initialization }
 GEConfiguration >> initialize [
 

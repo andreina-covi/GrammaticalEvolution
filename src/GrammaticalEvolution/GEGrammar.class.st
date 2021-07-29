@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'rules',
 		'random',
-		'wrapsNumber'
+		'wrapsNumber',
+		'referralRules'
 	],
 	#category : #'GrammaticalEvolution-Grammar'
 }
@@ -36,6 +37,32 @@ GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection [
 ]
 
 { #category : #adding }
+GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection times: integer [
+
+	self assert: (integer isInteger and: [ integer > 0 ]).
+	self addRuleIfNecessary: symbol.
+	integer timesRepeat: [ 
+		self addNonTerminal: symbol ofType: class andSequence: collection ]
+]
+
+{ #category : #accessing }
+GEGrammar >> addRule: symbol given: association collection: collection and: integer [
+
+	association key = 'terminal'
+		ifTrue: [ 
+			self
+				addTerminal: symbol
+				ofType: (association value at: 'type')
+				values: collection
+				times: integer ]
+		ifFalse: [ 
+			self
+				addSelectorTerminal: symbol
+				withValues: collection
+				times: integer ]
+]
+
+{ #category : #adding }
 GEGrammar >> addRule: symbol withValues: collection [
 
 	self addRuleIfNecessary: symbol.
@@ -61,6 +88,33 @@ GEGrammar >> addSelectorTerminal: symbol withValues: collection [
 ]
 
 { #category : #adding }
+GEGrammar >> addSelectorTerminal: symbol withValues: collection times: integer [
+
+	| newCollection |
+	newCollection := collection asOrderedCollection.
+	collection size > 1 ifTrue: [ 
+	newCollection := collection asOrderedCollection flatCollect: [ :v | 
+		                 (1 to: integer) collect: [ :n | v ] ] ].
+	self addSelectorTerminal: symbol withValues: newCollection
+]
+
+{ #category : #adding }
+GEGrammar >> addSelectorTerminal: symbol withValues: collection timesGiven: symbols [
+
+	| times |
+	times := self ruleValuesSize: symbols.
+	self addSelectorTerminal: symbol withValues: collection times: times.
+	referralRules at: symbol ifAbsentPut: [ Dictionary new ].
+	(referralRules at: symbol)
+		at: 'selector'
+		ifPresent: [ self halt ]
+		ifAbsentPut: [ 
+			Dictionary new
+				at: 'references' put: symbols;
+				yourself ]
+]
+
+{ #category : #adding }
 GEGrammar >> addTerminal: symbol ofType: class andValues: collection [
 
 	| terminal |
@@ -70,6 +124,38 @@ GEGrammar >> addTerminal: symbol ofType: class andValues: collection [
 		at: symbol
 		ifPresent: [ :rule | 
 		rule addTerminalNode: terminal withValues: collection ]
+]
+
+{ #category : #adding }
+GEGrammar >> addTerminal: symbol ofType: class andValues: collection timesGiven: symbols [
+
+	| times |
+	times := self ruleValuesSize: symbols.
+	self
+		addTerminal: symbol
+		ofType: class
+		values: collection
+		times: times.
+	referralRules at: symbol ifAbsentPut: [ Dictionary new ].
+	(referralRules at: symbol)
+		at: 'terminal'
+		ifPresent: [ self halt ]
+		ifAbsentPut: [ 
+			Dictionary new
+				at: 'type' put: class;
+				at: 'references' put: symbols;
+				yourself ]
+]
+
+{ #category : #adding }
+GEGrammar >> addTerminal: symbol ofType: class values: collection times: integer [
+
+	| newCollection |
+	newCollection := collection deepCopy asOrderedCollection.
+	collection size > 1 ifTrue: [ 
+		newCollection := newCollection flatCollect: [ :v | 
+			                 (1 to: integer) collect: [ :n | v ] ] ].
+	self addTerminal: symbol ofType: class andValues: newCollection
 ]
 
 { #category : #accessing }
@@ -104,6 +190,11 @@ GEGrammar >> collection: object given: options genome: array depth: integer stac
 		  ifFalse: [ nil ]
 ]
 
+{ #category : #'as yet unclassified' }
+GEGrammar >> countValueRule: symbol [
+	^ (self ruleOf: symbol) optionsSize 
+]
+
 { #category : #'instance creation' }
 GEGrammar >> createCollectionRule: symbol ofSize: integer [
 
@@ -129,6 +220,23 @@ GEGrammar >> createOrReplaceTerminalValue: symbol ofType: class andValues: colle
 		ifNil: [ 
 		self addTerminal: symbol ofType: class andValues: collection ]
 		ifNotNil: [ rule replaceOptions: 'terminal' by: collection deepCopy ]
+]
+
+{ #category : #replacing }
+GEGrammar >> createOrReplaceTerminalValue: symbol ofType: class andValues: collection timesGiven: symbols [
+
+	| rule |
+	rule := self ruleOf: symbol.
+	rule
+		ifNil: [ 
+			self
+				addTerminal: symbol
+				ofType: class
+				andValues: collection
+				timesGiven: symbols ]
+		ifNotNil: [ 
+			rule clearOptions: 'terminal'.
+			self updateFrequencyValues: symbol given: Set new ]
 ]
 
 { #category : #adding }
@@ -186,7 +294,8 @@ GEGrammar >> initialize [
 
 	rules := Dictionary new.
 	random := GERandom seed: 100.
-	wrapsNumber := 4
+	wrapsNumber := 4.
+	referralRules := Dictionary new
 ]
 
 { #category : #accessing }
@@ -310,7 +419,7 @@ GEGrammar >> nodeOfRule: symbol givenGenome: array and: integer [
 GEGrammar >> nodeOfRule: symbol givenGenome: array depth: integer stack: stack queue: queue and: wrapStack [
 
 	| rule index assoc object codonValue |
-	self validate: stack given: array and: wrapStack. "symbol = #F ifTrue: [ self halt ]. "
+	self validate: stack given: array and: wrapStack.
 	rule := rules at: symbol.
 	rule hasNoDecision
 		ifTrue: [ index := 1 ]
@@ -398,11 +507,6 @@ GEGrammar >> redirectedOptions: symbol [
 ]
 
 { #category : #accessing }
-GEGrammar >> ruleKeys [
-	^ rules keys
-]
-
-{ #category : #accessing }
 GEGrammar >> ruleOf: symbol [
 	^ rules at: symbol ifAbsent: [ nil ]
 ]
@@ -412,10 +516,59 @@ GEGrammar >> ruleOptionsOf: symbol [
 	^ (self ruleOf: symbol) ruleOptions 
 ]
 
+{ #category : #adding }
+GEGrammar >> ruleValuesSize: symbols [
+
+	^ (symbols collect: [ :s | self countValueRule: s ]) sum.
+	
+]
+
 { #category : #'instance creation' }
 GEGrammar >> seed: integer [
 	self assert: (integer isInteger and: [ integer positive ]).
 	random seed: integer
+]
+
+{ #category : #adding }
+GEGrammar >> updateFrequencyOfValuesRules [
+
+	| set |
+	set := Set new.
+	rules keysDo: [ :key | 
+		self updateFrequencyValues: key given: set ]
+]
+
+{ #category : #'as yet unclassified' }
+GEGrammar >> updateFrequencyValues: symbol given: set [
+
+	(set includes: symbol) ifTrue: [ ^ self ].
+	referralRules
+		at: symbol
+		ifPresent: [ :dict | 
+			(dict size == 1 and: [ (self countValueRule: symbol) == 1 ]) 
+				ifFalse: [ 
+					dict associationsDo: [ :ass | 
+						| times newSize actualSize col refs integer |
+						col := ((self ruleOf: symbol) infoOptionsOf: ass key) first
+							       asSet.
+						self assert: col notEmpty.
+						refs := ass value at: 'references'.
+						set addAll: (refs collect: [ :ref | 
+								 self updateFrequencyValues: ref given: set.
+								 ref ]).
+						times := self ruleValuesSize: refs.
+						newSize := col size * times.
+						actualSize := self countValueRule: symbol.
+						self assert: actualSize <= newSize.
+						integer := newSize - actualSize / col size.
+						self assert: (integer isInteger and: [ integer positive ]).
+						actualSize = newSize ifFalse: [ 
+							self
+								addRule: symbol
+								given: ass
+								collection: col
+								and: integer ] ] ] ]
+		ifAbsent: [ set add: symbol ]
 ]
 
 { #category : #'instance creation' }
@@ -448,11 +601,38 @@ GEGrammar >> updateNodeChild: stack of: node given: nodeChild [
 ]
 
 { #category : #'instance creation' }
+GEGrammar >> updateRule: symbol ofKind: string consideringFrequency: collection [
+
+	| rule integer newCollection opts |
+	rule := self ruleOf: symbol.
+	rule ifNil: [ ^ self ].
+	integer := referralRules
+		           at: symbol
+		           ifPresent: [ :dict | 
+		           self ruleValuesSize: ((dict at: string) at: 'references') ]
+		           ifAbsent: [ 1 ].
+	newCollection := collection deepCopy.
+	opts := rule infoOptionsOf: string.
+	opts ifNotEmpty: [ 
+		opts := opts first asSet.
+		newCollection := collection reject: [ :s | opts includes: s ] ].
+	newCollection := newCollection flatCollect: [ :v | 
+		                 (1 to: integer) collect: [ :n | v ] ].
+	rule ifNotNil: [ rule addOptions: string by: newCollection ]
+]
+
+{ #category : #'instance creation' }
 GEGrammar >> updateRule: symbol ofKind: string withValues: collection [
 
-	| rule |
+	| rule newCollection opts |
 	rule := self ruleOf: symbol.
-	rule ifNotNil: [ rule addOptions: string by: collection deepCopy ]
+	rule ifNil: [ ^ self ].
+	opts := rule infoOptionsOf: symbol.
+	newCollection := collection deepCopy.
+	opts ifNotEmpty: [ 
+		opts := opts first asSet.
+		newCollection := collection reject: [ :s | (opts includes: s) ] ].
+	rule addOptions: string by: newCollection
 ]
 
 { #category : #'instance creation' }

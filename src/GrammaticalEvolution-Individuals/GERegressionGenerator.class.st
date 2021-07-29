@@ -55,18 +55,20 @@ GERegressionGenerator >> dictData: anObject [
 { #category : #building }
 GERegressionGenerator >> fitnessValueOf: individual [
 
-	| numbers expectedResults results |
+	| numbers expectedResults results fitValue |
 	numbers := dictData at: 'a'.
 	results := numbers collect: [ :n | 
-		           [individual evaluateGiven:
-			           (Array with: 'a' -> n) asDictionary] on: Exception
-					  do: [ (SmallInteger maxVal / 25) asInteger ] ].
+		           [ 
+		           individual evaluateGiven:
+			           (Array with: 'a' -> n) asDictionary ]
+			           on: Exception
+			           do: [ 100000 ] ].
 	expectedResults := numbers collect: [ :n | 
 		                   n + (n ** 2) + (n ** 3) + (n ** 4) ].
+	fitValue := (results with: expectedResults collect: [ :r :eR | (eR - r) abs ])
+					 sum.
 	individual fitness: (GESimpleFitnessFunction new
-			 fitnessValue:
-				 (results with: expectedResults collect: [ :r :eR | (eR - r) abs ])
-					 sum asFloat;
+			 fitnessValue: (fitValue min: Float maxExactInteger) asFloat;
 			 objectiveBlock: [ :fitness | fitness fitnessValue = 0 ]).
 	^ individual fitness
 ]

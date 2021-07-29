@@ -13,6 +13,28 @@ GEAssertionGeneratorTest >> setUp [
 ]
 
 { #category : #tests }
+GEAssertionGeneratorTest >> testCount [
+
+	| grammar |
+	configuration
+		targetClass: GEFoo;
+		targetSelector: #sum:;
+		mutationProbability: 20;
+		buildGrammar;
+		addTargetVariable.
+	grammar := configuration grammar.
+	self assert: (grammar countValueRule: #Method) equals: 8.
+	self assert: (grammar countValueRule: #Message) equals: 18.
+	self assert: (grammar countValueRule: #Message1) equals: 2.
+	self assert: (grammar countValueRule: #Satisfy) equals: 3.
+	self assert: (grammar countValueRule: #Comparison) equals: 6.
+	self assert: (grammar countValueRule: #Integer) equals: 3.
+	self assert: (grammar countValueRule: #Class) equals: 14.
+	self assert: (grammar countValueRule: #InstanceVar) equals: 1.
+	self assert: (grammar countValueRule: #Variable) equals: 1
+]
+
+{ #category : #tests }
 GEAssertionGeneratorTest >> testMutate [
 
 	| tree newTree |
