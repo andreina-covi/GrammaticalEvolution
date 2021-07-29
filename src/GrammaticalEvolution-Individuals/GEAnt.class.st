@@ -127,6 +127,15 @@ GEAnt >> right [
 			self updateOperations ]
 ]
 
+{ #category : #'as yet unclassified' }
+GEAnt >> run [
+(1 to: 615) do: [ :n |
+self right.
+self foodAhead
+	ifTrue: [ self move ]
+	ifFalse: [ self left ] ]
+]
+
 { #category : #updating }
 GEAnt >> updateDirection: string [
 

@@ -190,6 +190,11 @@ GEAssertionGenerator >> createIndividual [
 		node := [ grammar generateNodeOfRule: #Method ]
 			        on: GEError
 			        do: [ nil ].
+		node ifNil: [ 
+			dictErrors
+				at: #initialization
+				ifPresent: [ :n | dictErrors at: #initialization put: n + 1 ]
+				ifAbsentPut: [ 1 ] ].
 		i := i + 1 ].
 	^ node
 ]
@@ -198,6 +203,7 @@ GEAssertionGenerator >> createIndividual [
 GEAssertionGenerator >> crossoverBetween: object1 and: object2 [
 
 	"^ self crossoverOfOnePoint: #Method between: object1 and: object2"
+
 	| number |
 	number := random randomNumber: 100.
 
@@ -215,7 +221,10 @@ GEAssertionGenerator >> crossoverJoining: object1 and: object2 [
 	o2 := self randomSubTree: object2 given: #Method.
 	node1 := self newTreeOf: o1 and: o2.
 	node2 := self newTreeOf: o2 and: o1.
-	^ self betterChildBetween: node1 and: node2 given: (Array with: object1 with: object2)
+	^ self
+		  betterChildBetween: node1
+		  and: node2
+		  given: (Array with: object1 with: object2)
 ]
 
 { #category : #accessing }
@@ -233,7 +242,7 @@ GEAssertionGenerator >> fitnessValueOf: individual [
 		(testClasses notEmpty and: [ testClasses allSatisfy: #isClass ]).
 	self assert: callsNumber > 0.
 	uninstalled := false.
-	[ self injectIntoMethod: individual pharoCode ]
+	[ self injectIntoMethod: individual pharoAST ]
 		on: Exception
 		do: [ 
 			uninstalled := false.
@@ -279,7 +288,7 @@ GEAssertionGenerator >> initialize [
 ]
 
 { #category : #building }
-GEAssertionGenerator >> injectIntoMethod: code [
+GEAssertionGenerator >> injectIntoMethod: pharoAST [
 
 	| aBehavior rbMethodNode ast |
 	self assert: targetSelector notNil.
@@ -287,8 +296,11 @@ GEAssertionGenerator >> injectIntoMethod: code [
 	aBehavior := targetClass instanceSide.
 	originalMethod := aBehavior compiledMethodAt: targetSelector.
 	rbMethodNode := RBParser parseMethod: originalMethod sourceCode.
-	ast := RBParser parseExpression:
-		       'self assert: ' , code.
+	ast := RBMessageNode new 
+		receiver: (RBVariableNode named: 'self');
+		selector: #assert:;
+		arguments: (OrderedCollection new add: pharoAST; yourself).
+	"ast := RBParser parseExpression: 'self assert: (' , code , ')'."
 	rbMethodNode body addNodeFirst: ast.
 	targetClass compile: rbMethodNode printString notifying: nil
 ]
@@ -341,7 +353,7 @@ GEAssertionGenerator >> options: collection [
 { #category : #building }
 GEAssertionGenerator >> populationSize [
 
-	^ 100
+	^ 500
 ]
 
 { #category : #accessing }

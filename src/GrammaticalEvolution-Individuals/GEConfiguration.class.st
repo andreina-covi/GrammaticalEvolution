@@ -6,7 +6,8 @@ Class {
 		'random',
 		'mutationProbability',
 		'crossoverProbability',
-		'comparisonSelector'
+		'comparisonSelector',
+		'dictErrors'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Core'
 }
@@ -49,7 +50,7 @@ GEConfiguration >> comparisonSelector: symbol [
 	comparisonSelector := symbol
 ]
 
-{ #category : #accessing }
+{ #category : #building }
 GEConfiguration >> createIndividual [ 
 	^ self subclassResponsibility 
 ]
@@ -62,26 +63,37 @@ GEConfiguration >> crossoverBetween: object1 and: object2 [
 { #category : #accessing }
 GEConfiguration >> crossoverOfOnePoint: symbol between: object1 and: object2 [
 
-	| c1 c2 crossoverPoint1 crossoverPoint2 newC1 newC2 |
+	| c1 c2 newC1 newC2 i |
 	c1 := object1 genome.
 	c2 := object2 genome.
 	self assert: (c1 notNil and: [ c2 notNil ]).
-	crossoverPoint1 := random randomlySelect: (1 to: c1 size).
-	crossoverPoint2 := random randomlySelect: (1 to: c2 size).
-	newC1 := [ 
-	         grammar
-		         nodeOfRule: symbol
-		         givenGenome: (c1 copyFrom: 1 to: crossoverPoint1)
-			         , (c2 copyFrom: crossoverPoint2 to: c2 size) ]
-		         on: GEError
-		         do: [ nil ].
-	newC2 := [ 
-	         grammar
-		         nodeOfRule: symbol
-		         givenGenome: (c2 copyFrom: 1 to: crossoverPoint2)
-			         , (c1 copyFrom: crossoverPoint1 to: c1 size) ]
-		         on: GEError
-		         do: [ nil ].
+	i := 0.
+	newC1 := nil.
+	newC2 := nil.
+	[ i < 5 and: [ newC1 isNil and: [ newC2 isNil ] ] ] whileTrue: [ 
+		| crossoverPoint1 crossoverPoint2 |
+		crossoverPoint1 := random randomlySelect: (1 to: c1 size).
+		crossoverPoint2 := random randomlySelect: (1 to: c2 size).
+		newC1 := [ 
+		         grammar
+			         nodeOfRule: symbol
+			         givenGenome: (c1 copyFrom: 1 to: crossoverPoint1)
+				         , (c2 copyFrom: crossoverPoint2 to: c2 size) ]
+			         on: GEError
+			         do: [ nil ].
+		newC2 := [ 
+		         grammar
+			         nodeOfRule: symbol
+			         givenGenome: (c2 copyFrom: 1 to: crossoverPoint2)
+				         , (c1 copyFrom: crossoverPoint1 to: c1 size) ]
+			         on: GEError
+			         do: [ nil ].
+		i := i + 1 ].
+	(newC1 isNil and: [ newC2 isNil ]) ifTrue: [ 
+		dictErrors
+			at: #crossover
+			ifPresent: [ :n | dictErrors at: #crossover put: n + 1 ]
+			ifAbsentPut: [ 1 ] ].
 	^ self
 		  betterChildBetween: newC1
 		  and: newC2
@@ -134,7 +146,8 @@ GEConfiguration >> grammar [
 GEConfiguration >> initialize [
 
 	random := GERandom seed: 1.
-	comparisonSelector := #<
+	comparisonSelector := #<.
+	dictErrors := Dictionary new
 ]
 
 { #category : #testing }
@@ -157,15 +170,25 @@ GEConfiguration >> mutate: object1 [
 { #category : #accessing }
 GEConfiguration >> mutate: object1 given: symbol [
 
-	| newIndiv allCodonValues copy |
+	| newIndiv allCodonValues i |
 	allCodonValues := object1 allCodonValues.
-	copy := allCodonValues copy.
-	1 to: allCodonValues size do: [ :i | 
-		(random randomNumber: 100) <= self mutationProbability ifTrue: [ 
-			copy at: i put: (random randomNumber: self maxCodonValue) ] ].
-	newIndiv := [ grammar nodeOfRule: symbol givenGenome: copy ]
-		            on: GEError
-		            do: [ nil ].
+	i := 0.
+	newIndiv := nil.
+	[ i < 5 and: [ newIndiv isNil ] ] whileTrue: [ 
+		| copy |
+		copy := allCodonValues copy.
+		1 to: allCodonValues size do: [ :c | 
+			(random randomNumber: 100) <= self mutationProbability ifTrue: [ 
+				copy at: c put: (random randomNumber: self maxCodonValue) ] ].
+		newIndiv := [ grammar nodeOfRule: symbol givenGenome: copy ]
+			            on: GEError
+			            do: [ nil ].
+		i := i + 1 ].
+	newIndiv ifNil: [ 
+		dictErrors
+			at: #mutation
+			ifPresent: [ :n | dictErrors at: #mutation put: n + 1 ]
+			ifAbsentPut: [ 1 ] ].
 	newIndiv ifNotNil: [ 
 		object1 parents do: [ :p | newIndiv addParent: p ] ].
 	^ newIndiv

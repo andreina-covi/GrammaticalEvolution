@@ -112,8 +112,8 @@ GEAssertionGeneratorG2 >> builtAssertionGrammar [
 			  #( #ByteString #Point #Character #Symbol #SmallInteger
 			     #Number #SmallFloat64 #Boolean #Collection #Array #BlockClosure
 			     #Dictionary #Set #OrderedCollection ) asOrderedCollection
-		  timesGiven:
-			  #( #Integer )
+		  timesGiven: #( #Integer );
+		  wrapNumber: 2
 ]
 
 { #category : #accessing }
