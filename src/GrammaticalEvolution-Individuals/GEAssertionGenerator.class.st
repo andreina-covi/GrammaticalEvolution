@@ -98,7 +98,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  withValues:
 			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
 			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			     #notEmpty #isNil #notNil #positive #negative #isPoint )
+			     #notEmpty #isNil #notNil #positive #negative #isPoint #isStream)
 				  asOrderedCollection;
 		  addSelectorTerminal: #Message1
 		  withValues: #( #isKindOf: #isMemberOf: );
