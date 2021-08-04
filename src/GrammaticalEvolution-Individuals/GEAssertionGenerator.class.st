@@ -89,6 +89,9 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  andSequence: #( #Variable #Comparison #Integer );
 		  addNonTerminal: #Method
 		  ofType: RBMessageNode
+		  andSequence: #( #Variable #Equal #Class );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
 		  andSequence: #( #Method #And #Block );
 		  addNonTerminal: #Block
 		  ofType: RBBlockNode
@@ -98,7 +101,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  withValues:
 			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
 			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			     #notEmpty #isNil #notNil #positive #negative #isPoint #isStream)
+			     #notEmpty #isNil #notNil #positive #negative #isPoint #isStream )
 				  asOrderedCollection;
 		  addSelectorTerminal: #Message1
 		  withValues: #( #isKindOf: #isMemberOf: );
@@ -106,6 +109,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  withValues: #( #allSatisfy: #noneSatisfy: #anySatisfy: );
 		  addSelectorTerminal: #Comparison
 		  withValues: #( #= #== #> #< #<= #>= );
+		  addSelectorTerminal: #Equal withValues: #( #== );
 		  addSelectorTerminal: #And withValues: #( #and: );
 		  addTerminal: #Integer
 		  ofType: RBLiteralNode

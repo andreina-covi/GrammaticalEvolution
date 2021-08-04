@@ -33,8 +33,7 @@ GEAssertionGeneratorG2 >> addRulesGivenInstanceVariables: collection [
 		addRule: #Method withValues: #( #Inclusion #NegativeInclusion );
 		addNonTerminal: #Method
 		ofType: RBMessageNode
-		andSequence: #( #Method #And #Block )
-		times: 3;
+		andSequence: #( #Method #And #Block );
 		addSelectorTerminal: #Not withValues: #( #not );
 		addSelectorTerminal: #Includes withValues: #( #includes: );
 		addTerminal: #InstanceVar
@@ -79,8 +78,10 @@ GEAssertionGeneratorG2 >> builtAssertionGrammar [
 		  andSequence: #( #Variable #Comparison #Integer );
 		  addNonTerminal: #Method
 		  ofType: RBMessageNode
-		  andSequence: #( #Method #And #Block )
-		  times: 4;
+		  andSequence: #( #Variable #Equal #Class );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
+		  andSequence: #( #Method #And #Block );
 		  addNonTerminal: #Block
 		  ofType: RBBlockNode
 		  andSequence: #( #Method );
@@ -89,7 +90,7 @@ GEAssertionGeneratorG2 >> builtAssertionGrammar [
 		  withValues:
 			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
 			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			     #notEmpty #isNil #notNil #positive #negative #isPoint )
+			     #notEmpty #isNil #notNil #positive #negative #isPoint #isStream )
 				  asOrderedCollection
 		  timesGiven: #( #Method );
 		  addSelectorTerminal: #Message1
@@ -101,6 +102,7 @@ GEAssertionGeneratorG2 >> builtAssertionGrammar [
 		  addSelectorTerminal: #Comparison
 		  withValues: #( #= #== #> #< #<= #>= )
 		  timesGiven: #( #Satisfy );
+		  addSelectorTerminal: #Equal withValues: #( #== );
 		  addSelectorTerminal: #And withValues: #( #and: );
 		  addTerminal: #Integer
 		  ofType: RBLiteralNode
