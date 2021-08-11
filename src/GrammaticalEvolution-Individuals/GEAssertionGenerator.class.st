@@ -196,12 +196,12 @@ GEAssertionGenerator >> createIndividual [
 		node := [ grammar generateNodeOfRule: #Method ]
 			        on: GEError
 			        do: [ nil ].
-		node ifNil: [ 
+		i := i + 1 ].
+	node ifNil: [ 
 			dictErrors
 				at: #initialization
 				ifPresent: [ :n | dictErrors at: #initialization put: n + 1 ]
 				ifAbsentPut: [ 1 ] ].
-		i := i + 1 ].
 	^ node
 ]
 

@@ -191,10 +191,10 @@ GEAssertion >> fileName: configuration [
 			  nextPutAll: configuration targetClass name;
 			  nextPut: $_;
 			  nextPutAll:
-				  (configuration targetSelector
-					   copyReplaceAll: ':'
-					   with: '');
-			  nextPutAll: '_Data.csv' ]
+				  (configuration targetSelector copyReplaceAll: ':' with: '');
+			  nextPutAll: '_Data_';
+			  nextPutAll: configuration class name;
+			  nextPutAll: '.csv' ]
 ]
 
 { #category : #accessing }

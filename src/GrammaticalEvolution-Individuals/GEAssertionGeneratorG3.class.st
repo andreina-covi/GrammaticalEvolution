@@ -103,3 +103,31 @@ GEAssertionGeneratorG3 >> maxCodonValue [
 
 	^ grammar maxGenomeValue
 ]
+
+{ #category : #'as yet unclassified' }
+GEAssertionGeneratorG3 >> saveSelectedNodeOptions: node [
+
+	| ruleId dict |
+	node isCollectionNode ifTrue: [ 
+		node nodeChildren do: [ :n | self saveSelectedNodeOptions: n ].
+		^ self ].
+	ruleId := ('_' split: node id) first.
+	"(grammar ruleOf: ruleId) optionsSize <= 1 ifTrue: [ ^ self ]."
+	dictSelectedOptions at: ruleId ifAbsentPut: [ Dictionary new ].
+	dict := dictSelectedOptions at: ruleId.
+	node isNonTerminalNode
+		ifTrue: [ 
+			| id |
+			id := (node nodeChildren collect: [ :ch | ('_' split: ch id) first ])
+				      asArray.
+			dict
+				at: id
+				ifPresent: [ :i | dict at: id put: i + 1 ]
+				ifAbsentPut: [ 1 ].
+			node nodeChildren do: [ :n | self saveSelectedNodeOptions: n ] ]
+		ifFalse: [ 
+			dict
+				at: node value
+				ifPresent: [ :i | dict at: node value put: i + 1 ]
+				ifAbsentPut: [ 1 ] ]
+]

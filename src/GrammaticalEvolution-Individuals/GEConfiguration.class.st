@@ -115,6 +115,11 @@ GEConfiguration >> crossoverProbability: number [
 ]
 
 { #category : #accessing }
+GEConfiguration >> dictErrors [
+	^ dictErrors 
+]
+
+{ #category : #accessing }
 GEConfiguration >> dictSelectedOptions [ 
 	^ dictSelectedOptions 
 ]
@@ -339,7 +344,7 @@ GEConfiguration >> saveSelectedNodeOptions: node [
 		node nodeChildren do: [ :n | self saveSelectedNodeOptions: n ].
 		^ self ].
 	ruleId := node id.
-	(grammar ruleOf: ruleId) optionsSize <= 1 ifTrue: [ ^ self ].
+	"(grammar ruleOf: ruleId) optionsSize <= 1 ifTrue: [ ^ self ]."
 	dictSelectedOptions at: ruleId ifAbsentPut: [ Dictionary new ].
 	dict := dictSelectedOptions at: ruleId.
 	node isNonTerminalNode
