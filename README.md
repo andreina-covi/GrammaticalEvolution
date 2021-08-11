@@ -51,3 +51,19 @@ You need to specify:
 - populations through generations,
 - .csv file location where the result was exported, and 
 - like the goal is the decreasing of fitness value we need to specify the `comparisonSelector:` with `#<`
+
+
+Two files will be exported at the final of execution, the first one is to visualize with GAEvoViz tool and the another one is to give information about:
+
+- the rules that have been used in the initial population
+- invalid individuals created in the initial population
+- invalid individuals created on mutation
+- invalid individuals created on crossover
+- best fitness achieved in the final generation
+- number of generations
+
+With this information we can also compare different grammars for the same problem and export the comparison on a .csv file typing:
+
+```Smalltalk
+GEGrammarEvolution exportComparisonOf: #('/tmp/G1.csv' '/tmp/G2.csv' '/tmp/G3.csv' ) to: '/tmp/comparisonGrammars.csv'.
+```
