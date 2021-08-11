@@ -1,8 +1,42 @@
 Class {
 	#name : #GEAssertionGeneratorG3,
 	#superclass : #GEAssertionGenerator,
+	#instVars : [
+		'addedTarget'
+	],
 	#category : #'GrammaticalEvolution-Individuals-Assertion'
 }
+
+{ #category : #adding }
+GEAssertionGeneratorG3 >> addRulesGivenInstanceVariables: collection [
+
+	addedTarget ifTrue: [ ^ self ].
+	grammar
+		addNonTerminal: #Method
+		ofType: RBMessageNode
+		andSequence: #( #Variable #Comparison #InstanceVar );
+		addNonTerminal: #Inclusion
+		ofType: RBMessageNode
+		andSequence: #( #InstanceVar #Includes #Variable );
+		addNonTerminal: #NegativeInclusion
+		ofType: RBMessageNode
+		andSequence: #( #Inclusion #Not );
+		addRule: #Method withValues: #( #Inclusion #NegativeInclusion );
+		addSelectorTerminal: #Includes withValues: #( #includes: );
+		addSelectorTerminal: #Not withValues: #( #not );
+		addTerminal: #InstanceVar
+		ofType: RBVariableNode
+		andValues: collection
+]
+
+{ #category : #adding }
+GEAssertionGeneratorG3 >> addTargetVariable [
+
+	addedTarget ifTrue: [ ^ self ].
+	super addTargetVariable.
+	grammar := grammar reduceNonTerminalOfGrammar: #Method.
+	addedTarget := true
+]
 
 { #category : #building }
 GEAssertionGeneratorG3 >> builtAssertionGrammar [
@@ -56,4 +90,16 @@ GEAssertionGeneratorG3 >> builtAssertionGrammar [
 			     #Number #SmallFloat64 #Boolean #Collection #Array #BlockClosure
 			     #Dictionary #Set #OrderedCollection ) asOrderedCollection;
 		  wrapNumber: 2
+]
+
+{ #category : #initialization }
+GEAssertionGeneratorG3 >> initialize [ 
+	super initialize.
+	addedTarget := false
+]
+
+{ #category : #accessing }
+GEAssertionGeneratorG3 >> maxCodonValue [
+
+	^ grammar maxGenomeValue
 ]

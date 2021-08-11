@@ -14,7 +14,7 @@ GERegression >> dictData: dictionary [
 ]
 
 { #category : #private }
-GERegression >> fileName: engine [
+GERegression >> fileName: configuration [
 
 	^ 'Regression.csv'
 ]

@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #accessing }
-GERegressionII >> fileName: engine [
+GERegressionII >> fileName: configuration [
 
 	^ 'RegressionII.csv'
 ]

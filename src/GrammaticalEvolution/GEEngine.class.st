@@ -31,7 +31,9 @@ GEEngine >> createInitialPopulation [
 		| indiv |
 		"(1 to: configuration populationSize) collect: [ :i | "
 		indiv := configuration createIndividual.
-		indiv ifNotNil: [ population add: indiv ].
+		indiv ifNotNil: [ 
+			configuration saveSelectedNodeOptions: indiv.
+			population add: indiv ].
 		i := i + 1 ]
 ]
 

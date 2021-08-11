@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #accessing }
-GEEquation1 >> fileName: engine [
+GEEquation1 >> fileName: configuration [
 
 	^ 'Equation1.csv'
 ]

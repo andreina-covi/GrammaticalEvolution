@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #accessing }
-GEPythagore >> fileName: engine [
+GEPythagore >> fileName: configuration [
 
 	^ 'Pythagore.csv'
 ]

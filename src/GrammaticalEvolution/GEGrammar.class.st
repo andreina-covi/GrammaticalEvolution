@@ -13,13 +13,12 @@ Class {
 { #category : #adding }
 GEGrammar >> addCollectionRule: symbol withOptions: collection andSize: integer [
 
-	| collectionNode |
+	| rule collectionNode |
 	self addRuleIfNecessary: symbol.
+	rule := rules at: symbol.
 	collectionNode := self createCollectionRule: symbol ofSize: integer.
-	rules
-		at: symbol
-		ifPresent: [ :rule | 
-		rule addCollectionNode: collectionNode withOptions: collection ]
+	collection do: [ :e | rule addCollectionNode: collectionNode  withOptions: (Array with: e) ].
+		"rule addCollectionNode: collectionNode withOptions: collection"
 ]
 
 { #category : #adding }
@@ -31,9 +30,8 @@ GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection [
 		               createNonTerminal: symbol
 		               ofType: class
 		               andSequence: collection.
-	rules
-		at: symbol
-		ifPresent: [ :rule | rule addNonTerminalNode: nonTerminal withSequence: collection ]
+	rules at: symbol ifPresent: [ :rule | 
+		rule addNonTerminalNode: nonTerminal withSequence: collection ]
 ]
 
 { #category : #adding }
@@ -43,6 +41,44 @@ GEGrammar >> addNonTerminal: symbol ofType: class andSequence: collection times:
 	self addRuleIfNecessary: symbol.
 	integer timesRepeat: [ 
 		self addNonTerminal: symbol ofType: class andSequence: collection ]
+]
+
+{ #category : #adding }
+GEGrammar >> addNonTerminalRule: symbol on: grammar given: class indexElement: indexE indexCollection: indexC sequence: sequence and: collections [
+
+	| col |
+	self assert: sequence size <= collections size.
+	indexC > collections size ifTrue: [ ^ self ].
+	col := collections at: indexC.
+	indexE > col size ifTrue: [ 
+		^ self ].
+	indexC = collections size
+		ifTrue: [ 
+			grammar
+				addNonTerminal: symbol
+				ofType: class
+				andSequence: (sequence copy
+						 add: (col at: indexE);
+						 yourself) ]
+		ifFalse: [ 
+			self
+				addNonTerminalRule: symbol
+				on: grammar
+				given: class
+				indexElement: 1
+				indexCollection: indexC + 1
+				sequence: (sequence copy
+						 add: (col at: indexE);
+						 yourself)
+				and: collections ].
+	self
+		addNonTerminalRule: symbol
+		on: grammar
+		given: class
+		indexElement: indexE + 1
+		indexCollection: indexC
+		sequence: sequence
+		and: collections
 ]
 
 { #category : #accessing }
@@ -251,6 +287,41 @@ GEGrammar >> createTerminal: symbol ofType: class [
 	^ GETerminalValueNode new 
 		id: symbol;
 		type: class
+]
+
+{ #category : #'as yet unclassified' }
+GEGrammar >> expandRule: symbol on: grammar [
+
+	| rule opts index newRuleNames |
+	newRuleNames := OrderedCollection new.
+	rule := self ruleOf: symbol.
+	rule ifNil: [ ^ newRuleNames ].
+	index := 0.
+	opts := rule options.
+	rule infoOptions
+		select: [ :assoc | 
+			index := index + 1.
+			#( 'terminal' 'selector' ) includes: assoc key ]
+		thenDo: [ :assoc | 
+			| col names |
+			col := assoc value.
+			names := col collect: [ :obj | 
+				         (symbol , '_' , obj asString) asSymbol ].
+			names doWithIndex: [ :s :i | 
+				assoc key = 'terminal'
+					ifTrue: [ 
+						grammar
+							addTerminal: s
+							ofType: (opts at: index) type
+							andValues: (OrderedCollection new
+									 add: (col at: i);
+									 yourself) ]
+					ifFalse: [ 
+						grammar
+							addSelectorTerminal: s
+							withValues: (OrderedCollection new add: (col at: i); yourself) ] ].
+			newRuleNames addAll: names ].
+	^ newRuleNames
 ]
 
 { #category : #'instance creation' }
@@ -507,9 +578,103 @@ GEGrammar >> redirectedOptions: symbol [
 		thenCollect: [ :rule | rule name ]
 ]
 
+{ #category : #'as yet unclassified' }
+GEGrammar >> reduceNonTerminalOfGrammar: symbol [
+
+	| newGrammar ruleOption dict |
+	newGrammar := self class new.
+	ruleOption := self ruleOf: symbol.
+	dict := Dictionary new.
+	ruleOption infoOptions doWithIndex: [ :assoc :index | 
+		(assoc key = 'nonTerminal' and: [ 
+			 (assoc value includes: symbol) not ]) ifTrue: [ 
+			| opt |
+			opt := ruleOption optionAt: index.
+			assoc value do: [ :s | 
+				dict at: s ifAbsent: [ 
+					| col |
+					col := self expandRule: s on: newGrammar.
+					col ifNotEmpty: [ dict at: s put: col ] ] ].
+			self
+				addNonTerminalRule: symbol
+				on: newGrammar
+				given: opt type
+				indexElement: 1
+				indexCollection: 1
+				sequence: OrderedCollection new
+				and:
+				(assoc value collect: [ :k | 
+					 dict at: k ifAbsent: [ Array with: k ] ]) ] ].
+	rules associationsDo: [ :assoc | 
+		assoc value infoOptions doWithIndex: [ :ass :index | 
+			ass key = 'selector'
+				ifTrue: [ 
+					dict
+						at: assoc key
+						ifAbsent: [ 
+						newGrammar addSelectorTerminal: assoc key withValues: ass value ] ]
+				ifFalse: [ 
+					ass key = 'nonTerminal'
+						ifTrue: [ 
+							(assoc key ~= symbol or: [ ass value includes: symbol ]) 
+								ifTrue: [ "newGrammar
+										addNonTerminal: assoc key
+										ofType: (assoc value optionAt: index) type
+										andSequence: ass value"
+									self
+										addNonTerminalRule: assoc key
+										on: newGrammar
+										given: (assoc value optionAt: index) type
+										indexElement: 1
+										indexCollection: 1
+										sequence: OrderedCollection new
+										and:
+										(ass value collect: [ :k | 
+											 dict at: k ifAbsent: [ Array with: k ] ]) ] ]
+						ifFalse: [ 
+							ass key = 'terminal'
+								ifTrue: [ 
+									dict at: assoc key ifAbsent: [ 
+										newGrammar
+											addTerminal: assoc key
+											ofType: (assoc value optionAt: index) type
+											andValues: ass value ] ]
+								ifFalse: [ 
+									ass key = 'redirection'
+										ifTrue: [ 
+										newGrammar
+											addRule: assoc key
+											withValues: (Array with: ass value) ]
+										ifFalse: [ 
+											ass key = 'collection' ifTrue: [ 
+												newGrammar
+													addCollectionRule: assoc key
+													withOptions:
+													(ass value flatCollect: [ :k | 
+														 dict at: k ifAbsent: [ Array with: k ] ])
+													andSize: (assoc value optionAt: index) size ] ] ] ] ] ] ].
+	^ newGrammar
+]
+
+{ #category : #accessing }
+GEGrammar >> ruleInfoOptionsOf: symbol [
+
+	^ (self ruleOf: symbol) infoOptions
+]
+
 { #category : #accessing }
 GEGrammar >> ruleOf: symbol [
 	^ rules at: symbol ifAbsent: [ nil ]
+]
+
+{ #category : #accessing }
+GEGrammar >> ruleOptionsNames [
+
+	^ (rules values select: [ :ruleOption | ruleOption optionsSize > 1 ]) 
+		  flatCollect: [ :ruleOption | 
+			  (ruleOption infoOptions reject: [ :ass | 
+				   #( 'collection' 'redirection' 'nonTerminal' ) includes: ass key ]) 
+				  flatCollect: [ :ass | ass value asSet asArray ] ]
 ]
 
 { #category : #accessing }

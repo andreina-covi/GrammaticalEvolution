@@ -95,6 +95,11 @@ GERuleOption >> hasNoDecision [
 ]
 
 { #category : #accessing }
+GERuleOption >> infoOptions [ 
+	^ infoOptions 
+]
+
+{ #category : #accessing }
 GERuleOption >> infoOptionsAt: index [
 	self assert: index <= infoOptions size.
 	^ (infoOptions at: index) value

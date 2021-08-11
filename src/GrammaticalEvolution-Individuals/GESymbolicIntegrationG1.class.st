@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #accessing }
-GESymbolicIntegrationG1 >> fileName: engine [
+GESymbolicIntegrationG1 >> fileName: configuration [
 
 	^ 'SymbolicIntegrationG1.csv'
 ]

@@ -184,17 +184,23 @@ GEAssertion >> countErrors: selector given: protocol and: block [
 ]
 
 { #category : #private }
-GEAssertion >> fileName: engine [
+GEAssertion >> fileName: configuration [
 
 	^ String streamContents: [ :stream | 
 		  stream
-			  nextPutAll: engine configuration targetClass name;
+			  nextPutAll: configuration targetClass name;
 			  nextPut: $_;
 			  nextPutAll:
-				  (engine configuration targetSelector
+				  (configuration targetSelector
 					   copyReplaceAll: ':'
 					   with: '');
 			  nextPutAll: '_Data.csv' ]
+]
+
+{ #category : #accessing }
+GEAssertion >> fileOptionsName: confClass [
+
+	^ configurationClass name , '.csv'
 ]
 
 { #category : #'as yet unclassified' }

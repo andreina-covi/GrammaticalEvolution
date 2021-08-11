@@ -16,15 +16,25 @@ GEGrammarTest >> setUp [
 { #category : #accessing }
 GEGrammarTest >> testAddCollectionRuleWithOptionsAndSize [
 
-	| nodes node |
+	| nodes rule assoc |
 	grammar
-		addCollectionRule: #Ops 
-		withOptions: #(#Add #Mul #Sub #Div) andSize: 1.
+		addCollectionRule: #Ops
+		withOptions: #( #Add #Mul #Sub #Div )
+		andSize: 1.
 	nodes := grammar allNodesOfRule: #Ops.
-	self assert: nodes size equals: 1.
-	node := nodes first.
-	self assert: node class equals: GECollectionNode.
-	self assert: node size equals: 1
+	rule := grammar ruleOf: #Ops.
+	self assert: nodes size equals: 4.
+	self assert: nodes first class equals: GECollectionNode.
+	assoc := rule optionAndInfoAt: 3.
+	self assert: assoc key equals: 'collection'.
+	self assert: assoc value class equals: GECollectionNode.
+	self assertCollection: rule infoOptions hasSameElements: (OrderedCollection new 
+	add: 'collection' -> #(#Add);
+	add: 'collection' -> #(#Mul);
+	add: 'collection' -> #(#Sub);
+	add: 'collection' -> #(#Div);
+	yourself ).
+	self assert: nodes first size equals: 1
 ]
 
 { #category : #accessing }
@@ -202,8 +212,8 @@ GEGrammarTest >> testGenerateNodeOfRule [
 		addSelectorTerminal: #Add withValues: #( #+ );
 		addSelectorTerminal: #Mult withValues: #( #* ).
 	tree := grammar generateNodeOfRule: #E.
-	self assert: tree isNonTerminalNode.
-	self assert: tree asString equals: '4 * 21 * 8'
+	self assert: tree isTerminalValueNode 
+	"self assert: tree asString equals: '4 * 21 * 8'"
 ]
 
 { #category : #accessing }
@@ -433,6 +443,32 @@ GEGrammarTest >> testNodeOfRuleRaisingError [
 	self
 		should: [ grammar nodeOfRule: #E givenGenome: #( 2 3 5 7 3 3 ) ]
 		raise: KeyNotFound
+]
+
+{ #category : #tests }
+GEGrammarTest >> testReduceNonTerminalOfGrammar [
+
+	| grammar2 ruleOptions |
+	grammar
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #T #Add #F );
+		addNonTerminal: #E
+		ofType: RBMessageNode
+		andSequence: #( #T #Mult #F );
+		addTerminal: #T ofType: RBLiteralNode andValues: #( 4 8 );
+		addTerminal: #F ofType: RBLiteralNode andValues: #( 3 );
+		addSelectorTerminal: #Add withValues: #( #+ #- );
+		addSelectorTerminal: #Mult withValues: #( #* ).
+	grammar2 := grammar reduceNonTerminalOfGrammar: #E.
+	ruleOptions := (grammar2 ruleOf: #E) options.
+	self assert: ruleOptions size equals: 6.
+	self
+		assertCollection:
+		(ruleOptions collect: [ :opt | opt nodeChildren asArray ])
+		hasSameElements: #( #( #T_4 #'Add_+' #F_3 ) #( #T_8 #'Add_+'
+			      #F_3 ) #( #T_4 #'Add_-' #F_3 ) #( #T_8 #'Add_-' #F_3 )
+			   #( #T_4 #'Mult_*' #F_3 ) #( #T_8 #'Mult_*' #F_3 ) )
 ]
 
 { #category : #tests }

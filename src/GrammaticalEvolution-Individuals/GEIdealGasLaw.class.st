@@ -13,7 +13,7 @@ GEIdealGasLaw >> dictData: dictionary [
 ]
 
 { #category : #accessing }
-GEIdealGasLaw >> fileName: engine [
+GEIdealGasLaw >> fileName: configuration [
 
 	^ 'IdealGasLaw.csv'
 ]

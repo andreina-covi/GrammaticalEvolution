@@ -74,6 +74,7 @@ GECollectionNode >> size [
 
 { #category : #accessing }
 GECollectionNode >> size: integer [
+
 	size := integer
 ]
 

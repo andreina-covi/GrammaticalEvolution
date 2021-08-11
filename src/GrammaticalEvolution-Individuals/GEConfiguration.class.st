@@ -7,7 +7,8 @@ Class {
 		'mutationProbability',
 		'crossoverProbability',
 		'comparisonSelector',
-		'dictErrors'
+		'dictErrors',
+		'dictSelectedOptions'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Core'
 }
@@ -114,6 +115,11 @@ GEConfiguration >> crossoverProbability: number [
 ]
 
 { #category : #accessing }
+GEConfiguration >> dictSelectedOptions [ 
+	^ dictSelectedOptions 
+]
+
+{ #category : #accessing }
 GEConfiguration >> fitnessValueOf: individual [
 	^ self subclassResponsibility 
 ]
@@ -147,7 +153,8 @@ GEConfiguration >> initialize [
 
 	random := GERandom seed: 1.
 	comparisonSelector := #<.
-	dictErrors := Dictionary new
+	dictErrors := Dictionary new.
+	dictSelectedOptions := Dictionary new
 ]
 
 { #category : #testing }
@@ -317,6 +324,38 @@ GEConfiguration >> ruleOptions: symbol given: collection [
 		   ifNotEmpty: [ 
 			   (options flatCollect: [ :sym | 
 				    random indexesOf: sym on: collection ]) select: [ :i | i > 0 ] ]
+]
+
+{ #category : #'as yet unclassified' }
+GEConfiguration >> ruleOptionsNames [ 
+	^ grammar ruleOptionsNames  
+]
+
+{ #category : #'as yet unclassified' }
+GEConfiguration >> saveSelectedNodeOptions: node [
+
+	| ruleId dict |
+	node isCollectionNode ifTrue: [ 
+		node nodeChildren do: [ :n | self saveSelectedNodeOptions: n ].
+		^ self ].
+	ruleId := node id.
+	(grammar ruleOf: ruleId) optionsSize <= 1 ifTrue: [ ^ self ].
+	dictSelectedOptions at: ruleId ifAbsentPut: [ Dictionary new ].
+	dict := dictSelectedOptions at: ruleId.
+	node isNonTerminalNode
+		ifTrue: [ 
+			| id |
+			id := node nodeChildren collect: #id.
+			dict
+				at: id
+				ifPresent: [ :i | dict at: id put: i + 1 ]
+				ifAbsentPut: [ 1 ].
+			node nodeChildren do: [ :n | self saveSelectedNodeOptions: n ] ]
+		ifFalse: [ 
+			dict
+				at: node value
+				ifPresent: [ :i | dict at: node value put: i + 1 ]
+				ifAbsentPut: [ 1 ] ]
 ]
 
 { #category : #'instance creation' }

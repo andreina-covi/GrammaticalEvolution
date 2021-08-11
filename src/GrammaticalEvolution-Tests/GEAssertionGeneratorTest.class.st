@@ -8,8 +8,9 @@ Class {
 }
 
 { #category : #initialization }
-GEAssertionGeneratorTest >> setUp [ 
-	configuration := GEAssertionGenerator new
+GEAssertionGeneratorTest >> setUp [
+
+	configuration := GEAssertionGeneratorG1 new
 ]
 
 { #category : #tests }
@@ -23,8 +24,8 @@ GEAssertionGeneratorTest >> testCount [
 		buildGrammar;
 		addTargetVariable.
 	grammar := configuration grammar.
-	self assert: (grammar countValueRule: #Method) equals: 8.
-	self assert: (grammar countValueRule: #Message) equals: 18.
+	self assert: (grammar countValueRule: #Method) equals: 9.
+	self assert: (grammar countValueRule: #Message) equals: 19.
 	self assert: (grammar countValueRule: #Message1) equals: 2.
 	self assert: (grammar countValueRule: #Satisfy) equals: 3.
 	self assert: (grammar countValueRule: #Comparison) equals: 6.

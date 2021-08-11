@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #accessing }
-GESymbolicRegressionG3 >> fileName: engine [
+GESymbolicRegressionG3 >> fileName: configuration [
 
 	^ 'SymbolicRegressionG3.csv'
 ]

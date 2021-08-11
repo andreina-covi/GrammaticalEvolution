@@ -4,10 +4,125 @@ Class {
 	#instVars : [
 		'folderToExport',
 		'seed',
-		'populations'
+		'populations',
+		'ruleOptionsNames'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Core'
 }
+
+{ #category : #'as yet unclassified' }
+GEGrammarEvolution >> barChart: filenames [
+
+	| data x c lb size |
+	data := Dictionary new.
+	filenames do: [ :filename | 
+		| assocs |
+		assocs := filename asFileReference readStreamDo: [ :stream | 
+			          (NeoCSVReader on: stream)
+				          skipHeader;
+				          recordClass: Association;
+				          addSymbolField: #key:;
+				          addIntegerField: #value:;
+				          upToEnd ].
+		assocs
+			reject: [ :ass | ass key beginsWith: '#(' ]
+			thenDo: [ :ass | 
+				data at: ass key ifAbsentPut: [ Dictionary new ].
+				(data at: ass key) at: filename put: ass value ] ].
+	x := 1 to: filenames size.
+	c := RSChart new.
+	c extent: data size * 15 * filenames size @ 200.
+	lb := RSLegend new.
+	lb container: c canvas.
+	size := 10.
+	lb title: 'Grammars'.
+	data associations doWithIndex: [ :assoc :index | 
+		| plot color serie |
+		serie := filenames collect: [ :fn | 
+			         assoc value at: fn ifAbsent: [ 0 ] ].
+		c addPlot: (plot := RSBarPlot new x: x y: serie).
+		color := plot computeColor.
+		plot barSize: size.
+		plot barOffset: index - (data size + 1 / 2) * size.
+		lb text: assoc key withBoxColor: color ].
+	c addDecoration: (RSHorizontalTick new
+			 fromNames: filenames;
+			 labelRotation: 0).
+	c addDecoration: (RSVerticalTick new numberOfTicks: 5).
+	c ylabel: 'Frequency'.
+	"c xlabel: filenames."
+	c build.
+	lb layout horizontal.
+	lb legendDo: [ :shape | 
+		shape
+			withBorder;
+			scaleBy: 0.6 ].
+	lb location inner offset: 0 @ 20.
+	"right; middle;"
+	lb build.
+
+	^ c canvas
+]
+
+{ #category : #'as yet unclassified' }
+GEGrammarEvolution >> barChartM: filenames [
+
+	| data x c lb size names series |
+	names := filenames collect: [ :st | 
+		         ('.' split: ('/' split: st) last) first ].
+	data := Dictionary new.
+	filenames doWithIndex: [ :filename :index | 
+		| assocs |
+		assocs := filename asFileReference readStreamDo: [ :stream | 
+			          (NeoCSVReader on: stream)
+				          skipHeader;
+				          recordClass: Association;
+				          addSymbolField: #key:;
+				          addIntegerField: #value:;
+				          upToEnd ].
+		assocs
+			reject: [ :ass | ass key beginsWith: '#(' ]
+			thenDo: [ :ass | 
+				data at: ass key ifAbsentPut: [ Dictionary new ].
+				(data at: ass key) at: (names at: index) put: ass value ] ].
+	x := 1 to: data keys size.
+	c := RSChart new.
+	c extent: data size * 15 * filenames size @ 200.
+	lb := RSLegend new.
+	lb container: c canvas.
+	size := 10.
+	lb title: 'Grammars'.
+	series := names collect: [ :i | OrderedCollection new ].
+	data associationsDo: [ :assoc | 
+		names doWithIndex: [ :name :index | 
+			(series at: index) add: (assoc value at: name ifAbsent: [ 0 ]) ] ].
+	series doWithIndex: [ :serie :index | 
+		| plot color |
+		c addPlot: (plot := RSBarPlot new x: x y: serie).
+		color := plot computeColor.
+		plot barSize: size.
+		plot barOffset: index - (names size + 1 / 2) * size.
+		lb text: (names at: index) withBoxColor: color ].
+	c addDecoration: (RSHorizontalTick new
+			 fromNames: data keys;
+			 useVerticalLabel).
+	c addDecoration: (RSVerticalTick new numberOfTicks: 5).
+	c ylabel: 'Frequency'.
+	"c xlabel: filenames."
+	c build.
+	"lb layout horizontal."
+	lb legendDo: [ :shape | 
+		shape scaleBy: 0.6
+		"withBorder;" ].
+	lb location
+		outer;
+		right;
+		middle;
+		offset: 10 @ 0.
+	lb build.
+
+	^ c canvas
+]
 
 { #category : #operations }
 GEGrammarEvolution >> ensureDirectory [
@@ -59,9 +174,32 @@ GEGrammarEvolution >> exportResult: engine on: filename [
 				flush ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+GEGrammarEvolution >> exportSelectedOptions: configuration [
+
+	| collection filename |
+	collection := configuration dictSelectedOptions values flatCollect: [ 
+		              :dict | 
+		              dict associations collect: [ :ass | 
+			              Array with: ass key with: ((ass value / configuration populationSize) asFloat round: 3) ] ].
+	filename := self pathname: configuration given: #fileOptionsName:.
+	filename asFileReference ensureDelete.
+	filename asFileReference writeStreamDo: [ :writeStream | 
+		(NeoCSVWriter on: writeStream)
+			writeHeader: #( #OptionRule #Frequency );
+			nextPutAll: collection ]
+]
+
 { #category : #accessing }
-GEGrammarEvolution >> fileName: engine [
-	^ self subclassResponsibility 
+GEGrammarEvolution >> fileName: configuration [
+
+	^ self subclassResponsibility
+]
+
+{ #category : #accessing }
+GEGrammarEvolution >> fileOptionsName: configuration [
+
+	^ configuration class name , '.csv'
 ]
 
 { #category : #accessing }
@@ -87,13 +225,13 @@ GEGrammarEvolution >> initialize [
 ]
 
 { #category : #private }
-GEGrammarEvolution >> pathName: engine [
+GEGrammarEvolution >> pathname: configuration given: selector [
 
 	self ensureDirectory.
 	^ String streamContents: [ :stream | 
 		  stream
 			  nextPutAll: self folderName;
-			  nextPutAll: (self fileName: engine) ]
+			  nextPutAll: (self perform: selector with: configuration) "(self fileName: configuration)" ]
 ]
 
 { #category : #accessing }
@@ -119,7 +257,11 @@ GEGrammarEvolution >> run: configuration [
 	engine := GEEngine new
 		          configuration: configuration;
 		          run.
-	self exportResult: engine on: (self pathName: engine).
+	self
+		exportResult: engine
+		on: (self pathname: configuration given: #fileName:).
+	self exportSelectedOptions: configuration.
+	ruleOptionsNames := configuration ruleOptionsNames.
 	populations := self populations: engine.
 	^ engine
 ]

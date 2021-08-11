@@ -18,6 +18,8 @@ GEAssertionGeneratorG1 >> addRulesGivenInstanceVariables: collection [
 		ofType: RBMessageNode
 		andSequence: #( #Inclusion #Not );
 		addRule: #Method withValues: #( #Inclusion #NegativeInclusion );
+		addSelectorTerminal: #Includes withValues: #( #includes: );
+		addSelectorTerminal: #Not withValues: #( #not );
 		addTerminal: #InstanceVar
 		ofType: RBVariableNode
 		andValues: collection
@@ -41,6 +43,9 @@ GEAssertionGeneratorG1 >> builtAssertionGrammar [
 		  andSequence: #( #Variable #Comparison #Integer );
 		  addNonTerminal: #Method
 		  ofType: RBMessageNode
+		  andSequence: #( #Variable #Equal #Class );
+		  addNonTerminal: #Method
+		  ofType: RBMessageNode
 		  andSequence: #( #Method #And #Block );
 		  addNonTerminal: #Block
 		  ofType: RBBlockNode
@@ -50,17 +55,16 @@ GEAssertionGeneratorG1 >> builtAssertionGrammar [
 		  withValues:
 			  #( #isString #isInteger #isFloat #isNumber #isFinite #isCharacter
 			     #isCollection #isArray #isSymbol #isColor #isBlock #isEmpty
-			     #notEmpty #isNil #notNil #positive #negative #isPoint )
+			     #notEmpty #isNil #notNil #positive #negative #isPoint #isStream )
 				  asOrderedCollection;
 		  addSelectorTerminal: #Message1
 		  withValues: #( #isKindOf: #isMemberOf: );
-		  addSelectorTerminal: #Includes withValues: #( #includes: );
 		  addSelectorTerminal: #Satisfy
 		  withValues: #( #allSatisfy: #noneSatisfy: #anySatisfy: );
 		  addSelectorTerminal: #Comparison
 		  withValues: #( #= #== #> #< #<= #>= );
+		  addSelectorTerminal: #Equal withValues: #( #== );
 		  addSelectorTerminal: #And withValues: #( #and: );
-		  addSelectorTerminal: #Not withValues: #( #not );
 		  addTerminal: #Integer
 		  ofType: RBLiteralNode
 		  andValues: (-1 to: 1) asOrderedCollection;

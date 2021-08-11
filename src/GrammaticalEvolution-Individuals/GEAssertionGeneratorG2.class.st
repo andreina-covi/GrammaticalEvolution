@@ -31,9 +31,6 @@ GEAssertionGeneratorG2 >> addRulesGivenInstanceVariables: collection [
 		ofType: RBMessageNode
 		andSequence: #( #Inclusion #Not );
 		addRule: #Method withValues: #( #Inclusion #NegativeInclusion );
-		addNonTerminal: #Method
-		ofType: RBMessageNode
-		andSequence: #( #Method #And #Block );
 		addSelectorTerminal: #Not withValues: #( #not );
 		addSelectorTerminal: #Includes withValues: #( #includes: );
 		addTerminal: #InstanceVar

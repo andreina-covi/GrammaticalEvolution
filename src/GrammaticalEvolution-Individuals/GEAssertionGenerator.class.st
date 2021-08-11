@@ -20,7 +20,8 @@ Class {
 { #category : #adding }
 GEAssertionGenerator >> addRulesGivenInstanceVariables: collection [
 
-	grammar
+	self subclassResponsibility 
+	"grammar
 		addNonTerminal: #Method
 		ofType: RBMessageNode
 		andSequence: #( #Variable #Comparison #InstanceVar );
@@ -35,7 +36,7 @@ GEAssertionGenerator >> addRulesGivenInstanceVariables: collection [
 		addSelectorTerminal: #Not withValues: #( #not );
 		addTerminal: #InstanceVar
 		ofType: RBVariableNode
-		andValues: collection
+		andValues: collection"
 ]
 
 { #category : #adding }
@@ -74,7 +75,8 @@ GEAssertionGenerator >> buildGrammar [
 { #category : #building }
 GEAssertionGenerator >> builtAssertionGrammar [
 
-	^ GEGrammar new
+	^ self subclassResponsibility 
+	"^ GEGrammar new
 		  addNonTerminal: #Method
 		  ofType: RBMessageNode
 		  andSequence: #( #Variable #Message );
@@ -119,7 +121,7 @@ GEAssertionGenerator >> builtAssertionGrammar [
 		  andValues:
 			  #( #ByteString #Point #Character #Symbol #SmallInteger
 			     #Number #SmallFloat64 #Boolean #Collection #Array #BlockClosure
-			     #Dictionary #Set #OrderedCollection ) asOrderedCollection
+			     #Dictionary #Set #OrderedCollection ) asOrderedCollection"
 ]
 
 { #category : #accessing }
