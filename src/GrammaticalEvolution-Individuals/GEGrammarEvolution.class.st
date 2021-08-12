@@ -172,7 +172,7 @@ GEGrammarEvolution >> exportEvolutionInfo: engine [
 								               configuration dictErrors
 									               at: str
 									               ifAbsent: [ 0 ] ]);
-									add: engine logs size;
+					              add: engine logs size;
 					              yourself ] ].
 	filename := self pathname: configuration given: #fileOptionsName:.
 	filename asFileReference ensureDelete.
@@ -257,13 +257,13 @@ GEGrammarEvolution >> initialize [
 ]
 
 { #category : #private }
-GEGrammarEvolution >> pathname: configuration given: selector [
+GEGrammarEvolution >> pathname: object given: selector [
 
 	self ensureDirectory.
 	^ String streamContents: [ :stream | 
 		  stream
 			  nextPutAll: self folderName;
-			  nextPutAll: (self perform: selector with: configuration) "(self fileName: configuration)" ]
+			  nextPutAll: (self perform: selector with: object) "(self fileName: configuration)" ]
 ]
 
 { #category : #accessing }

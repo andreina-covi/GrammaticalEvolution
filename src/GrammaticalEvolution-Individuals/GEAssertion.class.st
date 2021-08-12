@@ -198,9 +198,16 @@ GEAssertion >> fileName: configuration [
 ]
 
 { #category : #accessing }
-GEAssertion >> fileOptionsName: confClass [
+GEAssertion >> fileOptionsName: configuration [
 
-	^ configurationClass name , '.csv'
+	^ String streamContents: [ :stream | 
+		  stream
+			  nextPutAll: configuration targetClass name;
+			  nextPut: $_;
+			  nextPutAll: (configuration targetSelector copyReplaceAll: ':' with: '');
+			  nextPut: $_;
+			  nextPutAll: configurationClass name;
+			  nextPutAll: '.csv' ]
 ]
 
 { #category : #'as yet unclassified' }
