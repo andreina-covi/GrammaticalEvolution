@@ -285,10 +285,13 @@ GEGrammarEvolution >> run [
 { #category : #running }
 GEGrammarEvolution >> run: configuration [
 
-	| engine |
+	| engine startTime endTime |
+	startTime := Time millisecondClockValue.
 	engine := GEEngine new
 		          configuration: configuration;
 		          run.
+	endTime := Time millisecondClockValue.
+	engine executionTime: endTime - startTime.
 	self
 		exportResult: engine
 		on: (self pathname: configuration given: #fileName:).
@@ -298,7 +301,7 @@ GEGrammarEvolution >> run: configuration [
 	^ engine
 ]
 
-{ #category : #'instance creation' }
+{ #category : #accessing }
 GEGrammarEvolution >> seed: integer [
 
 	self assert: (integer isNumber and: [ integer positive ]).

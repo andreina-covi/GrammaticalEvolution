@@ -55,7 +55,7 @@ GEAssertionGeneratorG3 >> builtAssertionGrammar [
 		  andSequence: #( #Variable #Satisfy #Message );
 		  addNonTerminal: #Method
 		  ofType: RBMessageNode
-		  andSequence: #( #Variable #Comparison #Integer );
+		  andSequence: #( #Variable #Comparison #Number );
 		  addNonTerminal: #Method
 		  ofType: RBMessageNode
 		  andSequence: #( #Variable #Equal #Class );
@@ -80,9 +80,12 @@ GEAssertionGeneratorG3 >> builtAssertionGrammar [
 		  withValues: #( #= #== #> #< #<= #>= );
 		  addSelectorTerminal: #Equal withValues: #( #== );
 		  addSelectorTerminal: #And withValues: #( #and: );
-		  addTerminal: #Integer
+		  addTerminal: #Number
 		  ofType: RBLiteralNode
-		  andValues: (-1 to: 1) asOrderedCollection;
+		  andValues: (Set new
+				   addAll: (-10 to: 10);
+				   addAll: (-10.6 to: 10.6 count: 15);
+				   yourself) asOrderedCollection;
 		  addTerminal: #Class
 		  ofType: RBVariableNode
 		  andValues:

@@ -30,7 +30,7 @@ GEAssertionGeneratorG2Test >> testCount [
 	self assert: (grammar countValueRule: #Message1) equals: 342. "2 * 19 * 9"
 	self assert: (grammar countValueRule: #Satisfy) equals: 1026. "3 * 2 * 19 * 9"
 	self assert: (grammar countValueRule: #Comparison) equals: 6156. "6 * 3 * 2 * 19 * 9"
-	self assert: (grammar countValueRule: #Integer) equals: 18468. "3 * 6 * 3 * 2 * 19 * 9"
+	self assert: (grammar countValueRule: #Number) equals: 18468. "3 * 6 * 3 * 2 * 19 * 9"
 	self assert: (grammar countValueRule: #Class) equals: 258552. "14 * 3 * 6 * 3 * 2 * 19 * 9"
 	self assert: (grammar countValueRule: #InstanceVar) equals: 1.
 	self assert: (grammar countValueRule: #Variable) equals: 1

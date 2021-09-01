@@ -29,7 +29,7 @@ GEAssertionGeneratorTest >> testCount [
 	self assert: (grammar countValueRule: #Message1) equals: 2.
 	self assert: (grammar countValueRule: #Satisfy) equals: 3.
 	self assert: (grammar countValueRule: #Comparison) equals: 6.
-	self assert: (grammar countValueRule: #Integer) equals: 3.
+	self assert: (grammar countValueRule: #Number) equals: 3.
 	self assert: (grammar countValueRule: #Class) equals: 14.
 	self assert: (grammar countValueRule: #InstanceVar) equals: 1.
 	self assert: (grammar countValueRule: #Variable) equals: 1

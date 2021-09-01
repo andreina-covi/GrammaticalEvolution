@@ -12,7 +12,8 @@ Class {
 		'random',
 		'options',
 		'packageScope',
-		'configurationClass'
+		'configurationClass',
+		'results'
 	],
 	#category : #'GrammaticalEvolution-Individuals-Assertion'
 }
@@ -28,6 +29,22 @@ GEAssertion >> addClassesOptions [
 			self
 				addOptions: ((self classes: packageScope) collect: #name)
 				at: #Class -> 'terminal' ]
+]
+
+{ #category : #adding }
+GEAssertion >> addDataOfNameSelectors: dictionary given: node [
+
+	| selectorNodes dict |
+	selectorNodes := node withAllChildren select: #isTerminalSelectorNode.
+	dict := selectorNodes groupedBy: #id.
+	dict associationsDo: [ :assoc | 
+		| val |
+		val := dictionary at: assoc key ifAbsent: [ 0 ].
+		dictionary at: assoc key put: val + assoc value size ].
+	dict at: #Satisfy ifPresent: [ :val | 
+		| messageVal |
+		messageVal := dictionary at: #Message ifAbsent: [ 0 ].
+		dictionary at: #Message put: messageVal - val size ]
 ]
 
 { #category : #adding }
@@ -183,6 +200,66 @@ GEAssertion >> countErrors: selector given: protocol and: block [
 	^ Array with: res with: objects
 ]
 
+{ #category : #'as yet unclassified' }
+GEAssertion >> exportResults [
+	
+	results ifNotEmpty: [ 
+		'/tmp/resultsGE.csv' asFileReference writeStreamDo: [ :stream | 
+			(NeoCSVWriter on: stream)
+				nextPut:
+					#( Class nMethods nTestErrors nCalledMeths nSatisfactoryAsserts
+					   nEvolvedAsserts nSatisfactoryEvols Message Message1 Satisfy
+					   Comparison And );
+				nextPutAll: results;
+				flush ] ]
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertion >> exportSummaryEvolution [
+
+	| dict configurationName |
+	self assert: data notEmpty.
+	self assert: metrics notEmpty.
+	configurationName := ''.
+	dict := targetSelectors
+		        collect: [ :s | 
+			        | best e |
+			        e := data at: s ifAbsent: [ nil ].
+			        [ 
+			        best := e pickBestIndividual.
+			        configurationName ifEmpty: [ 
+				        configurationName := e configuration class name ].
+			        OrderedCollection new
+						  add: 'GE';
+						  add: (configurationName last: 2);
+				        add: e configuration targetClass;
+				        add: s;
+				        add: e configuration failureNumber;
+				        add: ((metrics at: 'errorsNumber') at: s);
+				        add: ((metrics at: 'callsNumber') at: s);
+				        add: best asString;
+				        add: e logs first bestFitnessValue asNumber asString;
+				        add: best fitness asNumber asString;
+				        add: e executionTime asString;
+				        yourself ]
+				        on: Exception
+				        do: [ :err | nil ] ]
+		        thenSelect: [ :d | d notNil ].
+
+	dict ifNotEmpty: [ 
+		((folderToExport
+			  ifEmpty: [ '' ]
+			  ifNotEmpty: [ folderToExport , '/' ]) , 'GESummaryEvolution_'
+		 , configurationName , '.csv') asFileReference writeStreamDo: [ 
+			:stream | 
+			(NeoCSVWriter on: stream)
+				nextPut:
+					#(Algorithm Grammar Class Method TestErrors Errors Calls Result FstFitness
+					   LstFitness Milliseconds );
+				nextPutAll: dict;
+				flush ] ]
+]
+
 { #category : #private }
 GEAssertion >> fileName: configuration [
 
@@ -251,7 +328,8 @@ GEAssertion >> initialize [
 	random := GERandom seed: seed.
 	randomIterationNumber := 100.
 	contextBlocks := OrderedCollection new.
-	configurationClass := GEAssertionGenerator 
+	configurationClass := GEAssertionGenerator.
+	results := OrderedCollection new
 ]
 
 { #category : #'as yet unclassified' }
@@ -265,30 +343,33 @@ GEAssertion >> injectInto: tSelector given: originalMethod [
 ]
 
 { #category : #accessing }
-GEAssertion >> objects [ 
+GEAssertion >> objects [
+
 	^ OrderedCollection new
-			           add: nil;
-			           add: Color blue;
-			           add: #(  );
-			           add: '';
-			           add: 'hello';
-			           add: Dictionary new;
-			           add: (-1000 to: 1000) asArray;
-			           add: 0;
-			           add: -1;
-			           add: 1;
-			           add: OrderedCollection new;
-			           add: -1.0;
-			           add: 1.0;
-			           add: #r;
-			           add: $5;
-			           add: [  ];
-			           add: true;
-			           add: false;
-			           add: Object new;
-			           add: ((1 to: 1000) collect: [ :n | 
-						            random randomlySelect: String loremIpsum substrings ]);
-			           yourself
+		  add: nil;
+		  add: Color blue;
+		  add: #(  );
+		  add: '';
+		  add: 'hello';
+		  add: Dictionary new;
+		  add: (-1000 to: 1000) asArray;
+		  addAll: (-10 to: 10);
+		  addAll: (-10.6 to: 10.6 count: 15);
+		  "add: 0;
+		  add: -1;
+		  add: 1;"
+		  add: OrderedCollection new;
+		  "add: -1.0;
+		  add: 1.0;"
+		  add: #r;
+		  add: $5;
+		  add: [  ];
+		  add: true;
+		  add: false;
+		  add: Object new;
+		  add: ((1 to: 1000) collect: [ :n | 
+					   random randomlySelect: String loremIpsum substrings ]);
+		  yourself
 ]
 
 { #category : #accessing }
@@ -313,7 +394,9 @@ GEAssertion >> run [
 	associations := self getSelectorCandidates.
 	data := Dictionary newFromAssociations:
 		        (associations collect: [ :assoc | 
-			         assoc key -> (self run: assoc value) "(self getBestIndividual: assoc value)" ]).
+			         assoc key -> (self run: assoc value).
+			         "(self getBestIndividual: assoc value)" ]).
+	self summaryOfEvolution
 	"self exportResultsOfData"
 ]
 
@@ -351,6 +434,48 @@ GEAssertion >> selectors: classes [
 	^ (classes flatCollect: [ :cls | 
 		   (cls methodsInProtocol: #testing) collect: #selector ]) 
 	select: [  :s | s numArgs == 0 ]
+]
+
+{ #category : #'as yet unclassified' }
+GEAssertion >> summaryOfEvolution [
+
+	| col nCalledMets nSuccMets nEvolMets nSuccEvolMets dictMessages numFailures |
+	col := OrderedCollection new
+		       add: targetClass name;
+		       add: targetSelectors size;
+		       yourself.
+	numFailures := 0.
+	dictMessages := Dictionary new.
+	nCalledMets := nSuccMets := nEvolMets := nSuccEvolMets := 0.
+	data associationsDo: [ :assoc | 
+		| eng |
+		eng := assoc value.
+		((metrics at: 'callsNumber') at: assoc key) > 0 ifTrue: [ 
+			| bestFitness bestIndiv |
+			nCalledMets := nCalledMets + 1.
+			(eng population isEmpty or: [ eng population allSatisfy: #isNil ]) 
+				ifFalse: [ 
+					numFailures := eng configuration failureNumber.
+					bestFitness := eng logs first bestFitnessValue.
+					bestIndiv := eng pickBestIndividual.
+					bestIndiv fitness == 0 ifTrue: [ nSuccMets := nSuccMets + 1 ].
+					bestFitness > bestIndiv fitness ifTrue: [ 
+						nEvolMets := nEvolMets + 1.
+						bestIndiv fitness == 0 ifTrue: [ 
+							nSuccEvolMets := nSuccEvolMets + 1 ] ].
+					self addDataOfNameSelectors: dictMessages given: bestIndiv ] ] ].
+	col
+		add: numFailures;
+		add: nCalledMets;
+		add: nSuccMets;
+		add: nEvolMets;
+		add: nSuccEvolMets;
+		add: (dictMessages at: #Message ifAbsent: [ 0 ]);
+		add: (dictMessages at: #Message1 ifAbsent: [ 0 ]);
+		add: (dictMessages at: #Satisfy ifAbsent: [ 0 ]);
+		add: (dictMessages at: #Comparison ifAbsent: [ 0 ]);
+		add: (dictMessages at: #And ifAbsent: [ 0 ]).
+	results add: col
 ]
 
 { #category : #accessing }

@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'logs',
 		'population',
-		'configuration'
+		'configuration',
+		'executionTime'
 	],
 	#category : #'GrammaticalEvolution-Core'
 }
@@ -71,6 +72,16 @@ GEEngine >> createNewGeneration [
 	population := newPopulation
 ]
 
+{ #category : #accessing }
+GEEngine >> executionTime [
+	^ executionTime 
+]
+
+{ #category : #accessing }
+GEEngine >> executionTime: number [
+	executionTime := number
+]
+
 { #category : #building }
 GEEngine >> fitnessValueOf: individual [
 
@@ -81,7 +92,8 @@ GEEngine >> fitnessValueOf: individual [
 GEEngine >> initialize [
 
 	population := OrderedCollection new.
-	logs := OrderedCollection new
+	logs := OrderedCollection new.
+	executionTime := 0
 ]
 
 { #category : #accessing }
@@ -108,6 +120,11 @@ GEEngine >> pickEliteOfPopulation [
 	^ OrderedCollection new
 		  add: copy;
 		  yourself
+]
+
+{ #category : #accessing }
+GEEngine >> population [
+	^ population
 ]
 
 { #category : #building }

@@ -234,6 +234,11 @@ GEAssertionGenerator >> crossoverJoining: object1 and: object2 [
 ]
 
 { #category : #accessing }
+GEAssertionGenerator >> failureNumber [
+	^ failureNumber
+]
+
+{ #category : #accessing }
 GEAssertionGenerator >> failureNumber: number [
 	self assert: (number isInteger and: [number positive]).
 	failureNumber := number
