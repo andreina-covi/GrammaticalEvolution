@@ -104,8 +104,8 @@ GEAssertionGeneratorG2 >> builtAssertionGrammar [
 		  addTerminal: #Number
 		  ofType: RBLiteralNode
 		  andValues: (Set new
-				   addAll: (-10 to: 10);
-				   addAll: (-10.6 to: 10.6 count: 15);
+				   addAll: (-1 to: 1);
+				   addAll: (-2.3 to: 1.6 count: 4);
 				   yourself) asOrderedCollection 
 		  timesGiven: #( #Comparison );
 		  addTerminal: #Class
